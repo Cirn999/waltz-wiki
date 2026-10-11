@@ -45,6 +45,9 @@ export default defineConfig(async () => {
   const { cloudflare } = await import('@cloudflare/vite-plugin');
 
   return {
+    // Static hosting only: use Vite's asset base, not Next's route basePath.
+    // vinext's static prerenderer visits '/' even when basePath is configured.
+    base: process.env.ARCHIVE_BASE_PATH ? `${process.env.ARCHIVE_BASE_PATH}/` : '/',
     css: { postcss: { plugins: [tailwindcss()] } },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }

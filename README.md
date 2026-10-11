@@ -2,6 +2,25 @@
 
 《钢铁华尔兹》资料查询与配装辅助网页，收录钢舞姬、装备、科技、研发、关卡、剧情、任务和地形等资料。
 
+## 在线访问
+
+[打开钢舞姬战术档案库](https://cirn999.github.io/waltz-wiki/)
+
+网站使用 GitHub Pages 免费静态托管，不需要运行个人服务器。推送更新到 `main` 后，GitHub Actions 会自动校验、构建并发布；也可在 Actions 中手动运行 `Publish archive to GitHub Pages`。只有 `dist/client` 静态网页会部署，不包含 APK、原始游戏文件或发布压缩包。
+
+Pages 专用构建使用 `/waltz-wiki` 路径前缀，并且只调整构建产物里的素材与数据链接，不修改源数据。可本地验证：
+
+```sh
+cd steel-maiden-browser
+npm ci
+npm run build:pages
+npm run verify:pages
+```
+
+`npm run audit:pages` 会启动只支持 `/waltz-wiki/` 的临时服务器，检查各模块、筛选器、详情页、素材请求及手机尺寸刷新（需先运行 `npx playwright install chromium --only-shell`）。发布工作流也会运行这些检查。
+
+本地启动器/离线版继续使用下面的普通构建命令，不要使用 Pages 产物。
+
 ## 本地运行
 
 需要 Node.js 22.13 或更新版本（建议 Node.js 24）。网页所需的整理后数据及图片已随仓库提供，运行和构建无需 APK，也无需先执行数据提取脚本。
