@@ -1,0 +1,30 @@
+.ammo-efficiency {
+  display: grid;
+  grid-template-columns: 1fr;
+  flex: 0 0 52px;
+  width: 52px;
+  min-width: 52px;
+  align-self: center;
+  gap: 2px;
+  color: inherit;
+}
+.ammo-efficiency .ammo-efficiency-item {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  height: 22px;
+  white-space: nowrap;
+}
+.ammo-efficiency .ammo-efficiency-item img { display: block; width: 22px; height: 20px; object-fit: contain; }
+.ammo-efficiency .ammo-efficiency-item b { font: 750 10px/1.2 ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; text-align: right; }
+/* Explicit grid columns reserve space for the full two-row efficiency badge.
+   Long names wrap in their own column, never underneath the icons or rank. */
+.ammo-card-ammunition .ammo-title-row { grid-template-columns: 48px minmax(0, 1fr) 52px 24px; gap: 6px; }
+.ammo-list:not(.ammo-list-compact) .ammo-card-ammunition .ammo-title-row { grid-template-columns: 58px minmax(0, 1fr) 52px 28px; }
+.ammo-card-ammunition .ammo-title strong { white-space: normal; overflow-wrap: anywhere; }
+.ammo-card-ammunition .ammo-title small { overflow-wrap: anywhere; }
+.technology-detail-dialog > header > div { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.technology-detail-dialog > header > .technology-detail-icon { flex: none; }
+.technology-detail-dialog > header > .ammo-efficiency { margin-right: 24px; }

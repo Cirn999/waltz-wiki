@@ -1,0 +1,117 @@
+.maiden-quotes {
+  min-width: 0;
+}
+.maiden-quotes-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.maiden-quotes-heading h3 { margin: 0; }
+.maiden-quotes-heading small { color: #6a7c70; font-size: 11px; }
+.maiden-quotes-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+  border-radius: 12px;
+  background: #e8ede3;
+}
+.maiden-quotes-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #53665a;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.maiden-quotes-tabs button[aria-selected="true"] {
+  background: #19342a;
+  color: #d8ff72;
+  box-shadow: 0 2px 6px #18332915;
+}
+.maiden-quotes-tabs button span {
+  font-size: 10px;
+  font-weight: 500;
+  opacity: .78;
+}
+.maiden-quotes button:focus-visible,
+.maiden-quotes summary:focus-visible,
+.maiden-quotes-panel:focus-visible {
+  outline: 2px solid #759b24;
+  outline-offset: 3px;
+}
+.maiden-quotes-panel { padding-top: 18px; }
+.maiden-quotes-groups { display: grid; gap: 16px; }
+.maiden-quotes-groups.is-battle { display: block; columns: 2; column-gap: 20px; }
+.maiden-quotes-groups.is-battle .maiden-quote-group { break-inside: avoid; margin-bottom: 16px; }
+.maiden-quote-group { min-width: 0; }
+.maiden-quote-group h4 {
+  margin: 0 0 8px;
+  color: #59762c;
+  font-size: 12px;
+}
+.maiden-quotes ol { margin: 0; padding: 0; list-style: none; }
+.maiden-quote-group li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #dce4d7;
+  border-radius: 9px;
+  background: #f8faf5;
+}
+.maiden-quote-group li + li { margin-top: 7px; }
+.maiden-quote-number { flex: 0 0 19px; color: #8c9d7e; font-size: 11px; }
+.maiden-quote-group p,
+.maiden-quotes-empty {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.maiden-quotes-empty { color: #778477; padding: 12px 0; }
+.maiden-quotes-empty button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: 1px solid #bfcdb5;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.maiden-recruitment-story {
+  margin-top: 16px;
+  border: 1px solid #d3dfc7;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.maiden-recruitment-story summary {
+  padding: 14px;
+  background: #edf3e5;
+  cursor: pointer;
+  font-size: 13px;
+}
+.maiden-recruitment-story summary span { margin-left: 12px; font-size: 11px; color: #6a7c70; }
+.maiden-recruitment-story .story-chat {
+  /* Inline reader uses the detail page's scroll, not a second fixed-height viewport. */
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  scrollbar-gutter: auto;
+  padding: 8px clamp(12px, 3vw, 36px) 24px;
+}
+@media (max-width: 720px) {
+  .maiden-quotes-heading { gap: 6px; }
+  .maiden-quotes-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .maiden-quotes-groups.is-battle { columns: 1; }
+  .maiden-quotes-tabs button { font-size: 12px; gap: 6px; }
+  .maiden-recruitment-story summary span { display: block; margin: 5px 0 0 16px; }
+}

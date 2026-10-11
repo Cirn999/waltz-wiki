@@ -1,0 +1,23 @@
+/* StampUI: Head_Square, RareType slot 4 (frame), slot 5 (chevrons),
+   and RaceInfo -> ArrangedStyle CLASS_SMALL_ICON. Keep sprite alpha intact. */
+.table-avatar.table-game-avatar{position:relative;isolation:isolate;display:block;width:82px;height:82px;margin:auto;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
+.table-avatar.table-game-avatar img{position:absolute;display:block;object-fit:fill}
+.table-game-avatar .table-portrait-frame{inset:0;width:100%;height:100%;z-index:0}
+.table-game-avatar .table-portrait-head{left:5%;top:5%;width:90%;height:90%;z-index:1}
+.table-game-avatar .table-portrait-rarity{left:5.8%;top:5.3%;width:17.5%;height:auto;z-index:3}
+.table-avatar.table-game-avatar>.table-portrait-fallback{position:absolute;left:5%;top:5%;width:90%;height:90%;z-index:1;background:transparent;color:#e8ede6}
+/* Frame 109x102, mask 95x21, anchor (50%,0%), position (109/2,4).
+   CLASS_SMALL_ICON is a child of the mask centered at (12,21/2). */
+.table-game-avatar .table-portrait-bottom{position:absolute;left:6.422%;bottom:3.922%;width:87.156%;height:20.588%;z-index:2;display:block;background:transparent}
+.table-game-avatar .table-portrait-mask{inset:0;width:100%;height:100%}
+.table-game-avatar .table-portrait-class{left:12.632%;top:50%;width:auto;height:71.429%;transform:translate(-50%,-50%);object-fit:contain;z-index:3}
+.table-game-avatar .table-portrait-cost{position:absolute;right:1.5%;top:50%;transform:translateY(-50%);z-index:4;color:#fff;font:900 13px/1.1 Arial,sans-serif;letter-spacing:-.3px;white-space:nowrap;text-shadow:1px 1px 1px #111,-1px -1px 1px #111,1px -1px 1px #111,-1px 1px 1px #111,0 2px 3px #111}
+.configurable-maiden-table .table-tank-follow{min-height:82px}
+.configurable-maiden-table .table-tank-link{max-width:100%;min-width:0}
+.configurable-maiden-table .table-tank-link .table-person-name{display:block;margin-top:4px;color:#728078;font-size:11px;line-height:1.45;font-weight:400;white-space:normal;overflow-wrap:anywhere}
+/* Share actual column widths with the header, body and total-width calculation. */
+.configurable-maiden-table{--table-avatar-column-width:116px;--table-name-column-width:210px}
+.configurable-maiden-table .table-shell .maiden-table,.configurable-maiden-table .table-body-chunks{min-width:0}
+.configurable-maiden-table .table-shell .maiden-table .column-id{width:var(--table-avatar-column-width)!important;min-width:var(--table-avatar-column-width)!important;left:0!important}
+.configurable-maiden-table .table-shell .maiden-table .column-tank{width:var(--table-name-column-width)!important;min-width:var(--table-name-column-width)!important;left:var(--table-avatar-column-width)!important}
+@media(max-width:620px){.configurable-maiden-table{--table-avatar-column-width:96px;--table-name-column-width:185px}.table-avatar.table-game-avatar{width:78px;height:78px}.configurable-maiden-table .table-tank-follow{min-height:78px}.table-game-avatar .table-portrait-cost{font-size:12px}}

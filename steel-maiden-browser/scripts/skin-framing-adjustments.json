@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "regions": {
+    "61542": { "centerX": 0.55, "top": 0, "bottom": 0.92, "reason": "WZ-131 cake skin: foreground character, not the wide cake and hair accessories" },
+    "61551": { "centerX": 0.48, "top": 0, "bottom": 1, "reason": "Renault B1ter: center the standing character between the two wide tank parts" },
+    "61563": { "centerX": 0.44, "top": 0.05, "bottom": 0.99, "reason": "KV-5 gown: packed PNG dimensions disagree with plist; use the inspected character region, excluding cabinet and gun" },
+    "61580": { "centerX": 0.5, "top": 0.24, "bottom": 0.81, "reason": "Pill-Box: focus on the visible upper body rather than the large surrounding vehicle" }
+  },
+  "fitModels": {
+    "61508": "Compact chibi: keep the complete figure centered rather than anchored at the top",
+    "61511": "Compact non-humanoid: center the complete silhouette",
+    "61512": "Compact non-humanoid: center the complete silhouette",
+    "61513": "Compact non-humanoid: center the complete silhouette"
+  }
+}

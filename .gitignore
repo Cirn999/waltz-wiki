@@ -1,0 +1,48 @@
+# Dependencies, builds and local caches
+node_modules/
+.next/
+.vinext/
+.wrangler/
+.cache/
+.pnpm-store/
+dist/
+out/
+coverage/
+__pycache__/
+*.pyc
+*.tsbuildinfo
+*.log
+.DS_Store
+
+# Credentials and local environment
+.env*
+*.pem
+*.key
+.private/
+
+# Original game clients, archives and native binaries
+*.apk
+*.obb
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.exe
+*.dll
+*.so
+*.dat
+*.pak
+/patch/
+/files/
+/Resources/
+/package/
+/release/
+/outputs/
+/log/
+
+# Keep archive generator source only, not research dumps or raw captures
+/analysis_apk/*
+!/analysis_apk/tools/
+artifacts/
+work/

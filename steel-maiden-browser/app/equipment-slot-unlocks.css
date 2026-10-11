@@ -1,0 +1,35 @@
+.detail-equipment-slots .slot-unlock-chip {
+  gap: 5px;
+  min-height: 31px;
+  padding-right: 7px;
+}
+.slot-unlock-chip .slot-unlock-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.2;
+}
+.slot-unlock-chip .slot-unlock-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-left: auto;
+}
+.slot-unlock-stars, .slot-unlock-marks {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+.slot-unlock-chip .slot-unlock-stars img { width: 13px; height: 17px; }
+.slot-unlock-chip .slot-unlock-marks img { width: 20px; height: 20px; }
+.slot-unlock-chip .slot-unlock-marks b { color: #455a32; font-size: 11px; font-variant-numeric: tabular-nums; }
+.slot-unlock-chip img.slot-unlock-honor { width: 21px; height: 23px; }
+.slot-unlock-unknown { margin-left: auto; color: #758274; }
+@media (max-width: 560px) {
+  .detail-equipment-slots .slot-unlock-chip { gap: 3px; padding-right: 4px; }
+  .slot-unlock-chip .slot-unlock-badge { gap: 3px; }
+  .slot-unlock-chip .slot-unlock-stars img { width: 10px; height: 15px; }
+  .slot-unlock-chip .slot-unlock-marks img { width: 17px; height: 19px; }
+  .slot-unlock-chip img.slot-unlock-honor { width: 18px; height: 21px; }
+}

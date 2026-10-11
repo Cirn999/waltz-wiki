@@ -1,0 +1,185 @@
+.sim-backdrop { position: fixed; inset: 0; z-index: 80; overflow: auto; padding: 20px; background: #101c16dd; display: flex; align-items: flex-start; justify-content: center; }
+.sim-shell { width: min(1300px, 100%); min-width: 0; margin: auto 0; padding: 18px; border-radius: 20px; background: #f6faf2; color: #1b2e24; box-shadow: 0 30px 90px #07130a77; display: flex; flex-direction: column; }
+.sim-shell * { box-sizing: border-box; }
+.sim-shell button, .sim-shell input { font: inherit; }
+.sim-header { display: flex; align-items: center; gap: 16px; padding-bottom: 13px; }
+.sim-title { min-width: 0; min-height: 56px; display: flex; align-items: center; gap: 10px; flex: 1; }
+.sim-title > img { flex: none; object-fit: contain; }
+.sim-identity-nation { width: 56px; height: 56px; }
+.sim-identity-class { width: 46px; height: 50px; }
+.sim-assessments { flex: none; display: grid; grid-template-rows: repeat(2, 25px); gap: 3px; width: 26px; }
+.sim-assessment { display: flex; align-items: center; justify-content: center; }
+.sim-assessment img { display: block; width: 26px; height: 25px; object-fit: contain; }
+.sim-identity-names { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sim-identity-names strong { font-size: 22px; line-height: 1.2; overflow-wrap: anywhere; }
+.sim-identity-names em { color: #867017; font-style: normal; font-size: 15px; line-height: 1.35; overflow-wrap: anywhere; }
+.sim-top-controls { display: flex; align-items: center; gap: 8px; }
+.sim-top-controls label { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; color: #5c6d61; }
+.sim-top-controls input { width: 58px; height: 34px; border: 1px solid #d5e0d4; border-radius: 8px; background: #fff; color: #1b2e24; text-align: center; }
+.sim-top-controls button { min-height: 34px; padding: 5px 10px; border: 1px solid #d5e0d4; border-radius: 8px; background: #fff; color: #1b2e24; }
+.sim-top-controls .sim-share { background: #1b3025; border-color: #1b3025; color: #fff; }
+.sim-top-controls .sim-close { font-size: 24px; line-height: 20px; padding-inline: 9px; }
+.sim-stars { min-width: 42px; color: #b38a19; font-size: 18px; letter-spacing: -2px; }
+.sim-growth-status { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; padding: 7px 10px; border: 1px solid #d3dfd2; border-radius: 8px; background: #eef5e9; color: #49614f; font-size: 12px; }
+.sim-growth-status button { border: 1px solid #b9cbb7; border-radius: 5px; background: #fff; color: #254331; cursor: pointer; }
+.sim-stat-strip { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); overflow: hidden; border: 1px solid #d3dfd2; border-radius: 13px; background: #fff; margin-bottom: 13px; }
+.sim-stat { min-width: 0; min-height: 76px; padding: 9px 8px; border-right: 1px solid #dce5da; display: flex; flex-direction: column; justify-content: center; }
+.sim-stat:last-child { border: 0; }
+.sim-stat:nth-child(n+9) { background: #f0f7ec; }
+.sim-stat > span { display: flex; align-items: center; gap: 4px; color: #61736a; font-size: 11px; white-space: nowrap; }
+.sim-stat > span img { width: 16px; height: 16px; object-fit: contain; }
+.sim-stat strong { font-size: 20px; font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.sim-grade strong { color: #496c25; }
+.sim-grade small { color: #697a6e; font-size: 11px; }
+.sim-content-grid { display: grid; grid-template-columns: minmax(0, 1fr) 440px; grid-template-rows: auto auto; gap: 11px 13px; align-items: stretch; }
+.sim-panel { min-width: 0; border: 1px solid #d3dfd2; border-radius: 13px; padding: 13px; background: #fff; }
+.sim-build-panel, .sim-adjust-panel { display: grid; grid-row: 1 / span 2; grid-template-rows: subgrid; }
+.sim-build-panel { grid-column: 1; }
+.sim-adjust-panel { grid-column: 2; }
+.sim-build-main, .sim-adjust-main { display: flex; flex-direction: column; min-width: 0; }
+.sim-build-main .sim-craft-layout { flex: 1; }
+.sim-equipment-section, .sim-technology-section { min-width: 0; }
+.sim-technology-section { position: relative; }
+.sim-technology-section > .sim-panel-divider { position: absolute; top: -6px; left: 0; right: 0; margin: 0; }
+.sim-panel-heading { display: flex; align-items: center; gap: 8px; min-height: 22px; margin-bottom: 9px; }
+.sim-panel-heading h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.sim-panel-heading small { color: #697a70; font-size: 11px; }
+.sim-craft-layout { display: grid; grid-template-columns: 255px minmax(0, 1fr); gap: 12px; min-height: 359px; }
+.sim-portrait { height: 100%; min-height: 359px; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: flex-start; }
+.sim-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.sim-craft-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(176px, auto); gap: 7px; }
+.sim-craft-card { min-width: 0; display: flex; flex-direction: column; gap: 5px; padding: 7px; text-align: left; border: 1px solid #d9e3d8; border-radius: 9px; background: #f8fbf5; color: #1b2e24; cursor: pointer; }
+.sim-craft-card:hover, .sim-equipment-slot > button:hover { border-color: #a6c358; }
+.sim-craft-main { display: flex; align-items: center; width: 100%; min-width: 0; gap: 7px; }
+.sim-craft-art { flex: none; width: 56px; height: 56px; display: grid; place-items: center; border-radius: 7px; background: #e8f0e9; }
+.sim-craft-art img { max-width: 54px; max-height: 54px; object-fit: contain; }
+.sim-craft-copy { flex: 1; min-width: 0; }
+.sim-craft-copy small { display: block; color: #697a70; font-size: 11px; }
+.sim-craft-copy .sim-ammo-meta { display: flex; align-items: center; justify-content: space-between; gap: 3px; }
+.sim-craft-copy strong { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 12px; line-height: 1.25; }
+.sim-craft-main:has(.ammo-efficiency) .sim-craft-copy strong { display: block; overflow-wrap: anywhere; -webkit-line-clamp: unset; }
+.sim-craft-rank { align-self: flex-start; white-space: nowrap; color: #718468; font-size: 10px; }
+.sim-craft-details { display: flex; flex: 1; flex-direction: column; width: 100%; gap: 4px; min-width: 0; }
+.sim-craft-effects, .sim-craft-stats { display: flex; flex-wrap: wrap; gap: 3px 5px; min-width: 0; }
+.sim-craft-effects > span, .sim-craft-stats > span { display: inline-flex; align-items: center; min-width: 0; gap: 3px; white-space: nowrap; font-size: 10px; line-height: 17px; }
+.sim-craft-effects > span { padding: 1px 4px; border: 1px solid #d9e4d7; border-radius: 5px; background: #fff; }
+.sim-craft-effects b { overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.sim-craft-effects img, .sim-craft-stats img { width: 17px; height: 17px; flex: none; object-fit: contain; }
+.sim-craft-stats { min-height: 48px; margin-top: auto; padding-top: 4px; border-top: 1px dashed #dce5da; align-content: flex-start; }
+.sim-craft-stats > span { min-width: 48px; }
+.sim-craft-stats b { font-variant-numeric: tabular-nums; }
+.sim-craft-effects > .ammo-no-effect, .sim-craft-stats > .craft-stat-empty { padding: 0; border: 0; background: none; color: #78877c; font-weight: 400; }
+.sim-equipment-heading { margin-top: 0; }
+.sim-equipment-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+.sim-equipment-slot { min-width: 0; position: relative; }
+.sim-equipment-slot > button { display: block; width: min(100%, 76px); aspect-ratio: 1; min-height: 0; margin-inline: auto; position: relative; border: 1px solid #bac9bd; border-radius: 8px; background: linear-gradient(150deg, #3d4746, #151c1d); cursor: pointer; }
+.sim-equipment-slot.advanced > button { background: linear-gradient(145deg, #7483b7, #251e66); }
+.sim-equipment-slot > button > img:first-child { display: block; width: 76%; height: 76%; object-fit: contain; margin: auto; }
+.sim-equipment-slot.empty > button > img:first-child { width: 88%; height: 88%; }
+.sim-equipment-slot > button b { position: absolute; right: 3px; top: 2px; font-size: 12px; color: #ffe9ac; text-shadow: 1px 1px #251b12, -1px -1px #251b12; }
+.sim-equipment-slot > button .sim-slot-badge { position: absolute; bottom: 2px; left: 2px; width: 16px; height: 16px; object-fit: contain; background: #1b2b21aa; border-radius: 5px; }
+.sim-colonization-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.sim-colonization { min-width: 0; display: flex; align-items: center; gap: 4px; padding: 5px 7px; border: 1px solid #dce5da; border-radius: 8px; background: #f7faf5; }
+.sim-colonization img { width: 19px; height: 19px; object-fit: contain; }
+.sim-colonization span { flex: 1; white-space: nowrap; font-size: 12px; }
+.sim-colonization input { width: 40px; height: 28px; border: 1px solid #d3dfd3; border-radius: 6px; background: #fff; color: #1b2e24; text-align: center; }
+.sim-panel-divider { height: 1px; background: #dce5da; margin: 10px 0; }
+.sim-adjust-panel .sim-panel-divider { margin: 17px 0; }
+.sim-adjust-panel .sim-technology-section > .sim-panel-divider { margin: 0; }
+.sim-magic-list { flex: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sim-magic-row { min-width: 0; display: flex; flex-direction: column; gap: 7px; border: 1px solid #dce5da; border-radius: 9px; padding: 8px; background: #f8fbf5; }
+.sim-magic-select { display: flex; align-items: center; min-width: 0; gap: 7px; border: 0; background: none; color: #1b2e24; text-align: left; cursor: pointer; }
+.sim-magic-select { padding: 0; width: 100%; min-height: 64px; }
+.sim-magic-select > span:last-child { min-width: 0; }
+.sim-magic-select small { display: block; color: #708176; font-size: 10px; }
+.sim-magic-select strong { display: block; overflow-wrap: anywhere; font-size: 12px; line-height: 1.4; }
+.sim-magic-art { width: 64px; height: 64px; flex: none; border-radius: 7px; background: #e7f0ec; display: grid; place-items: center; overflow: hidden; }
+.sim-magic-art img { width: 62px; height: 62px; object-fit: contain; }
+.sim-magic-level { display: flex; align-items: center; justify-content: space-between; gap: 5px; color: #63746a; font-size: 11px; }
+.sim-magic-level input { width: 48px; height: 28px; border: 1px solid #d3dfd3; border-radius: 6px; text-align: center; color: #1b2e24; background: #fff; }
+.sim-magic-effect { flex: 1; display: flex; flex-direction: column; gap: 5px; padding-top: 7px; border-top: 1px dashed #dce5da; font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.sim-magic-effect p { margin: 0; white-space: pre-line; }
+.sim-magic-effect .sim-magic-empty, .sim-magic-condition { color: #78877c; }
+.sim-magic-condition { font-size: 10px; }
+.sim-magic-requirement { color: #7c8a7a; font-size: 10px; }
+.sim-tech-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 6px; }
+.sim-tech-tile { position: relative; min-width: 0; height: 36px; padding: 1px 3px 9px; display: flex; align-items: center; justify-content: center; gap: 2px; border: 0; border-radius: 4px; color: #ffe4a0; background: #273a36; cursor: pointer; overflow: hidden; }
+.sim-tech-tile .sim-tech-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+.sim-tech-tile .sim-tech-symbol { position: relative; width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(1px 1px 1px #1b221e); }
+.sim-tech-tile strong { position: relative; font-size: 18px; text-shadow: 1px 1px #33291f, -1px -1px #33291f; font-variant-numeric: tabular-nums; }
+.sim-tech-tile span { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 2px; font-size: 8px; line-height: 10px; color: #f7f6db; background: #13241a88; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.sim-tech-tile:hover { filter: brightness(1.12); }
+.sim-tech-inactive { filter: saturate(.7); }
+.sim-tech-inactive:hover { filter: saturate(.9) brightness(1.12); }
+.sim-footer { display: flex; flex-wrap: wrap; width: 100%; gap: 5px 12px; margin: 10px 0 0; padding: 10px 0 0; border-top: 1px solid #dce5da; color: #69786c; font-size: 10px; }
+.sim-footer small { font-size: 10px; }
+.sim-dialog-backdrop { position: fixed; inset: 0; z-index: 81; background: #07140ac7; display: flex; justify-content: center; align-items: center; padding: 16px; }
+.sim-dialog { width: min(820px, 100%); max-height: min(85vh, 900px); overflow: auto; padding: 15px; border-radius: 16px; background: #f8fbf6; color: #1b2e24; box-shadow: 0 22px 70px #0007; }
+.sim-dialog > header { display: flex; align-items: center; gap: 12px; margin-bottom: 11px; }
+.sim-dialog > header > div { flex: 1; display: flex; flex-direction: column; }
+.sim-dialog > header strong { font-size: 18px; }
+.sim-dialog > header small { color: #698075; font-size: 11px; }
+.sim-dialog > header button { border: 0; background: none; color: #1b2e24; font-size: 26px; cursor: pointer; }
+.sim-picker-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.sim-picker-toolbar > input { width: min(310px, 100%); height: 35px; border: 1px solid #ccdbcb; border-radius: 8px; padding: 0 10px; color: #1b2e24; background: #fff; }
+.sim-picker-equipment-level { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; color: #51685a; font-size: 12px; }
+.sim-picker-equipment-level input { width: 56px; height: 35px; border: 1px solid #ccdbcb; border-radius: 8px; padding: 0 4px; color: #1b2e24; background: #fff; text-align: center; }
+.sim-picker-equipment-level strong { color: #425d1f; font-size: 13px; }
+.sim-option-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.sim-option { min-width: 0; min-height: 62px; display: flex; align-items: center; gap: 8px; padding: 6px; border: 1px solid #d3dfd3; border-radius: 9px; background: #fff; color: #1b2e24; text-align: left; }
+.sim-option > button:first-child { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; padding: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
+.sim-option > button:first-child:disabled { cursor: not-allowed; opacity: .64; }
+.sim-option img { width: 45px; height: 45px; object-fit: contain; flex: none; }
+.sim-option span { min-width: 0; }
+.sim-option strong { display: block; font-size: 12px; }
+.sim-option small { display: block; color: #738277; font-size: 10px; }
+.sim-option.locked { background: #f1f3ed; }
+.sim-option-tech { flex: none; align-self: center; width: 35px; height: 35px; border: 1px solid #b6c798; border-radius: 6px; background: #e7f4d1; padding: 2px; cursor: pointer; }
+.sim-option-tech img { width: 28px; height: 28px; object-fit: contain; }
+.sim-option-craft { flex-direction: column; align-items: stretch; padding: 0; background: #f8fbf5; }
+.sim-option-craft > button:first-child { display: flex; flex-direction: column; align-items: stretch; gap: 7px; width: 100%; min-width: 0; min-height: 164px; padding: 8px; border-radius: 9px; cursor: pointer; }
+.sim-option-craft > button:first-child:disabled { opacity: 1; }
+.sim-option-craft:not(.locked):hover { border-color: #a6c358; background: #f0f7e7; }
+.sim-option-craft > button:focus-visible { outline: 2px solid #82a626; outline-offset: -2px; }
+.sim-option-craft .sim-craft-main { min-height: 60px; }
+.sim-option-craft .sim-craft-art { width: 50px; height: 50px; }
+.sim-option-craft .sim-craft-art img { width: 48px; height: 48px; }
+.sim-option-craft .sim-craft-copy strong { display: block; overflow: visible; -webkit-line-clamp: unset; overflow-wrap: anywhere; }
+.sim-option-craft .sim-craft-copy small { margin-top: 4px; color: #59732b; line-height: 1.4; }
+.sim-option-craft.locked .sim-craft-copy small { color: #88683a; }
+.sim-option-craft .sim-craft-effects { min-height: 44px; align-content: flex-start; }
+.sim-option-craft .sim-craft-effects img, .sim-option-craft .sim-craft-stats img { width: 20px; height: 20px; }
+.sim-option-craft .sim-craft-effects b { white-space: normal; overflow: visible; }
+.sim-option-craft .sim-craft-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); min-height: 30px; gap: 5px; padding-top: 6px; }
+.sim-option-craft .sim-craft-stats > span { min-width: 0; }
+.sim-option-craft .sim-craft-stats b { font-size: 11px; }
+.sim-option-craft > .sim-option-tech { display: inline-flex; align-items: center; align-self: flex-end; gap: 4px; width: auto; height: 28px; margin: 0 8px 8px; padding: 2px 6px; color: #425b28; font-size: 10px; }
+.sim-option-craft > .sim-option-tech img { width: 22px; height: 22px; }
+.sim-option-empty { cursor: pointer; }
+.sim-option-empty > span { width: 45px; height: 45px; display: grid; place-items: center; border: 1px dashed #aab7a9; border-radius: 8px; color: #5d705f; }
+.sim-equipment-option { cursor: pointer; }
+.sim-equipment-option.advanced { background: #f2f0fb; }
+.sim-option-equipment-art { width: 45px; height: 45px; position: relative; flex: none; background: linear-gradient(135deg, #3f4646, #1e2727); border-radius: 6px; }
+.sim-equipment-option.advanced .sim-option-equipment-art { background: linear-gradient(135deg, #7885b4, #2a246d); }
+.sim-option-equipment-art img:first-child { width: 43px; height: 43px; }
+.sim-option-equipment-art img:nth-child(2) { position: absolute; left: 0; bottom: 0; width: 15px; height: 15px; background: #1b2921aa; }
+.sim-option-equipment-art b { position: absolute; top: 0; right: 0; color: #ffe3a1; font-size: 10px; }
+.sim-skill-option { cursor: pointer; }
+.sim-tech-editor { display: grid; grid-template-columns: 72px repeat(3, minmax(0, 1fr)); gap: 8px; }
+.sim-tech-editor-icon, .sim-tech-phase { border: 1px solid #d3dfd3; border-radius: 9px; background: #fff; min-height: 88px; }
+.sim-tech-editor-icon { display: grid; place-items: center; }
+.sim-tech-editor-icon img { max-width: 60px; max-height: 60px; object-fit: contain; }
+.sim-tech-phase { padding: 8px; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 3px 6px; align-items: center; }
+.sim-tech-phase img { width: 26px; height: 26px; object-fit: contain; }
+.sim-tech-phase span { font-weight: 700; }
+.sim-tech-phase small { display: block; color: #758376; font-size: 10px; font-weight: 400; }
+.sim-tech-phase input { grid-column: 1 / -1; height: 32px; width: 100%; border: 1px solid #d3dfd3; border-radius: 7px; color: #1b2e24; text-align: center; background: #fff; }
+.sim-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.sim-dialog-actions button { min-height: 34px; border: 1px solid #d3dfd3; border-radius: 8px; padding: 5px 12px; color: #1b2e24; background: #fff; cursor: pointer; }
+.sim-dialog-actions .primary { color: #fff; background: #1c3225; border-color: #1c3225; }
+.sim-shell[data-exporting="true"] .share-export-hide { display: none !important; }
+@media (max-width: 950px) { .sim-stat-strip { grid-template-columns: repeat(6, minmax(0, 1fr)); } .sim-stat:nth-child(6) { border-right: 0; } .sim-stat:nth-child(n+7) { border-top: 1px solid #dce5da; } }
+@media (max-width: 1250px) { .sim-shell { max-height: min(calc((100vw - 40px) * .75), calc(100dvh - 40px)); overflow: auto; } .sim-content-grid { grid-template-columns: 1fr; grid-template-rows: none; } .sim-build-panel, .sim-adjust-panel { display: flex; flex-direction: column; grid-column: auto; grid-row: auto; gap: 11px; } .sim-craft-layout { grid-template-columns: minmax(160px, 26%) minmax(0, 1fr); } }
+@media (max-width: 850px) { .sim-equipment-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 650px) { .sim-backdrop { padding: 0; } .sim-shell { border-radius: 0; padding: 11px; min-height: 100dvh; max-height: none; overflow: visible; } .sim-header { flex-wrap: wrap; } .sim-top-controls { width: 100%; flex-wrap: wrap; } .sim-stat-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); } .sim-stat { min-height: 65px; } .sim-stat:nth-child(6) { border-right: 1px solid #dce5da; } .sim-stat:nth-child(4n) { border-right: 0; } .sim-stat:nth-child(n+5) { border-top: 1px solid #dce5da; } .sim-stat strong { font-size: 17px; } .sim-craft-layout { grid-template-columns: 100px minmax(0, 1fr); min-height: 0; } .sim-portrait { min-height: 220px; } .sim-craft-grid { grid-template-columns: 1fr; grid-auto-rows: minmax(70px, auto); gap: 4px; } .sim-craft-card { min-height: 50px; } .sim-craft-art { width: 38px; height: 38px; } .sim-craft-art img { max-width: 36px; max-height: 36px; } .sim-equipment-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .sim-option-grid { grid-template-columns: 1fr 1fr; } .sim-option { min-height: 57px; } .sim-tech-editor { grid-template-columns: repeat(3, minmax(0, 1fr)); } .sim-tech-editor-icon { display: none; } }
+@media (max-width: 420px) { .sim-option-grid { grid-template-columns: 1fr; } .sim-panel-heading { flex-wrap: wrap; } .sim-tech-tile { height: 42px; } .sim-tech-tile .sim-tech-symbol { width: 24px; height: 24px; } .sim-tech-tile strong { font-size: 16px; } }

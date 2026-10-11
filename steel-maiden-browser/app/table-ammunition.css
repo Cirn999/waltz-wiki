@@ -1,0 +1,11 @@
+/* StampUI detail: tkyl-005 (52x31), centered Fund resource slot 8 at 45%.
+   Three native cards + two 6px gaps + cell padding/border fit a 194px column. */
+.configurable-maiden-table .table-ammo-cell{max-width:194px}
+.table-ammo-cards{display:grid;grid-template-columns:repeat(3,52px);gap:6px;width:168px;margin:0 auto;padding:0;list-style:none}
+.table-ammo-cards li{margin:0;padding:0}
+.table-ammo-card{position:relative;display:block;width:52px;height:31px}
+/* The original frame is translucent over the game's navy detail panel. */
+.table-ammo-card::before{content:"";position:absolute;inset:3px;border-radius:3px;background:#19283b}
+.table-ammo-card img{position:absolute;display:block;pointer-events:none}
+.table-ammo-card-background{inset:0;width:100%;height:100%;object-fit:fill}
+.table-ammo-card-icon{left:50%;top:50%;transform:translate(-50%,-50%);object-fit:contain}

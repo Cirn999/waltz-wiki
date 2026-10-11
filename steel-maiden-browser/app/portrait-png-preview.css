@@ -1,0 +1,13 @@
+.portrait-png-dialog { width: max-content; max-width: calc(100vw - 32px); max-height: calc(100dvh - 32px); margin: auto; padding: 0; border: 1px solid #bfcebc; border-radius: 16px; background: #f6faf2; color: #21382a; box-shadow: 0 24px 100px #0008; overflow: auto; }
+.portrait-png-dialog::backdrop { background: #08160fda; }
+.portrait-png-panel > header { display: flex; align-items: center; gap: 20px; padding: 12px 16px; border-bottom: 1px solid #ccd8c5; }
+.portrait-png-panel > header > div { flex: 1; min-width: 0; }
+.portrait-png-panel strong { display: block; overflow-wrap: anywhere; font-size: 14px; }
+.portrait-png-panel small { display: block; margin-top: 4px; color: #647966; font-size: 11px; }
+.portrait-png-panel button { border: 1px solid #c5d3c0; border-radius: 8px; background: #fff; color: #29412e; cursor: pointer; }
+.portrait-png-panel > header > button { flex: none; width: 34px; height: 34px; font-size: 25px; line-height: 1; }
+.portrait-png-panel button:focus-visible { outline: 2px solid #7b982a; outline-offset: 2px; }
+.portrait-png-canvas { display: grid; place-items: center; min-width: min(340px, calc(100vw - 34px)); min-height: 200px; background-color: #f4f6f1; background-image: conic-gradient(#e4eadd 25%, transparent 0 50%, #e4eadd 0 75%, transparent 0); background-size: 24px 24px; }
+.portrait-png-canvas > img { display: block; width: auto; height: auto; max-width: min(1200px, calc(100vw - 34px)); max-height: calc(100dvh - 122px); object-fit: contain; }
+.portrait-png-status { padding: 30px 20px; font-size: 13px; }
+.portrait-png-status button { margin-left: 10px; padding: 5px 10px; }

@@ -1,0 +1,9 @@
+.technology-generation-tabs.generation-tabs-compact { display: flex; align-items: center; flex-shrink: 0; width: auto; gap: 2px; padding: 0; background: transparent; }
+.technology-generation-tabs.generation-tabs-compact button,
+.detail-identity-table .rarity-game-icon { display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 34px; padding: 3px; border: 1px solid transparent; border-radius: 7px; }
+.detail-identity-table .rarity-game-icon { overflow: visible; background: transparent; box-shadow: none; }
+/* Preserve each sprite's aspect ratio: equal chevron widths, not equal image heights. */
+.technology-generation-tabs.generation-tabs-compact button img,
+.detail-identity-table .rarity-game-icon img { display: block; width: 18px; height: auto; max-height: none; object-fit: initial; }
+.technology-generation-tabs.generation-tabs-compact button.active { border-color: #bad875; background: #eff8d9; box-shadow: none; }
+.technology-generation-tabs.generation-tabs-compact button:not(:disabled):not(.active):hover { background: #f0f4eb; }

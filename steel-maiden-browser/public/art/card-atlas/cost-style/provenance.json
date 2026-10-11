@@ -1,0 +1,152 @@
+{
+  "description": "Approved thirteen-cost star medals, round +/- plaques and centered shoulder insignia",
+  "files": [
+    {
+      "output": "frame-copper.webp",
+      "original": "exec-001c9746-cc40-40f2-acb0-a62ac3c9040c.png",
+      "sha256": "dc60bed67f1e94ce0d577941fe8feb6bbead4115e358471173e461b5be831865"
+    },
+    {
+      "output": "frame-silver.webp",
+      "original": "exec-9032fdb6-728f-47ac-8009-e907b66907d3.png",
+      "sha256": "5ce9965cc662cda0e283bd440372586bc32983eddf3f55e5139afcebd757f5f3"
+    },
+    {
+      "output": "frame-gold.webp",
+      "original": "exec-7994c50e-1a20-4c07-bd24-6e76de9b99e4.png",
+      "sha256": "2573f1425a8c3d262a334a7d583e6234689cfd525be115c37271503a140ae5cc"
+    },
+    {
+      "output": "n1.webp",
+      "original": "exec-9274dcbd-8e82-46eb-aa02-66d023955b60.png",
+      "sha256": "bb1a8ab38fb1f9d3708ac26a03fd4a762a69f3d8ab3b53cef20218eee84ebbdc",
+      "crop": {
+        "left": 51,
+        "top": 51,
+        "width": 1152,
+        "height": 1151
+      }
+    },
+    {
+      "output": "n2.webp",
+      "original": "exec-5e28615b-4663-4ecd-a5fa-0dc776158374.png",
+      "sha256": "1de049e35df6a05c71eeea4ac5ad78cefc8455ef8c16555ce7bff18f29e1e23f",
+      "crop": {
+        "left": 61,
+        "top": 61,
+        "width": 1133,
+        "height": 1133
+      }
+    },
+    {
+      "output": "n3.webp",
+      "original": "exec-4518afaa-1e41-4b39-93e3-e97e453426c9.png",
+      "sha256": "e50cd848bca0659a8b6370c1232c041c2693af349cc802c93ecc30589429f1cf",
+      "crop": {
+        "left": 51,
+        "top": 49,
+        "width": 1153,
+        "height": 1154
+      }
+    },
+    {
+      "output": "n4.webp",
+      "original": "exec-0ab7c213-1895-4d0f-8548-75df4ec71a41.png",
+      "sha256": "af300ebe5092510b7409f036fd89d4a898ace2355a7ba340e49dfe0bbc4bae36",
+      "crop": {
+        "left": 61,
+        "top": 62,
+        "width": 1132,
+        "height": 1132
+      }
+    },
+    {
+      "output": "n5.webp",
+      "original": "exec-25dff284-fc22-4af3-a6ea-785502310123.png",
+      "sha256": "c77a5d1d810be68a3837692a95b60cd74d43fec6d6e90d0d2903339efccd01e4",
+      "crop": {
+        "left": 51,
+        "top": 51,
+        "width": 1152,
+        "height": 1152
+      }
+    },
+    {
+      "output": "n6.webp",
+      "original": "exec-94d71cc1-8928-45de-8b4a-3ae6c67c4506.png",
+      "sha256": "f31bbd61ad99cecc6d87e21f0064710c859e616c07cff4e800bdf9d7fa5e3c1f",
+      "crop": {
+        "left": 75,
+        "top": 79,
+        "width": 1104,
+        "height": 1098
+      }
+    },
+    {
+      "output": "star.webp",
+      "original": "exec-26a12db3-87fe-406e-b394-4f5845e1e136.png",
+      "sha256": "0ce5c3992296d014685051b1516d168e263a1d1404c12700ba07058f33b32d9e",
+      "crop": {
+        "left": 85,
+        "top": 102,
+        "width": 1084,
+        "height": 1054
+      }
+    },
+    {
+      "output": "minus.webp",
+      "original": "exec-92518c07-2340-4165-af74-b8318e7658f4.png",
+      "sha256": "982f8d828c5f02d6dd94b05bcdf76f5a13e947239ca774bbdf3d70e3ad2d3e8b",
+      "crop": {
+        "left": 197,
+        "top": 518,
+        "width": 860,
+        "height": 219
+      }
+    },
+    {
+      "output": "plus.webp",
+      "original": "exec-cb200389-2f93-40c5-a227-70c68c6ed074.png",
+      "sha256": "1b86344a4e54bdde15131ba1271f90ad9600080befabded0b4d2dd2435ac66d3",
+      "crop": {
+        "left": 254,
+        "top": 271,
+        "width": 746,
+        "height": 714
+      }
+    },
+    {
+      "output": "rim-copper.webp",
+      "original": "exec-5cddf5ea-9a08-4a82-ad32-df5646d80180.png",
+      "sha256": "3b9ee3de933cc9375c7249ba727fa8a171ac53c1e7602b196687c1b2c510a6db",
+      "crop": {
+        "left": 102,
+        "top": 99,
+        "width": 1047,
+        "height": 1041
+      }
+    },
+    {
+      "output": "rim-silver.webp",
+      "original": "exec-67ea8f35-f944-4558-b7cc-047a3d7e646d.png",
+      "sha256": "50b44423573c22f39b01623b140745fee9ac314fa68da9b968aa3eb069ce1944",
+      "crop": {
+        "left": 85,
+        "top": 95,
+        "width": 1079,
+        "height": 1060
+      }
+    },
+    {
+      "output": "rim-gold.webp",
+      "original": "exec-3a205fb6-a977-4947-85fc-8d25a35f6ce7.png",
+      "sha256": "acec4dbc8d88d514daee4e791f5a0e249488e818e691f8e1ca62ec768c8b15e0",
+      "crop": {
+        "left": 63,
+        "top": 62,
+        "width": 1125,
+        "height": 1122
+      }
+    }
+  ]
+}

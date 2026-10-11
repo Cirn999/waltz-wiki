@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "talents": {
+    "演艺": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-016.webp",
+        "width": 58,
+        "height": 59
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-047.webp",
+        "width": 31,
+        "height": 31
+      }
+    },
+    "料理": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-017.webp",
+        "width": 58,
+        "height": 51
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-048.webp",
+        "width": 31,
+        "height": 28
+      }
+    },
+    "技工": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-020.webp",
+        "width": 64,
+        "height": 61
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-051.webp",
+        "width": 33,
+        "height": 32
+      }
+    },
+    "护理": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-019.webp",
+        "width": 60,
+        "height": 57
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-050.webp",
+        "width": 32,
+        "height": 30
+      }
+    },
+    "运动": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-018.webp",
+        "width": 59,
+        "height": 59
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-049.webp",
+        "width": 32,
+        "height": 31
+      }
+    },
+    "知性": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-021.webp",
+        "width": 67,
+        "height": 48
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-052.webp",
+        "width": 34,
+        "height": 27
+      }
+    },
+    "美妆": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-104.webp",
+        "width": 68,
+        "height": 68
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-116.webp",
+        "width": 36,
+        "height": 36
+      }
+    },
+    "商贸": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-105.webp",
+        "width": 68,
+        "height": 68
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-117.webp",
+        "width": 36,
+        "height": 36
+      }
+    },
+    "武学": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-106.webp",
+        "width": 68,
+        "height": 68
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-118.webp",
+        "width": 36,
+        "height": 36
+      }
+    },
+    "心理": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-107.webp",
+        "width": 68,
+        "height": 68
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-119.webp",
+        "width": 36,
+        "height": 36
+      }
+    },
+    "编程": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-108.webp",
+        "width": 68,
+        "height": 68
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-120.webp",
+        "width": 36,
+        "height": 36
+      }
+    },
+    "文学": {
+      "icon": {
+        "image": "/art/atlas-talents/dg-109.webp",
+        "width": 68,
+        "height": 68
+      },
+      "highlight": {
+        "image": "/art/atlas-talents/dg-121.webp",
+        "width": 36,
+        "height": 36
+      }
+    }
+  },
+  "digits": {
+    "0": {
+      "image": "/art/atlas-talents/kpxx-092.webp",
+      "width": 21,
+      "height": 26
+    },
+    "1": {
+      "image": "/art/atlas-talents/kpxx-083.webp",
+      "width": 19,
+      "height": 26
+    },
+    "2": {
+      "image": "/art/atlas-talents/kpxx-084.webp",
+      "width": 20,
+      "height": 26
+    },
+    "3": {
+      "image": "/art/atlas-talents/kpxx-085.webp",
+      "width": 20,
+      "height": 26
+    },
+    "4": {
+      "image": "/art/atlas-talents/kpxx-086.webp",
+      "width": 21,
+      "height": 26
+    },
+    "5": {
+      "image": "/art/atlas-talents/kpxx-087.webp",
+      "width": 20,
+      "height": 26
+    },
+    "6": {
+      "image": "/art/atlas-talents/kpxx-088.webp",
+      "width": 21,
+      "height": 26
+    },
+    "7": {
+      "image": "/art/atlas-talents/kpxx-089.webp",
+      "width": 20,
+      "height": 26
+    },
+    "8": {
+      "image": "/art/atlas-talents/kpxx-090.webp",
+      "width": 20,
+      "height": 26
+    },
+    "9": {
+      "image": "/art/atlas-talents/kpxx-091.webp",
+      "width": 20,
+      "height": 26
+    }
+  }
+}

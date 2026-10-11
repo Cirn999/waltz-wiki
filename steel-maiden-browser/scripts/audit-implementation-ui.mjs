@@ -1,0 +1,124 @@
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { chromium } from "playwright";
+import { fileURLToPath } from "node:url";
+const data = JSON.parse(await fs.readFile(new URL("../public/data/maidens.json", import.meta.url), "utf8"));
+const implemented = data.rows.filter((row) => row.implemented);
+const cache = new URL("../.cache/", import.meta.url);
+const browserRoot = path.join(process.env.LOCALAPPDATA, "ms-playwright");
+const shell = (await fs.readdir(browserRoot)).filter((name) => name.startsWith("chromium_headless_shell-")).sort().reverse()[0];
+const browser = await chromium.launch({ headless: true, executablePath: path.join(browserRoot, shell, "chrome-headless-shell-win64/chrome-headless-shell.exe") });
+const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+page.setDefaultTimeout(10000);
+const errors = [];
+page.on("pageerror", (error) => errors.push(error.message));
+const open = async () => { await page.getByRole("button", { name: /筛选条件/ }).click(); return page.getByRole("dialog", { name: "钢舞姬筛选", exact: true }); };
+const apply = async (dialog) => { await dialog.getByRole("button", { name: "确定", exact: true }).click(); await dialog.waitFor({ state: "detached" }); };
+const assertLastRow = async (dialog, stacked = false) => {
+  const layout = await dialog.locator(".filter-final-row").evaluate((row) => {
+    const [hunt, implementation] = [...row.children].map((element) => {
+      const r = element.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height };
+    });
+    return { hunt, implementation, last: row.parentElement.lastElementChild === row };
+  });
+  assert.ok(layout.last, "Hunt and implementation filters must be the final row");
+  if (stacked) assert.ok(layout.implementation.y >= layout.hunt.y + layout.hunt.height - 1);
+  else {
+    assert.ok(Math.abs(layout.hunt.y - layout.implementation.y) < 1);
+    assert.ok(layout.implementation.x >= layout.hunt.x + layout.hunt.width - 1);
+  }
+  assert.equal(await dialog.locator(".implementation-filter-row").count(), 1);
+};
+const assertRows = async (expected) => {
+  await assert.equal(await page.locator("tr[data-maiden-id]").count(), expected.length);
+  const ids = await page.locator("tr[data-maiden-id]").evaluateAll((rows) => rows.map((row) => Number(row.dataset.maidenId)));
+  assert.deepEqual(new Set(ids), new Set(expected.map((row) => row.id)));
+};
+const nav = async (name) => {
+  const group = page.locator(".primary-nav-group").filter({ has: page.getByRole("button", { name: "钢舞姬", exact: true }) });
+  await group.locator(".primary-nav-trigger").click();
+  await group.getByRole("menuitem", { name: new RegExp(name) }).click();
+};
+try {
+  await page.goto(process.argv[2] || "http://127.0.0.1:3000", { waitUntil: "networkidle" });
+  await page.locator("tr[data-maiden-id]").first().waitFor();
+  await assertRows(implemented);
+  console.log("implemented rows checked");
+  let dialog = await open();
+  await assertLastRow(dialog);
+  assert.equal(await dialog.getByRole("button", { name: "显示未实装", exact: true }).getAttribute("aria-pressed"), "false");
+  await dialog.getByRole("button", { name: "显示未实装", exact: true }).click();
+  await dialog.getByRole("button", { name: "取消", exact: true }).click();
+  await assertRows(implemented);
+  dialog = await open();
+  await dialog.getByRole("button", { name: "显示未实装", exact: true }).click();
+  await apply(dialog);
+  await assertRows(data.rows);
+  console.log("all rows checked");
+  assert.equal(await page.locator('tr[data-maiden-id="9863"]').count(), 1);
+  assert.equal(await page.locator('tr[data-maiden-id="6932"]').count(), 1);
+  // AND with the availability switch must preserve all existing stage filters.
+  dialog = await open();
+  await dialog.getByRole("button", { name: "N1", exact: true }).click();
+  await apply(dialog);
+  await assertRows(data.rows.filter((row) => row.stage === "N1"));
+  dialog = await open();
+  await dialog.getByRole("button", { name: "显示未实装", exact: true }).click();
+  await apply(dialog);
+  await assertRows(implemented.filter((row) => row.stage === "N1"));
+  dialog = await open();
+  await dialog.getByRole("button", { name: "重置", exact: true }).click();
+  await apply(dialog);
+  await assertRows(implemented);
+  console.log("checking cards");
+  await nav("卡牌图鉴");
+  assert.match(await page.locator(".cards-archive .atlas-toolbar h2").innerText(), new RegExp(String(implemented.length)));
+  await nav("属性表");
+  console.log("checking rankings");
+  // Rankings are independent of the background archive filter.
+  await page.locator(".table-avatar").first().click();
+  assert.equal(Number(await page.locator(".detail-rank-summary").getAttribute("data-count")), implemented.length);
+  await page.getByRole("button", { name: "排名范围筛选", exact: true }).click();
+  const ranks = page.getByRole("dialog", { name: "属性排名筛选", exact: true });
+  await assertLastRow(ranks);
+  assert.equal(await ranks.getByRole("button", { name: "显示未实装", exact: true }).getAttribute("aria-pressed"), "false");
+  await ranks.getByRole("button", { name: "显示未实装", exact: true }).click();
+  await apply(ranks);
+  assert.equal(Number(await page.locator(".detail-rank-summary").getAttribute("data-count")), data.rows.length);
+  await page.locator(".detail-modal .modal-close, .modal-close").first().click();
+  await assertRows(implemented);
+  console.log("checking charts");
+  await page.getByRole("button", { name: "柱状图", exact: true }).click();
+  assert.match(await page.locator(".ac-candidates h3").innerText(), new RegExp(String(implemented.length)));
+  await page.locator(".ac-candidates").getByRole("button", { name: /^筛选/ }).click();
+  const chart = page.getByRole("dialog", { name: "图表车辆筛选", exact: true });
+  await assertLastRow(chart);
+  await chart.getByRole("button", { name: "显示未实装", exact: true }).click();
+  await apply(chart);
+  assert.match(await page.locator(".ac-candidates h3").innerText(), new RegExp(String(data.rows.length)));
+  await page.getByRole("button", { name: "关闭属性图表" }).click();
+  await assertRows(implemented);
+  await nav("研发配方");
+  const search = page.locator(".research-search input");
+  await search.fill("6932");
+  assert.equal(await page.locator(".research-index > button").count(), 0);
+  await page.locator(".research-implementation-filter").getByRole("button", { name: "显示未实装", exact: true }).click();
+  assert.equal(await page.locator(".research-index > button").count(), 1);
+  await nav("研发路线");
+  assert.equal(await page.locator(".research-implementation-filter button").getAttribute("aria-pressed"), "false");
+  await nav("属性表");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload({ waitUntil: "networkidle" });
+  await assertRows(implemented);
+  dialog = await open();
+  await assertLastRow(dialog, true);
+  await dialog.getByRole("button", { name: "显示未实装", exact: true }).click();
+  await fs.mkdir(cache, { recursive: true });
+  await dialog.screenshot({ path: fileURLToPath(new URL("implementation-filter-mobile.png", cache)) });
+  await apply(dialog);
+  await assertRows(data.rows);
+  assert.deepEqual(errors, []);
+  console.log(JSON.stringify({ defaultCount: implemented.length, expandedCount: data.rows.length, dialogs: ["archive", "chart", "rank", "research", "graph"], mobile: "passed", cancelledDraft: "passed", stageIntersection: "passed", errors }, null, 2));
+} finally { await browser.close(); }

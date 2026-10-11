@@ -1,0 +1,47 @@
+.atlas-workspace{min-width:0}
+.atlas-workspace.with-team{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.atlas-results{min-width:0}
+.atlas-avatar-picker{position:relative;flex:none;width:100%;max-width:128px;aspect-ratio:1}
+.atlas-avatar-picker[data-in-team=true]{outline:2px solid #83a842;outline-offset:3px;border-radius:8px}
+/* A sibling control, not a button nested inside the portrait. Keep the badge
+   above the bottom metadata strip so N-cost and vehicle class remain legible. */
+.atlas-team-toggle{position:absolute;z-index:5;right:-4px;bottom:24%;display:grid;place-items:center;width:28px;height:28px;padding:0;border:2px solid #f5f8ee;border-radius:50%;background:#d5ff55;color:#20351d;font:700 23px/1 Arial,sans-serif;box-shadow:0 2px 5px #12251f55;cursor:pointer}
+.atlas-team-toggle[data-selected=true]{background:#284b37;color:#e5ffa6}
+.atlas-team-toggle:disabled{background:#e3e7dc;color:#929b8a;box-shadow:none;cursor:not-allowed}
+.atlas-team-toggle:focus-visible{outline:3px solid #273f2f;outline-offset:2px}
+.atlas-team{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"heading controls" "status status" "slots totals" "note actions";gap:12px 24px;min-width:0;padding:16px;border:1px solid #c4cfba;border-radius:14px;background:#f5f8ef;box-shadow:0 5px 18px #142b200a}
+.atlas-team-heading{grid-area:heading;display:flex;align-items:center;gap:14px}
+.atlas-team-heading h3{margin:0;font-size:18px;color:#223d2b}
+.atlas-team-heading>strong{font-size:22px;color:#587c23;font-variant-numeric:tabular-nums}
+.atlas-team-heading>strong span{font-size:12px;color:#78866d}
+.atlas-team-controls{grid-area:controls;display:flex;align-items:flex-end;gap:8px}
+.atlas-team-controls label{flex:1;min-width:0;display:grid;gap:4px;color:#72806a;font-size:10px}
+.atlas-team-controls select{width:100%;min-width:0;height:34px;padding:4px 7px;border:1px solid #c5d1bb;border-radius:7px;background:white;color:#284132;font-size:12px;font-weight:700}
+.atlas-team-controls button{flex:none;min-height:34px;padding:6px 9px;border:1px solid #aebf99;border-radius:7px;background:#e9f3d8;color:#345121;font-size:11px;font-weight:700}
+.atlas-team-status{grid-area:status;margin:0;color:#6c7d5e;font-size:11px;line-height:1.5}
+.atlas-team-slots{grid-area:slots;list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-content:start;gap:12px 10px;margin:0;padding:0}
+.atlas-team-slots>li{min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+.atlas-team-portrait{position:relative;width:100%;max-width:76px;aspect-ratio:1;flex:none}
+.atlas-team-portrait .table-avatar.table-game-avatar{width:100%;height:auto;aspect-ratio:1}
+.atlas-team-portrait .table-portrait-cost{font-size:12px}
+.atlas-team-portrait .atlas-team-toggle{width:24px;height:24px;font-size:20px}
+.atlas-team-member-name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;width:100%;min-height:28px;line-height:14px;text-align:center;font-size:10px;color:#43513d;overflow-wrap:anywhere}
+.atlas-team-empty-slot>span{display:grid;place-items:center;aspect-ratio:1;width:100%;max-width:76px;border:1px dashed #c5d0b9;border-radius:8px;background:#eaf0e2;color:#b1bfa0;font:400 24px/1 Arial,sans-serif}
+.atlas-team-empty-slot>small{min-height:28px;font-size:10px;color:#9aa88c;line-height:14px}
+.atlas-team-totals{grid-area:totals;min-width:0;border-left:1px solid #d6dfcd;padding-left:24px}
+.atlas-team-totals h4{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px;font-size:13px;color:#334b2d}
+.atlas-team-totals h4 small{font-size:10px;font-weight:400;color:#859178}
+.atlas-team-totals ul{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0;padding:0}
+.atlas-team-totals li{display:flex;align-items:center;gap:5px;min-width:0;padding:4px 6px;border:1px solid #d8dfd0;border-radius:6px;background:#eef2e8;color:#506046;font-size:11px}
+.atlas-team-totals li img{width:23px;height:23px;object-fit:contain;flex:none}
+.atlas-team-totals li strong{margin-left:auto;font-size:16px;font-variant-numeric:tabular-nums}
+.atlas-team-totals li[data-empty=true]{color:#99a18f}
+.atlas-team-totals li[data-highlighted=true]{border-color:#b5d76a;background:#e0f3b4;color:#345b13}
+.atlas-team-note{grid-area:note;align-self:center;margin:0;color:#88967d;font-size:10px;line-height:1.6}
+.atlas-team-actions{grid-area:actions;display:flex;gap:8px}
+.atlas-team-actions button{flex:1;min-height:30px;padding:4px;border:1px solid #d3dbcb;border-radius:6px;background:#f8faf5;color:#687b57;font-size:11px}
+.atlas-team-actions button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:1000px){.atlas-team{grid-template-areas:"heading controls" "status status" "slots slots" "totals totals" "note actions"}.atlas-team-totals{border-left:0;border-top:1px solid #d6dfcd;padding:12px 0 0}}
+@media(max-width:620px){.atlas-team{grid-template-columns:minmax(0,1fr);grid-template-areas:"heading" "controls" "status" "slots" "totals" "note" "actions"}.atlas-team-heading{justify-content:space-between}}
+@media(max-width:540px){.atlas-team{padding:12px}.atlas-team-slots{grid-template-columns:repeat(3,minmax(0,1fr))}.atlas-team-totals ul{grid-template-columns:repeat(3,minmax(0,1fr))}.atlas-team-totals li{flex-wrap:wrap;gap:3px}.atlas-team-totals li img{width:20px;height:20px}.atlas-team-totals li strong{font-size:14px}}
+@media(max-width:350px){.atlas-team-totals ul{grid-template-columns:repeat(2,minmax(0,1fr))}}

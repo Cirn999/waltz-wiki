@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "canvas": {
+    "width": 1024,
+    "height": 1536
+  },
+  "frames": {
+    "copper": {
+      "image": "/art/card-atlas/cost-style/frame-copper.webp",
+      "medalX": 846,
+      "medalY": 1340,
+      "shoulderX": 917
+    },
+    "silver": {
+      "image": "/art/card-atlas/cost-style/frame-silver.webp",
+      "medalX": 842,
+      "medalY": 1330,
+      "shoulderX": 913
+    },
+    "gold": {
+      "image": "/art/card-atlas/cost-style/frame-gold.webp",
+      "medalX": 846,
+      "medalY": 1330,
+      "shoulderX": 916.5
+    }
+  },
+  "sprites": {
+    "N1": {
+      "image": "/art/card-atlas/cost-style/n1.webp",
+      "width": 1152,
+      "height": 1151
+    },
+    "N2": {
+      "image": "/art/card-atlas/cost-style/n2.webp",
+      "width": 1133,
+      "height": 1133
+    },
+    "N3": {
+      "image": "/art/card-atlas/cost-style/n3.webp",
+      "width": 1153,
+      "height": 1154
+    },
+    "N4": {
+      "image": "/art/card-atlas/cost-style/n4.webp",
+      "width": 1132,
+      "height": 1132
+    },
+    "N5": {
+      "image": "/art/card-atlas/cost-style/n5.webp",
+      "width": 1152,
+      "height": 1152
+    },
+    "N6": {
+      "image": "/art/card-atlas/cost-style/n6.webp",
+      "width": 1104,
+      "height": 1098
+    },
+    "star": {
+      "image": "/art/card-atlas/cost-style/star.webp",
+      "width": 1084,
+      "height": 1054
+    },
+    "minus": {
+      "image": "/art/card-atlas/cost-style/minus.webp",
+      "width": 860,
+      "height": 219
+    },
+    "plus": {
+      "image": "/art/card-atlas/cost-style/plus.webp",
+      "width": 746,
+      "height": 714
+    },
+    "rim-copper": {
+      "image": "/art/card-atlas/cost-style/rim-copper.webp",
+      "width": 1047,
+      "height": 1041
+    },
+    "rim-silver": {
+      "image": "/art/card-atlas/cost-style/rim-silver.webp",
+      "width": 1079,
+      "height": 1060
+    },
+    "rim-gold": {
+      "image": "/art/card-atlas/cost-style/rim-gold.webp",
+      "width": 1125,
+      "height": 1122
+    }
+  },
+  "rarities": {
+    "/art/rarities/kpsj-031.webp": {
+      "width": 19,
+      "height": 12,
+      "visibleCenterX": 9.5
+    },
+    "/art/rarities/kpsj-033.webp": {
+      "width": 19,
+      "height": 20,
+      "visibleCenterX": 9.5
+    },
+    "/art/rarities/kpsj-030.webp": {
+      "width": 19,
+      "height": 28,
+      "visibleCenterX": 9.5
+    }
+  }
+}

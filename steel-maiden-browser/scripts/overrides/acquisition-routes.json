@@ -1,0 +1,21 @@
+{
+  "9822": [
+    {
+      "kind": "source",
+      "label": "掌中饕餮",
+      "details": ["低概率喂食获得"]
+    },
+    {
+      "kind": "exchange",
+      "label": "掌中饕餮",
+      "details": ["水晶贝兑换"]
+    }
+  ],
+  "9824": [
+    {
+      "kind": "event",
+      "label": "掌中饕餮",
+      "details": ["活动获取"]
+    }
+  ]
+}

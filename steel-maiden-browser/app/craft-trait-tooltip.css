@@ -1,0 +1,5 @@
+.craft-trait.has-description { cursor: help; }
+.craft-trait.has-description:focus-visible { outline: 2px solid #82a626; outline-offset: 2px; }
+.craft-trait-tooltip { position: fixed; z-index: 200; width: max-content; max-width: min(300px, calc(100vw - 16px)); padding: 10px 12px; border: 1px solid #52705b; border-radius: 9px; color: #edf5e8; background: #193126; box-shadow: 0 6px 20px #07160d40; font-size: 12px; line-height: 1.6; pointer-events: none; overflow-wrap: anywhere; }
+.craft-trait-tooltip strong { display: block; color: #d3f57d; font-size: 12px; }
+.craft-trait-tooltip p { margin: 3px 0 0; white-space: pre-line; }
