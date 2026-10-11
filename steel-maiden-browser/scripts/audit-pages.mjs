@@ -4,6 +4,7 @@ import { createReadStream } from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { chromium } from "playwright";
+import { auditPagesSkins } from "./audit-pages-skins.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const output = path.join(root, "dist/client");
@@ -35,7 +36,8 @@ if (process.platform === "win32" && process.env.LOCALAPPDATA) {
   if (shell) executablePath = path.join(browserRoot, shell, "chrome-headless-shell-win64/chrome-headless-shell.exe");
 }
 const browser = await chromium.launch({ headless: true, executablePath });
-const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+const page = await context.newPage();
 page.setDefaultTimeout(60000);
 const errors = [], failed = [], leaked = [];
 const origin = new URL(baseUrl).origin;
@@ -60,6 +62,7 @@ try {
   const filter = page.getByRole("dialog", { name: "钢舞姬筛选", exact: true });
   await filter.getByRole("button", { name: "取消", exact: true }).click();
   await section("钢舞姬", "卡牌图鉴", ".atlas-entry");
+  await auditPagesSkins(page, baseUrl);
   await page.locator(".atlas-entry .table-game-avatar").first().click();
   await page.locator(".detail-modal").waitFor();
   await page.locator(".detail-modal").getByRole("button", { name: "关闭", exact: true }).click();
@@ -73,6 +76,11 @@ try {
   ]) await section(...args);
   await page.getByRole("button", { name: "浏览战役剧情", exact: true }).click();
   await page.locator(".story-map-card").first().waitFor();
+  await page.locator(".story-map-card").first().click();
+  await page.locator(".story-scene, .story-summary").first().waitFor();
+  await page.waitForLoadState("networkidle");
+  assert.equal(await page.locator('.story-reader [role="alert"]').count(), 0);
+  await page.getByRole("button", { name: "关闭剧情", exact: true }).click();
   await section("钢舞姬", "属性表", ".table-archive");
   const brokenImages = await page.locator("img").evaluateAll((images) => images.filter((img) => img.complete && !img.naturalWidth && img.getBoundingClientRect().width > 0).map((img) => img.src));
   assert.deepEqual(errors, []);

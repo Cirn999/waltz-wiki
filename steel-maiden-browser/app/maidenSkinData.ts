@@ -1,3 +1,5 @@
+import { isArchiveArtPath } from "./archiveAssets.ts";
+
 export type MaidenSkin = { id: number; name: string; painter: string; modelId: number; image: string; headImage?: string };
 type SkinDataset = { version: 1; rows: Record<string, MaidenSkin[]> };
 let pending: Promise<SkinDataset> | null = null;
@@ -7,8 +9,8 @@ function isSkin(value: unknown): value is MaidenSkin {
   const row = value as Partial<MaidenSkin>;
   return Number.isInteger(row.id) && Number.isInteger(row.modelId)
     && typeof row.name === "string" && typeof row.painter === "string"
-    && typeof row.image === "string" && /^\/art\/skins\/\d+\.webp$/.test(row.image)
-    && (row.headImage === undefined || typeof row.headImage === "string" && /^\/art\/skin-portraits\/[a-zA-Z0-9_-]+\.webp$/.test(row.headImage));
+    && isArchiveArtPath(row.image, "skins", /^\d+\.webp$/)
+    && (row.headImage === undefined || isArchiveArtPath(row.headImage, "skin-portraits", /^[a-zA-Z0-9_-]+\.webp$/));
 }
 
 export function loadMaidenSkins(): Promise<SkinDataset> {

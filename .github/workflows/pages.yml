@@ -32,6 +32,7 @@ jobs:
         id: pages
       - run: npm ci --no-audit --no-fund
       - run: npx tsc --noEmit
+      - run: npm run verify:archive-assets
       - run: npm run verify:atlas-team && npm run verify:technology-paths
       - run: npm run build:pages && npm run verify:pages
         env:

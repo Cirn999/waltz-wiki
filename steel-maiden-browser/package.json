@@ -87,6 +87,7 @@
     "build": "vinext build",
     "build:pages": "node scripts/build-pages.mjs",
     "verify:pages": "node scripts/verify-pages.mjs",
+    "verify:archive-assets": "node scripts/verify-archive-assets.mjs",
     "audit:pages": "node scripts/audit-pages.mjs",
     "start": "vinext start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern scripts/vendor",

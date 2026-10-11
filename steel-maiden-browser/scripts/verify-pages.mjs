@@ -21,17 +21,29 @@ assert.ok(html.includes(`${basePath}/_next/`), "Framework bundles must use the P
 assert.ok(!/["']\/_next\//.test(html), "No root-relative framework bundles");
 await fs.access(path.join(output, ".nojekyll"));
 let checked = 0;
-for (const entry of await fs.readdir(output, { recursive: true, withFileTypes: true })) {
+const entries = await fs.readdir(output, { recursive: true, withFileTypes: true });
+const files = new Set(entries.filter((entry) => entry.isFile()).map((entry) => path.relative(output, path.join(entry.parentPath, entry.name)).replaceAll("\\", "/")));
+const references = new Set();
+function collectReferences(value) {
+  if (typeof value === "string" && value.startsWith(basePath + "/") && /^(art|data)\//.test(value.slice(basePath.length + 1))) references.add(value);
+  else if (Array.isArray(value)) value.forEach(collectReferences);
+  else if (value && typeof value === "object") Object.values(value).forEach(collectReferences);
+}
+for (const entry of entries) {
   if (!entry.isFile() || !exportTextFile.test(entry.name)) continue;
   const file = path.join(entry.parentPath, entry.name);
   const text = await fs.readFile(file, "utf8");
   assert.equal(rebaseAssets(text, basePath), text, `Unprefixed URL in ${path.relative(output, file)}`);
-  if (entry.name.endsWith(".json")) JSON.parse(text);
+  if (entry.name.endsWith(".json")) collectReferences(JSON.parse(text));
   checked++;
+}
+for (const reference of references) {
+  const relative = decodeURIComponent(reference.slice(basePath.length + 1).split(/[?#]/)[0]);
+  assert.ok(files.has(relative), `Missing or wrongly-cased exported resource: ${reference}`);
 }
 const source = JSON.parse(await fs.readFile(path.join(root, "public/data/maidens.json"), "utf8"));
 const exported = JSON.parse(await fs.readFile(path.join(output, "data/maidens.json"), "utf8"));
 assert.equal(source.rows.length, exported.rows.length);
 assert.ok(JSON.stringify(source).includes('"/art/'), "Source data must remain usable offline");
 assert.ok(JSON.stringify(exported).includes(`"${basePath}/art/`));
-console.log(JSON.stringify({ basePath, checked, maidens: source.rows.length, sourceUnchanged: true }));
+console.log(JSON.stringify({ basePath, checked, references: references.size, maidens: source.rows.length, sourceUnchanged: true }));
