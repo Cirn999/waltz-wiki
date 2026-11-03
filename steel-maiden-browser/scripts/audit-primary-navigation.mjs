@@ -22,14 +22,15 @@ page.on("pageerror", (error) => errors.push(error.message));
 await page.goto(baseUrl, { waitUntil: "networkidle" });
 
 if (await page.locator(".hero").count()) throw new Error("Promotional hero is still present");
-await page.locator(".table-archive").waitFor();
+await page.locator(".atlas-album-avatars").waitFor();
+assert.equal(await page.getByRole("button", { name: "方形头像", exact: true }).getAttribute("aria-pressed"), "true");
 if (!(await page.locator(".primary-nav-trigger.active").innerText()).includes("钢舞姬")) throw new Error("Default navigation group is not 钢舞姬");
 
 const maidenGroup = page.locator(".primary-nav-group").filter({ has: page.getByRole("button", { name: "钢舞姬", exact: true }) });
 await maidenGroup.locator(".primary-nav-trigger").hover();
 await maidenGroup.locator(".primary-nav-menu").waitFor();
 const maidenItems = await maidenGroup.locator(".primary-nav-menu b").allTextContents();
-assert.deepEqual(maidenItems, ["属性表", "卡牌图鉴", "研发配方", "研发路线"]);
+assert.deepEqual(maidenItems, ["卡牌图鉴", "属性表", "研发配方", "研发路线"]);
 assert.deepEqual(await page.locator(".primary-nav-trigger > span").allTextContents(), ["钢舞姬", "手册", "关卡", "攻略链接"]);
 await maidenGroup.getByRole("menuitem", { name: /卡牌图鉴/ }).click();
 await page.locator(".cards-archive.archive-visible").waitFor();
@@ -52,7 +53,7 @@ await page.locator(".research-graph-archive, .research-chain-mode .chain-archive
 await page.getByRole("heading", { name: "研发路线", exact: true }).waitFor();
 
 const manualItems = await page.locator("#manual-section-menu b").allTextContents();
-assert.deepEqual(manualItems, ["装备", "科技", "任务", "道具", "地形"]);
+assert.deepEqual(manualItems, ["装备", "科技", "任务", "道具", "地形", "根据地"]);
 await openSection("手册", "装备");
 await page.locator(".equipment-atlas").waitFor();
 await openSection("手册", "科技");
@@ -166,5 +167,5 @@ if (await touchPage.locator("#guide-links-menu a").count() !== guideLinks.length
 await touchContext.close();
 
 assert.deepEqual(errors, []);
-console.log(JSON.stringify({ maidenItems, manualItems, stageItems, guideLinks, newTabsVerified: true, touchVerified: true, storyFiltersRemoved: true, defaultView: "table", heroRemoved: true, desktopPath, mobilePath }, null, 2));
+console.log(JSON.stringify({ maidenItems, manualItems, stageItems, guideLinks, newTabsVerified: true, touchVerified: true, storyFiltersRemoved: true, defaultView: "cards/avatars", heroRemoved: true, desktopPath, mobilePath }, null, 2));
 await browser.close();

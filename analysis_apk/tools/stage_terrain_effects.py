@@ -103,23 +103,26 @@ def build_terrain_effects(fields, styles, text, assets, scope='ground'):
 
     # Extract only effect-definition lines, preserving their exact visible
     # text. Repeated definitions in different terrain examples must agree.
-    manual_id = text_id(styles[1378023], 'MANUAL')
     definitions = {}
-    for line in re.split(r'</?br\s*/?>', text(manual_id), flags=re.I):
-        name, sep, description = plain_text(line).partition('：')
-        if sep and name in names.values():
-            assert description, f'Empty manual definition: {name}'
-            assert name not in definitions or definitions[name] == description, f'Conflicting manual definitions: {name}'
-            definitions[name] = description
-    assert len(definitions) == 13, 'Re-audit the terrain manual after client updates'
+    for manual_style in (1378023, 1378038):
+        if manual_style not in styles:
+            continue
+        manual_id = text_id(styles[manual_style], 'MANUAL')
+        for line in re.split(r'</?br\s*/?>', text(manual_id), flags=re.I):
+            name, sep, description = plain_text(line).partition('：')
+            if sep and name in names.values():
+                assert description, f'Empty manual definition: {name}'
+                assert name not in definitions or definitions[name]['description'] == description, f'Conflicting manual definitions: {name}'
+                definitions.setdefault(name, {'description': description, 'stringId': manual_id})
+    assert len(definitions) >= 13, 'Incomplete terrain manual coverage'
 
     effects = {}
     for sid, name in names.items():
         style = styles[sid]
         source = 'MANUAL'
-        description_id = manual_id
         if name in definitions:
-            description = definitions[name]
+            description = definitions[name]['description']
+            description_id = definitions[name]['stringId']
         else:
             # Later terrains are absent from the manual. Their ENV text
             # agrees with ANTI except for 167 (迟钝): ENV incorrectly says

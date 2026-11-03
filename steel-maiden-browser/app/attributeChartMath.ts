@@ -9,7 +9,7 @@ export type ChartKind = "bar" | "scatter";
 export type FormulaToken = { type: "stat"; key: ChartAttribute } | { type: "number"; value: string } | { type: "operator"; value: "+" | "-" | "*" | "/" | "(" | ")" };
 export type ChartMaiden = { id: number; tank: string; person: string; headImage: string; nation: string; nationIcon: string; classIcon: string; stage: string; stats: Record<string, Partial<Record<ChartAttribute, number | null>>> };
 export type ChartPoint = { maiden: ChartMaiden; x: number; y: number };
-export type ChartSnapshot = { kind: ChartKind; level: number; xLabel: string; yLabel: string; points: ChartPoint[] };
+export type ChartSnapshot = { kind: ChartKind; level: number; xLabel: string; yLabel: string; points: ChartPoint[]; calculationLabel?: string };
 type Stats = Partial<Record<ChartAttribute, number | null>>;
 type Expression = (stats: Stats) => number;
 const labels = new Map(chartAttributes.map((entry) => [entry.key, entry.label]));

@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
@@ -23,6 +24,7 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1920, height: 929 }, deviceScaleFactor: 1 });
 await page.goto(baseUrl, { waitUntil: "networkidle" });
+await openAttributeTable(page);
 
 const table = {
   rows: await page.locator(".maiden-table tbody tr").count(),

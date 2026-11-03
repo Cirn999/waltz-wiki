@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
@@ -13,6 +14,7 @@ const executablePath = (await fs.readdir(playwrightRoot, { withFileTypes: true }
 const browser = await chromium.launch({ headless: true, executablePath });
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
 await page.goto(baseUrl, { waitUntil: "networkidle" });
+await openAttributeTable(page);
 
 const row = page.locator(".maiden-table tbody tr").filter({ hasText: "缪" }).first();
 await row.waitFor();

@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -14,6 +15,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(process.argv[2] || "http://127.0.0.1:3017", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const first = page.locator("tr[data-maiden-id]").first();
   const currentId = Number(await first.getAttribute("data-maiden-id"));
   const current = data.rows.find((row) => row.id === currentId);

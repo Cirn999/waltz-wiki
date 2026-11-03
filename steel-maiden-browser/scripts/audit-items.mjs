@@ -7,12 +7,13 @@ const executablePath = (await fs.readdir(pw)).filter((n) => n.startsWith("chromi
 const browser = await chromium.launch({ headless:true, executablePath });
 const page = await browser.newPage({ viewport:{width:1440,height:1000} });
 const errors=[]; page.on("pageerror",(e)=>errors.push(e.message));
+const catalog = JSON.parse(await fs.readFile(new URL("../public/data/item-catalog.json", import.meta.url), "utf8"));
 try {
   await page.goto(process.argv[2] || "http://127.0.0.1:56501", {waitUntil:"networkidle"});
   await page.getByRole("button",{name:"手册",exact:true}).click();
   await page.getByRole("menuitem",{name:/^道具/}).click();
   await page.locator(".item-card").first().waitFor();
-  assert.equal(await page.locator(".item-results b").innerText(),"413");
+  assert.equal(await page.locator(".item-results b").innerText(),String(catalog.items.length));
   assert.equal(await page.locator(".item-card").count(),36);
   const uniformCards = async () => {
     const boxes = await page.locator(".item-card").evaluateAll((cards) => cards.map((c) => ({width:c.getBoundingClientRect().width,height:c.getBoundingClientRect().height})));
@@ -21,9 +22,9 @@ try {
   };
   await uniformCards();
   await page.getByRole("group",{name:"道具分类"}).getByRole("button",{name:/^资材/}).click();
-  assert.equal(await page.locator(".item-results b").innerText(),"147");
+  assert.equal(await page.locator(".item-results b").innerText(),String(catalog.items.filter((r) => r.category === 82).length));
   await page.getByRole("group",{name:"道具分类"}).getByRole("button",{name:/^活动道具/}).click();
-  assert.equal(await page.locator(".item-results b").innerText(),"266");
+  assert.equal(await page.locator(".item-results b").innerText(),String(catalog.items.filter((r) => r.category === 99).length));
   await page.getByRole("button",{name:"重置筛选",exact:true}).click();
   const search=page.getByRole("searchbox",{name:"搜索道具"});
   await search.fill("水晶贝");
@@ -129,7 +130,7 @@ try {
   await page.locator(".item-empty button").click();
   await page.setViewportSize({width:1440,height:1000});
   await page.getByRole("button",{name:"显示全部",exact:true}).click();
-  assert.equal(await page.locator(".item-card").count(),413);
+  assert.equal(await page.locator(".item-card").count(),catalog.items.length);
   await uniformCards();
   await page.getByRole("combobox",{name:"筛选道具用途"}).selectOption("解锁凭证");
   assert.equal(await page.locator(".item-card").count(),4);
@@ -147,5 +148,5 @@ try {
   await page.getByRole("button",{name:"重试加载"}).click();
   await page.locator(".item-card").first().waitFor();
   assert.deepEqual(errors,[]);
-  console.log("Items UI passed: navigation, categories, search, rewards, 413 records, mobile layout.");
+  console.log(`Items UI passed: navigation, categories, search, rewards, ${catalog.items.length} records, mobile layout.`);
 } finally { await browser.close(); }

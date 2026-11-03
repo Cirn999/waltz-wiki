@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -36,6 +37,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const openMaiden = async (id) => {
     const row = data.rows.find((r) => r.id === id);
     await page.locator(".search-box input").fill(row.tank);

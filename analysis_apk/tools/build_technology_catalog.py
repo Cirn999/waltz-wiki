@@ -209,7 +209,7 @@ def main() -> None:
     craft_preview = frontend_craft_lookup(args.maidens)
     for craft_id, source in source_craft_lookup(args.catalog_source).items():
         current = craft_preview.setdefault(craft_id, {"stats": [], "traits": [], "image": ""})
-        if source["stats"] and not current["stats"]:
+        if source["stats"]:
             current["stats"] = source["stats"]
     hidden_stats = hidden_craft_stats(crafts)
     traits_by_tag = style_traits(styles, strings)
@@ -331,7 +331,9 @@ def main() -> None:
             node_craft = next((craft for craft in craft_by_tag.get(tag, []) if 1405 in craft["tags"]), None)
             craft_id = node_craft["craft_id"] if node_craft else 0
             preview = craft_preview.get(craft_id, {})
-            node_traits = list(preview.get("traits", []))
+            # Gameplay traits come from the current Craft tags, not the last
+            # exported web snapshot (which may still contain removed traits).
+            node_traits = []
             for craft_tag in (node_craft or {}).get("tags", []):
                 for trait in traits_by_tag.get(craft_tag, []):
                     normalized = {"name": trait["name"], "description": trait["description"], "image": "", "iconCode": trait["iconCode"]}

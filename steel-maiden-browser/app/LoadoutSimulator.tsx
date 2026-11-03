@@ -1,18 +1,19 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- all images are local client assets */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import GenerationTabs, { generationIcons } from "./GenerationTabs";
 import CraftProperties from "./CraftProperties";
 import AmmoEfficiency from "./AmmoEfficiency";
 import { assessmentIcon, equipmentAssessment, magicAssessment } from "./loadoutAssessment";
 import { loadNativeLoadoutRules, type NativeLoadoutRules } from "./nativeLoadout";
+import { getGlobalTechnology, getServerTechnology, subscribeGlobalTechnology, updateGlobalTechnology } from "./loadoutTechnology";
 import { deliverPng, useAndroidGalleryBridge } from "./imageDelivery";
 import {
   calculateSimStats, clampLevel, craftGeneration, craftLockReason, defaultAmmo, defaultSimConfig,
   findCraftTech, maximumMagicLevel, normalizeSimConfig, relevantTechBranches,
-  simStats, starCount, technologyPath,
+  simStats, starCount, technologyPath, researchCraftKey, researchRequiredLevel, maximumTechnologySettings,
   type SimColonization, type SimColonizationKey, type SimConfig, type SimCraft,
   type SimEquipmentData, type SimEquipmentFamily, type SimMaiden, type SimMagicData,
   type SimMagicSkill, type SimTechData, type SimTechLevels,
@@ -67,15 +68,16 @@ export default function LoadoutSimulator({ maiden, equipment, technology, magic,
   onClose: () => void;
 }) {
   const vehicleKey = `steel-loadout-vehicle-v1:${maiden.id}`;
-  const techKey = "steel-loadout-global-tech-v1";
-  const [tech, setTech] = useState<SimTechLevels>(() => readStorage<SimTechLevels>(techKey) ?? {});
-  const [config, setConfig] = useState<SimConfig>(() => normalizeSimConfig(maiden, readStorage<SimConfig>(vehicleKey) ?? defaultSimConfig(maiden), equipment, technology, readStorage<SimTechLevels>(techKey) ?? {}, magic));
+  const tech = useSyncExternalStore(subscribeGlobalTechnology, getGlobalTechnology, getServerTechnology);
+  const [savedConfig, setConfig] = useState<SimConfig>(() => readStorage<SimConfig>(vehicleKey) ?? defaultSimConfig(maiden));
+  const config = useMemo(() => normalizeSimConfig(maiden, savedConfig, equipment, technology, tech, magic), [maiden, savedConfig, equipment, technology, tech, magic]);
   const [picker, setPicker] = useState<Picker | null>(null);
   const [pickerRank, setPickerRank] = useState(1);
   const [equipmentPickerLevel, setEquipmentPickerLevel] = useState(1);
   const [pickerQuery, setPickerQuery] = useState("");
   const [editingTech, setEditingTech] = useState<Branch | null>(null);
   const [draftTech, setDraftTech] = useState([0, 0, 0]);
+  const [draftResearch, setDraftResearch] = useState<SimTechLevels>({});
   const [shareState, setShareState] = useState<"idle" | "working" | "copied" | "saved" | "error">("idle");
   const androidGallery = useAndroidGalleryBridge();
   const [notice, setNotice] = useState("");
@@ -96,10 +98,9 @@ export default function LoadoutSimulator({ maiden, equipment, technology, magic,
   }, [maiden.id, rulesRetry]);
 
   useEffect(() => { try { window.localStorage.setItem(vehicleKey, JSON.stringify(config)); } catch { /* Browsing still works without storage. */ } }, [config, vehicleKey]);
-  const changeTech = (next: SimTechLevels) => {
-    setTech(next);
+  const changeTech = (update: SimTechLevels | ((current: SimTechLevels) => SimTechLevels)) => {
+    const next = updateGlobalTechnology(update);
     setConfig((current) => normalizeSimConfig(maiden, current, equipment, technology, next, magic));
-    try { window.localStorage.setItem(techKey, JSON.stringify(next)); } catch { /* Keep current session state. */ }
   };
   const closeDialog = () => { setPicker(null); setEditingTech(null); };
   useEffect(() => {
@@ -135,20 +136,32 @@ export default function LoadoutSimulator({ maiden, equipment, technology, magic,
     setPicker(null);
     setEditingTech(branch);
     setDraftTech([1, 2, 3].map((generation) => tech[technology.blocks.find((block) => block.category === branch.category && block.secondary === branch.secondary && block.generation === generation)?.id ?? ""] ?? 0));
+    setDraftResearch(Object.fromEntries(Object.entries(tech).filter(([key]) => key.startsWith("craft:"))));
   };
   const saveTech = () => {
     if (!editingTech) return;
-    const next = { ...tech };
-    for (const generation of [1, 2, 3]) {
-      for (const block of technology.blocks) {
-        if (block.generation !== generation || block.category !== editingTech.category) continue;
-        if (editingTech.category !== "主炮" && block.secondary !== editingTech.secondary) continue;
-        next[block.id] = clampLevel(draftTech[generation - 1], 0, 16);
+    changeTech((current) => {
+      const next = { ...current };
+      for (const generation of [1, 2, 3]) {
+        for (const block of technology.blocks) {
+          if (block.generation !== generation || block.category !== editingTech.category) continue;
+          if (editingTech.category !== "主炮" && block.secondary !== editingTech.secondary) continue;
+          next[block.id] = clampLevel(draftTech[generation - 1], 0, 16);
+          for (const node of block.nodes) {
+            const key = researchCraftKey(node.craftId);
+            if (block.secondary === editingTech.secondary) next[key] = draftResearch[key] ? 1 : 0;
+            if (researchRequiredLevel(block, node.x) > next[block.id]) delete next[key];
+          }
+        }
       }
-    }
-    changeTech(next);
+      return next;
+    });
     setEditingTech(null);
-    setNotice(editingTech.category === "主炮" ? "所有弹种的各期科技等级已同步；当前仅计算携带弹种的加成。" : "科技等级已保存；不再满足条件的工艺和魔改会自动卸下或降级。");
+    setNotice("科技等级与已研发工艺已保存，永久研发加成对所有钢舞姬共享。");
+  };
+  const maximizeTechnology = () => {
+    changeTech((current) => maximumTechnologySettings(technology, current));
+    setNotice("所有科技已升至满级，全部工艺节点已点亮；配置已全局同步。");
   };
   const changeVehicleLevel = (level: number) => setConfig((current) => normalizeSimConfig(maiden, { ...current, level: clampLevel(level, 1, 99) }, equipment, technology, tech, magic));
   const resetVehicle = () => { setConfig(defaultSimConfig(maiden)); setNotice("本车配装已重置，全局科技配置保留。"); };
@@ -177,8 +190,9 @@ export default function LoadoutSimulator({ maiden, equipment, technology, magic,
 
   const chosenCraftCard = (kind: "ammo" | "engine" | "body" | "armor", item: SimCraft | undefined, icon: string) => {
     const rankLabel = item ? `${craftGeneration(technology, categoryByPicker[kind], item)}期` : kind === "ammo" ? "基础" : "—";
-    return <button className={`sim-craft-card ${item ? "filled" : ""}`} type="button" onClick={() => openPicker(kind)} aria-label={`选择${pickerNames[kind]}，当前${item?.name ?? "空"}`}>
-      <span className="sim-craft-main"><span className="sim-craft-art"><img src={item?.image || icon} alt="" /></span><span className="sim-craft-copy"><small className={kind === "ammo" ? "sim-ammo-meta" : undefined}>{pickerNames[kind]}{kind === "ammo" && <span className="sim-craft-rank">{rankLabel}</span>}</small><strong title={item?.name}>{item?.name ?? (kind === "ammo" ? `基础${maiden.ammo?.[0] ?? "弹药"}` : "未装备")}</strong></span>{kind === "ammo" ? <AmmoEfficiency value={item ? item.efficiency : maiden.baseAmmoEfficiency} /> : <span className="sim-craft-rank">{rankLabel}</span>}</span>
+    const name = item?.name ?? (kind === "ammo" ? maiden.baseAmmunition?.name ?? "基础主炮" : "未装备");
+    return <button className={`sim-craft-card ${item ? "filled" : ""}`} type="button" onClick={() => openPicker(kind)} aria-label={`选择${pickerNames[kind]}，当前${name}`}>
+      <span className="sim-craft-main"><span className="sim-craft-art"><img src={item?.image || icon} alt="" /></span><span className="sim-craft-copy"><small className={kind === "ammo" ? "sim-ammo-meta" : undefined}>{pickerNames[kind]}{kind === "ammo" && <span className="sim-craft-rank">{rankLabel}</span>}</small><strong title={name}>{name}</strong></span>{kind === "ammo" ? <AmmoEfficiency value={item ? item.efficiency : maiden.baseAmmoEfficiency} /> : <span className="sim-craft-rank">{rankLabel}</span>}</span>
       {item && <span className="sim-craft-details">
         <CraftProperties item={item} ammunition={kind === "ammo"} simulator traits={findCraftTech(technology, categoryByPicker[kind], item.id, item.rank)?.node.traits} />
       </span>}
@@ -210,11 +224,12 @@ export default function LoadoutSimulator({ maiden, equipment, technology, magic,
 
   const renderTechnologyTile = (branch: Branch) => {
     const blocks = technology.blocks.filter((block) => block.category === branch.category && block.secondary === branch.secondary);
-    const total = blocks.filter((block) => block.generation <= starCount(config.level)).reduce((sum, block) => sum + (tech[block.id] ?? 0), 0);
-    const phase = blocks.find((block) => block.generation === starCount(config.level)) ?? blocks.at(-1);
+    const total = blocks.reduce((sum, block) => sum + (tech[block.id] ?? 0), 0);
+    const effectiveTotal = blocks.filter((block) => block.generation <= (result?.phase ?? starCount(config.level))).reduce((sum, block) => sum + (tech[block.id] ?? 0), 0);
+    const phase = blocks.filter((block) => (tech[block.id] ?? 0) > 0).sort((a, b) => a.generation - b.generation).at(-1) ?? blocks[0];
     const background = resumeBackgrounds[phase?.iconCode ?? ""];
     const symbol = resumeSymbols[branch.secondary];
-    const state = `生效等级 ${total}`;
+    const state = `全局等级 ${total}，本车生效 ${effectiveTotal} 级`;
     return <button key={`${branch.category}:${branch.secondary}`} className="sim-tech-tile" type="button" onClick={() => openTech(branch)} title={`${branch.secondary} · ${state}`} aria-label={`设置${branch.secondary}科技，${state}`}>
       {background && <img className="sim-tech-backdrop" src={resumeSprite(background)} alt="" />}
       {symbol && <img className="sim-tech-symbol" src={resumeSprite(symbol)} alt="" />}
@@ -276,14 +291,38 @@ export default function LoadoutSimulator({ maiden, equipment, technology, magic,
             <div className="sim-panel-heading"><h3>强殖</h3><small>每项 0–12 级</small></div><div className="sim-colonization-grid">{simStats.slice(0, 6).map(({ key, label }) => <label className="sim-colonization" key={key}>{attributeIcons[label] && <img src={attributeIcons[label]} alt="" />}<span>{label}</span><input type="number" min={0} max={12} value={config.colonization[key as SimColonizationKey]} onChange={(event) => setConfig((current) => ({ ...current, colonization: { ...current.colonization, [key]: clampLevel(Number(event.target.value), 0, 12) } }))} aria-label={`${label}强殖等级`} /></label>)}</div>
             <div className="sim-panel-divider" /><div className="sim-panel-heading"><h3>魔改</h3><small>等级受索敌科技限制</small></div><div className="sim-magic-list">{magicCard("tactics")}{magicCard("ordnance")}</div>
           </div>
-          <div className="sim-technology-section"><div className="sim-panel-divider" /><div className="sim-panel-heading sim-technology-heading"><h3>生效科技</h3><small>点图标设置各期等级 · 全局共享</small></div><div className="sim-tech-grid">{branches.map(renderTechnologyTile)}</div></div>
+          <div className="sim-technology-section"><div className="sim-panel-divider" /><div className="sim-panel-heading sim-technology-heading"><h3>生效科技</h3><small>显示全局等级 · 点图标设置等级及已研发工艺</small></div><div className="sim-tech-grid">{branches.map(renderTechnologyTile)}<button className="sim-tech-max" type="button" onClick={maximizeTechnology} title="所有科技各期升至满级，并点亮全部工艺节点">一键满级</button></div></div>
         </section>
       </div>
       <footer className="sim-footer"><span>按客户端原生规则逐项结算与取整；升星、科技、强殖和魔改单独计入。空工艺仍按本车默认配置结算科技。</span><span>{notice || "本车配置自动保存，科技配置对所有钢舞姬生效。"}</span><small>显示换装后的静态面板；不叠加战斗中触发的技能、环境或临时效果。</small></footer>
     </section>
     {(picker || editingTech) && <div className="sim-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) closeDialog(); }}><section className="sim-dialog" role="dialog" aria-modal="true" aria-label={editingTech ? `设置${editingTech.category === "主炮" ? "全部弹种" : editingTech.secondary}科技` : `选择${pickerNames[picker!.kind]}`}><header><div><strong>{editingTech ? `${editingTech.category === "主炮" ? "全部弹种" : editingTech.secondary}科技` : `选择${pickerNames[picker!.kind]}`}</strong><small>{editingTech ? editingTech.category === "主炮" ? "一／二／三期等级同步应用于全部弹种；仅当前携带弹种生效" : "每期 0–16 级；科技全局共享" : "游戏素材与科技解锁条件"}</small></div><button type="button" onClick={closeDialog} aria-label="关闭选择">×</button></header>
-      {editingTech ? <><div className="sim-tech-editor"><div className="sim-tech-editor-icon"><img src={editingTech.image || techDialogBlocks.find((block) => block?.nodes[0]?.image)?.nodes[0]?.image || attributeIcons["侦查"]} alt="" /></div>{techDialogBlocks.map((block, index) => <label key={index} className="sim-tech-phase"><img src={generationIcons[index]} alt="" /><span>{index + 1}期{index + 1 > starCount(config.level) && <small>本车尚未生效</small>}</span><input type="number" min={0} max={16} value={draftTech[index]} onChange={(event) => setDraftTech((current) => current.map((value, phase) => phase === index ? clampLevel(Number(event.target.value), 0, 16) : value))} aria-label={`${index + 1}期科技等级`} disabled={!block} /></label>)}</div><div className="sim-dialog-actions"><button type="button" onClick={closeDialog}>取消</button><button className="primary" type="button" onClick={saveTech}>保存科技等级</button></div></> : <><div className="sim-picker-toolbar"><input type="search" value={pickerQuery} onChange={(event) => setPickerQuery(event.target.value)} placeholder="搜索名称" aria-label="搜索可选内容" />{picker?.kind === "equipment" && <label className="sim-picker-equipment-level">装备等级 <input type="number" min={1} max={10} value={equipmentPickerLevel} onChange={(event) => setEquipmentPickerLevel(clampLevel(Number(event.target.value), 1, 10))} aria-label="待选择装备的等级" /><strong>S{equipmentPickerLevel}</strong></label>}{picker && ["ammo", "engine", "body", "armor"].includes(picker.kind) && <GenerationTabs className="sim-picker-ranks" selected={pickerRank} onSelect={setPickerRank} label={`${pickerNames[picker.kind]}期数`} />}</div><div className="sim-option-grid">
-        {picker?.kind === "ammo" && <button className="sim-option sim-option-base-ammo" type="button" onClick={() => { setConfig((current) => ({ ...current, ammoId: 0 })); closeDialog(); }}><img src={defaultAmmo(maiden)?.image} alt="" /><span className="sim-craft-copy"><strong>基础{maiden.ammo?.[0] ?? "弹药"}</strong><small>仅保留弹种，不附加弹药面板属性</small></span><AmmoEfficiency value={maiden.baseAmmoEfficiency} /></button>}
+      {editingTech ? <>
+        <div className="sim-tech-editor"><div className="sim-tech-editor-icon"><img src={editingTech.image || techDialogBlocks.find((block) => block?.nodes[0]?.image)?.nodes[0]?.image || attributeIcons["侦查"]} alt="" /></div>{techDialogBlocks.map((block, index) => <label key={index} className="sim-tech-phase"><img src={generationIcons[index]} alt="" /><span>{index + 1}期{index + 1 > starCount(config.level) && <small>本车尚未生效</small>}</span><input type="number" min={0} max={16} value={draftTech[index]} onChange={(event) => setDraftTech((current) => current.map((value, phase) => phase === index ? clampLevel(Number(event.target.value), 0, 16) : value))} aria-label={`${index + 1}期科技等级`} disabled={!block} /></label>)}</div>
+        {techDialogBlocks.some((block) => block?.nodes.length) && <section className="sim-research-editor" aria-label={`${editingTech.secondary}已研发工艺`}>
+          <h3>{editingTech.secondary} · 已研发工艺</h3>
+          <p>勾选游戏中实际已研发的工艺。研发会提供永久加成，无需装备；仅设置科技等级无法计入这部分加成。</p>
+          {techDialogBlocks.map((block, phaseIndex) => block && block.nodes.length > 0 && <fieldset key={block.id}>
+            <legend>{phaseIndex + 1}期</legend>
+            <div className="sim-research-actions"><span>已选 {block.nodes.filter((node) => draftResearch[researchCraftKey(node.craftId)] && researchRequiredLevel(block, node.x) <= draftTech[phaseIndex]).length} / {block.nodes.length}</span><button type="button" onClick={() => setDraftResearch((current) => ({ ...current, ...Object.fromEntries(block.nodes.map((node) => [researchCraftKey(node.craftId), researchRequiredLevel(block, node.x) <= draftTech[phaseIndex] ? 1 : 0])) }))}>全选可研发工艺</button><button type="button" onClick={() => setDraftResearch((current) => ({ ...current, ...Object.fromEntries(block.nodes.map((node) => [researchCraftKey(node.craftId), 0])) }))}>清空本期</button></div>
+            <div className="sim-research-nodes">{block.nodes.map((node) => {
+              const key = researchCraftKey(node.craftId);
+              const required = researchRequiredLevel(block, node.x);
+              const available = required <= draftTech[phaseIndex];
+              const bonus = (node.researchAttributes ?? []).map((attribute) => {
+                const name = block.levels.flatMap((level) => level.attributes).find((item) => item.propertyId === attribute.propertyId)?.name ?? "科技加成";
+                return `${name}${attribute.value >= 0 ? "+" : ""}${attribute.value / 100}%`;
+              }).join(" · ");
+              return <label key={node.craftId} className={`sim-research-node${available ? "" : " locked"}`} title={available ? bonus : `需要本期科技 ${required} 级`}>
+                <input type="checkbox" checked={Boolean(draftResearch[key]) && available} disabled={!available} onChange={(event) => setDraftResearch((current) => ({ ...current, [key]: event.target.checked ? 1 : 0 }))} aria-label={`已研发${node.name}`} />
+                <img src={node.image} alt="" /><span><strong>{node.name}</strong><small>{available ? bonus || "无额外面板加成" : `需要本期科技 ${required} 级`}</small></span>
+              </label>;
+            })}</div>
+          </fieldset>)}
+        </section>}
+        <div className="sim-dialog-actions"><button type="button" onClick={closeDialog}>取消</button><button className="primary" type="button" onClick={saveTech}>保存科技等级</button></div>
+      </> : <><div className="sim-picker-toolbar"><input type="search" value={pickerQuery} onChange={(event) => setPickerQuery(event.target.value)} placeholder="搜索名称" aria-label="搜索可选内容" />{picker?.kind === "equipment" && <label className="sim-picker-equipment-level">装备等级 <input type="number" min={1} max={10} value={equipmentPickerLevel} onChange={(event) => setEquipmentPickerLevel(clampLevel(Number(event.target.value), 1, 10))} aria-label="待选择装备的等级" /><strong>S{equipmentPickerLevel}</strong></label>}{picker && ["ammo", "engine", "body", "armor"].includes(picker.kind) && <GenerationTabs className="sim-picker-ranks" selected={pickerRank} onSelect={setPickerRank} label={`${pickerNames[picker.kind]}期数`} />}</div><div className="sim-option-grid">
+        {picker?.kind === "ammo" && <button className="sim-option sim-option-base-ammo" type="button" onClick={() => { setConfig((current) => ({ ...current, ammoId: 0 })); closeDialog(); }}><img src={defaultAmmo(maiden)?.image} alt="" /><span className="sim-craft-copy"><strong>{maiden.baseAmmunition?.name ?? "基础主炮"}</strong><small>本车默认主炮</small></span><AmmoEfficiency value={maiden.baseAmmoEfficiency} /></button>}
         {picker?.kind && ["engine", "body", "armor", "equipment"].includes(picker.kind) && <button className="sim-option sim-option-empty" type="button" onClick={() => { if (picker.kind === "equipment") setConfig((current) => ({ ...current, equipment: current.equipment.map((slot, index) => index === picker.slot ? { familyId: null, level: 1 } : slot) })); else setConfig((current) => ({ ...current, [fieldByPicker[picker.kind as "engine" | "body" | "armor"]]: null })); closeDialog(); }}><span>空槽</span><strong>不装备</strong></button>}
         {picker && ["ammo", "engine", "body", "armor"].includes(picker.kind) && visibleCrafts.map((item) => {
           const kind = picker.kind as "ammo" | "engine" | "body" | "armor";

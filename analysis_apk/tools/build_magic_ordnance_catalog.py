@@ -205,9 +205,9 @@ def render_description(
 
 def build_catalog() -> tuple[dict[str, Any], dict[str, Any]]:
     config = ROOT / "patch" / "_1.18" / "config"
-    maidens_path = ROOT / "steel-maiden-browser" / "public" / "data" / "maidens.json"
+    maidens_path = ROOT / "analysis_apk/output/steel_maiden_catalog_v4/钢舞姬汇总数据.json"
     maidens = json.loads(maidens_path.read_text(encoding="utf-8"))["rows"]
-    card_ids = {int(row["id"]) for row in maidens}
+    card_ids = {int(row["钢舞姬卡牌ID"]) for row in maidens}
 
     trains = parse_capsule_faculty_trains(config / "CapsuleFacultyTrainInfo.dat")
     growth_by_id = {row["template_id"]: row for row in parse_growth(config / "SkillGrowthTemplateInfo.dat")}

@@ -17,6 +17,7 @@ from PIL import Image
 from decode_configs import Reader, config_path, parse_arranged_styles, parse_fund_types
 from export_ui_images import sprite_image
 from inspect_ui_attribute_icons import parse_ui_styles
+from client_archives import client_apks
 
 
 def race_styles():
@@ -51,7 +52,7 @@ def prepare(rows_path: Path, app: Path, skins_only=False):
     atlases = {}
     plists = {}
     with ExitStack() as stack:
-        archives = [stack.enter_context(zipfile.ZipFile(p)) for p in [ROOT / "base(1).apk", ROOT / "钢铁华尔兹_260924.apk", ROOT / "钢铁华尔兹.apk"] if p.exists()]
+        archives = [stack.enter_context(zipfile.ZipFile(p)) for p in client_apks(ROOT)]
 
         providers = [(str(directory), styles, lambda name, directory=directory: (directory / name).read_bytes()) for directory in ui_roots]
         cache = app / ".cache/table-portraits"

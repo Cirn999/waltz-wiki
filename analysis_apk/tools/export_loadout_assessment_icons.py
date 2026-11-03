@@ -12,6 +12,7 @@ from PIL import Image
 
 from export_ui_images import RECT_PATTERN, sprite_image
 from inspect_ui_attribute_icons import parse_ui_styles
+from client_archives import base_apk
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -20,7 +21,7 @@ def main() -> None:
     styles = {row["code"]: row for row in parse_ui_styles(ROOT / "patch/_1.18/config/UIStyle.dat")}
     output = ROOT / "steel-maiden-browser/public/art/assessments"
     output.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(ROOT / "base(1).apk") as apk:
+    with zipfile.ZipFile(base_apk(ROOT)) as apk:
         for number in range(83, 95):
             code = f"pvp-{number:03d}"
             style = styles[code]

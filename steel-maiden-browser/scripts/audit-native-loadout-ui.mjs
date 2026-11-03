@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -19,6 +20,7 @@ try {
   let unavailable = true;
   await page.route('**/data/loadout-rules.json', (route) => unavailable ? route.fulfill({ status: 503, body: 'intentional regression-test failure' }) : route.continue());
   await page.goto(process.argv[2] || 'http://localhost:3100', { waitUntil: 'networkidle' });
+  await openAttributeTable(page);
   await page.locator('.search-box input').fill(maiden.tank);
   await page.locator('.search-box button').click();
   await page.locator(`tr[data-maiden-id="${maiden.id}"] .table-avatar`).click();

@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -25,6 +26,7 @@ try {
   for(const id of ids) {
     const maiden=maidens.find(row=>row.id===id);
     await page.goto(baseUrl,{waitUntil:"networkidle"});
+    await openAttributeTable(page);
     await page.locator('.search-box input').fill(maiden.tank);
     await page.locator('.search-box input').press('Enter');
     const row=page.locator(`tr[data-maiden-id="${id}"]`);

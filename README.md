@@ -2,6 +2,8 @@
 
 《钢铁华尔兹》资料查询与配装辅助网页，收录钢舞姬、装备、科技、研发、关卡、剧情、任务和地形等资料。
 
+接手开发请先阅读 [开发交接文档](HANDOFF.md)，其中包含当前架构、功能约定、数据重建依赖、校验方法、发布流程和已知限制。
+
 ## 在线访问
 
 [打开钢舞姬战术档案库](https://cirn999.github.io/waltz-wiki/)
@@ -59,9 +61,16 @@ cd steel-maiden-browser
 npx tsc --noEmit
 npm run verify:atlas-team
 npm run verify:technology-paths
+npm run verify:loadout-research
 ```
 
 浏览器回归脚本还需要 Playwright 浏览器及正在运行的本地网页，部分历史检查脚本使用 Windows 环境路径。
+
+配装模拟的科技设置包含各期等级与“已研发工艺”。工艺节点研发也会提供永久面板加成，需要按游戏实际进度勾选；配置跨车辆共享。PLZ05 实机核对和字段来源见 [原生配装核验](steel-maiden-browser/docs/loadout-native-audit.md)。
+
+科技卡片显示全局等级总和，同站点标签页之间同步。科技区域右下角的“一键满级”会升满所有科技分期并点亮全部工艺节点。
+
+属性表支持按指挥官等级模拟培养上限，并统一选择战术；采用默认工艺、空装备、0 强殖，默认主炮计入科技加成，原车辆等级切换仍独立生效。输入留空恢复基础属性，设置与配装模拟独立。详见 [指挥官等级上限模拟](steel-maiden-browser/docs/commander-simulation.md)。
 
 ## 收录范围
 

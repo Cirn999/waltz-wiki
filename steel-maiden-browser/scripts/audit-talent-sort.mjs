@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -14,6 +15,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(process.argv[2] || "http://localhost:3100", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const select = page.getByRole("combobox", { name: "才艺排序依据" });
   const head = page.locator(".table-heading-row .column-talents");
   const names = [...new Set(data.rows.flatMap((row) => row.talents.map((talent) => talent.name)))];

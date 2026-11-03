@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -43,6 +44,7 @@ const nav = async (name) => {
 };
 try {
   await page.goto(process.argv[2] || "http://127.0.0.1:3000", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator("tr[data-maiden-id]").first().waitFor();
   await assertRows(implemented);
   console.log("implemented rows checked");
@@ -111,6 +113,7 @@ try {
   await nav("属性表");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await assertRows(implemented);
   dialog = await open();
   await assertLastRow(dialog, true);

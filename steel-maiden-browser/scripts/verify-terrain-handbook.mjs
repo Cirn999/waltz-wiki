@@ -6,11 +6,11 @@ import { loadStageCatalog } from "../app/stageCatalogData.ts";
 const catalog = JSON.parse(await fs.readFile(new URL("../public/data/stage-catalog.json", import.meta.url), "utf8"));
 const before = JSON.stringify(catalog.terrains);
 const rows = handbookTerrains(catalog.terrains);
-assert.equal(rows.length, 35);
+assert.equal(rows.length, 38);
 const airRows = handbookTerrains(catalog.terrains, "air");
-assert.equal(airRows.length, 37, "Retain two same-name aircraft effect variants");
+assert.equal(airRows.length, 40, "Retain two same-name aircraft effect variants");
 for (const [perspective, entries] of [["ground", rows], ["air", airRows]]) {
-  assert.equal(entries.flatMap((row) => row.ids).length, 39);
+  assert.equal(entries.flatMap((row) => row.ids).length, Object.keys(catalog.terrains).length);
   assert.deepEqual(entries.flatMap((row) => row.ids).sort((a, b) => a - b), Object.values(catalog.terrains).map((row) => row.id).sort((a, b) => a - b));
   for (const row of entries) {
     for (const id of row.ids) {
@@ -33,7 +33,7 @@ assert.deepEqual(rows.find((row) => row.ids.includes(30)).ids, [30, 53]);
 assert.equal(rows.find((row) => row.ids.includes(30)).image, "/art/stages/pvp-135.webp", "Spore terrain uses one representative image");
 assert.deepEqual(airRows.find((row) => row.ids.includes(30)).ids, [30, 53]);
 assert.deepEqual(airRows.find((row) => row.ids.includes(51)).ids, [51]);
-assert.equal(new Set(rows.flatMap((row) => row.effects.map((effect) => effect.name))).size, 18);
+assert.equal(new Set(rows.flatMap((row) => row.effects.map((effect) => effect.name))).size, 20);
 assert.equal(new Set(airRows.flatMap((row) => row.effects.map((effect) => effect.name))).size, 17);
 assert.equal(catalog.terrains[1].name, "草地平原");
 assert.equal(catalog.terrains[6].name, "岩地巷战");
@@ -43,7 +43,7 @@ assert.deepEqual(hills.airEffects.map((effect) => effect.name), ["干燥", "静�
 const canyon = Object.values(catalog.terrains).find((terrain) => terrain.name === "岩地裂谷");
 assert.deepEqual(canyon.airEffects.map((effect) => effect.name), ["夜幕", "积云", "电波", "湍流"]);
 assert.equal(catalog.terrains[4].effects.find((effect) => effect.name === "风沙").description, "整个战斗过程中受到伤害有所提升");
-// Independently transcribed from aircraft MANUAL 701279 / 701281, including
+// Independently transcribed aircraft definitions; current MANUAL 701285/701287, including
 // exact image codes. ENV/ANTI wording and images are not the help-page display.
 const aircraftDefinitions = [
   [180, "深寒", "tjsx-079", "每个阶段开始前，都有一定概率攻击失败"],
@@ -66,19 +66,28 @@ const aircraftDefinitions = [
 ];
 // Keep field membership from the independent ENV_ITEM audit, not its old
 // ENV prose. Do not replace special variants with generic manual examples.
-const evidence = JSON.parse(await fs.readFile(new URL("../../analysis_apk/terrain_debuff_research/evidence.json", import.meta.url), "utf8"));
+const evidence = JSON.parse(await fs.readFile(new URL("./fixtures/terrain-air-membership.json", import.meta.url), "utf8"));
 for (const terrain of Object.values(catalog.terrains)) {
-  const expected = evidence.effects.filter((effect) => effect.scope === "air" && effect.fields.includes(terrain.id));
-  assert.deepEqual(terrain.airEffects.map((effect) => effect.styleId).sort(), expected.map((effect) => effect.styleId).sort());
+  assert.deepEqual(terrain.airEffects.map((effect) => effect.styleId).sort(), [...evidence.fields[terrain.id]].sort());
   for (const effect of terrain.airEffects) {
     const [id, name, icon, description] = aircraftDefinitions.find(([id]) => id === effect.styleId);
     assert.deepEqual([effect.styleId, effect.name, effect.image, effect.description], [id, name, `/art/stages/${icon}.webp`, description]);
     assert.equal(effect.nameSource, "MANUAL");
     assert.equal(effect.iconSource, "MANUAL");
     assert.equal(effect.descriptionSource, "MANUAL");
-    assert.ok([701279, 701281].includes(effect.descriptionStringId));
+    assert.ok([701285, 701287].includes(effect.descriptionStringId));
     assert.equal(effect.nameStringId, effect.descriptionStringId);
   }
+}
+assert.equal(catalog.terrains[59].name, "沙漠巷战");
+assert.equal(catalog.terrains[60].name, "沙漠堑壕");
+assert.equal(catalog.terrains[61].name, "雪地堑壕");
+for (const id of [60, 61]) {
+  const ambush = catalog.terrains[id].effects.find((effect) => effect.name === "伏击");
+  assert.equal(ambush.description, "整个战斗过程中更容易受到暴击");
+  assert.equal(ambush.descriptionStringId, 701289);
+  assert.equal(ambush.descriptionSource, "MANUAL");
+  assert.equal(catalog.terrains[id].effects.find((effect) => effect.name === "宽沟").description, "整个战斗过程中隐蔽上升");
 }
 assert.equal(JSON.stringify(catalog.terrains), before, "Grouping does not change the source data");
 assert.deepEqual(handbookTerrains({}), []);
@@ -103,4 +112,4 @@ try {
   assert.strictEqual(await loadStageCatalog(), one);
   assert.equal(requests, 3);
 } finally { globalThis.fetch = originalFetch; }
-console.log(JSON.stringify({ terrainConfigurations: 39, groundCards: rows.length, airCards: airRows.length, groundEffects: 18, airEffects: 17, nativeNames: true, nativeAircraftManual: true, oneTerrainIcon: true, independentScopeEvidence: true, ranges: true, search: true, sharedLoadingAndRetry: true }));
+console.log(JSON.stringify({ terrainConfigurations: Object.keys(catalog.terrains).length, groundCards: rows.length, airCards: airRows.length, groundEffects: 20, airEffects: 17, nativeNames: true, nativeAircraftManual: true, oneTerrainIcon: true, independentScopeEvidence: true, ranges: true, search: true, sharedLoadingAndRetry: true }));

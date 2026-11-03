@@ -5,6 +5,7 @@ import http from "node:http";
 import path from "node:path";
 import { chromium } from "playwright";
 import { auditPagesSkins } from "./audit-pages-skins.mjs";
+import { auditPagesUpdate } from "./audit-pages-update.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const output = path.join(root, "dist/client");
@@ -57,7 +58,8 @@ const section = async (groupName, name, selector) => {
 };
 try {
   await page.goto(baseUrl, { waitUntil: "networkidle", timeout: 120000 });
-  await page.locator(".table-archive").waitFor();
+  await page.locator(".atlas-album-avatars").waitFor();
+  assert.equal(await page.getByRole("button", { name: "方形头像", exact: true }).getAttribute("aria-pressed"), "true");
   await page.getByRole("button", { name: /筛选条件/ }).click();
   const filter = page.getByRole("dialog", { name: "钢舞姬筛选", exact: true });
   await filter.getByRole("button", { name: "取消", exact: true }).click();
@@ -71,7 +73,8 @@ try {
     ["钢舞姬", "研发路线", ".research-graph-archive, .research-chain-mode .chain-archive"],
     ["手册", "装备", ".equipment-atlas"], ["手册", "科技", ".technology-mode"],
     ["手册", "任务", ".task-table"], ["手册", "道具", ".item-archive"],
-    ["手册", "地形", ".terrain-card"], ["关卡", "关卡一览", ".stage-category"],
+    ["手册", "地形", ".terrain-card"], ["手册", "根据地", ".base-archive"],
+    ["关卡", "关卡一览", ".stage-category"],
     ["关卡", "收益一览", ".stage-yield-overview"], ["关卡", "剧情一览", ".story-archive"],
   ]) await section(...args);
   await page.getByRole("button", { name: "浏览战役剧情", exact: true }).click();
@@ -82,6 +85,7 @@ try {
   assert.equal(await page.locator('.story-reader [role="alert"]').count(), 0);
   await page.getByRole("button", { name: "关闭剧情", exact: true }).click();
   await section("钢舞姬", "属性表", ".table-archive");
+  await auditPagesUpdate(page, baseUrl, section);
   const brokenImages = await page.locator("img").evaluateAll((images) => images.filter((img) => img.complete && !img.naturalWidth && img.getBoundingClientRect().width > 0).map((img) => img.src));
   assert.deepEqual(errors, []);
   assert.deepEqual(leaked, []);
@@ -91,7 +95,7 @@ try {
   await page.screenshot({ path: path.join(root, ".cache/pages/desktop.png") });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: "networkidle" });
-  await page.locator(".table-archive").waitFor();
+  await page.locator(".atlas-album-avatars").waitFor();
   assert.deepEqual(errors, []);
   assert.deepEqual(leaked, []);
   assert.deepEqual(failed, []);

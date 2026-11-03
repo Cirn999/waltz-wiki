@@ -12,6 +12,10 @@
 
 属性表将车种、稀有度和魔改费用整合到游戏方形头像，名称列分两行显示坦克名与人名。头像与名称固定在左侧；列设置只管理合并后的列，车种、稀有度、图纸和魔改费用仍可独立筛选。头像分层素材由 `npm run prepare:table-portraits` 从 `Head_Square`、`RareType` 和 `CLASS_SMALL_ICON` 配置生成，缓存于 `public/art/table-portraits`，并随 `prepare:data` 更新。弹药列默认位于侦查之后，以 `tkyl-005` 底框和弹种消耗分类的 `FundTypeInfo` 资源 8 图标显示，每行三个，超过三个换行；原版图标居中按 45% 显示，相关素材缓存于 `public/art/table-ammunition`。
 
+配装模拟的科技设置需同时填写各期等级、勾选实际已研发工艺；具体工艺研发本身也提供永久属性加成，是否携带该工艺不影响这部分加成。详情见 [原生配装计算核验](docs/loadout-native-audit.md)，可运行 `npm run verify:loadout-research` 核对 PLZ05 实机样本。
+
+科技配置在所有钢舞姬及同站点标签页之间共享，卡片显示全局等级合计。生效科技区域右下角的“一键满级”可将全部科技升满并点亮所有工艺节点。
+
 首次重新生成数据：
 
 ```bat

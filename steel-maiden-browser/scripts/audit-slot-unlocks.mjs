@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -15,6 +16,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   page.on("pageerror", (err) => errors.push(err.message));
   await page.goto(process.argv[2] || "http://127.0.0.1:3017", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   for (const id of [9879, 9858, 6841, 6034, 6261, 6064]) {
     const maiden = rows.find((m) => m.id === id);
     await page.locator(".search-box input").fill(maiden.tank);

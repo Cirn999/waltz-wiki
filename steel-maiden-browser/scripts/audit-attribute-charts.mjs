@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -25,6 +26,7 @@ try {
     } } });
   });
   await page.goto(process.argv[2] || "http://localhost:3100", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator(".control-panel .level-picker").getByRole("button", { name: "60级", exact: true }).click();
   const launch = page.locator(".attribute-chart-launchers");
   const location = await launch.boundingBox(), levels = await page.locator(".control-panel .level-picker").boundingBox();

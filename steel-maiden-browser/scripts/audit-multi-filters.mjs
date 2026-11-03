@@ -16,6 +16,8 @@ const executablePath = (await fs.readdir(playwrightRoot, { withFileTypes: true }
 const browser = await chromium.launch({ headless: true, executablePath });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 await page.goto(baseUrl, { waitUntil: "networkidle" });
+await page.getByRole("button", { name: "钢舞姬", exact: true }).click();
+await page.getByRole("menuitem", { name: /^属性表/ }).click();
 
 const openMainFilter = async () => {
   await page.getByRole("button", { name: /筛选条件/ }).click();

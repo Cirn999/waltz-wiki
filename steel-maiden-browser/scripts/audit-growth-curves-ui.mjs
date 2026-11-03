@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -18,6 +19,7 @@ try {
   const growthRequests = [];
   page.on("request", (request) => { if (request.url().includes("/data/growth-curves.json")) growthRequests.push(request.url()); });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const firstRow = page.locator("tbody tr[data-maiden-id]").first();
   await firstRow.waitFor();
   const cardId = await firstRow.getAttribute("data-maiden-id");

@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw
 from decode_configs import config_path
 from inspect_ui_attribute_icons import parse_ui_styles
 from export_ui_images import sprite_image
+from client_archives import client_apks
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -16,7 +17,7 @@ class StageAssets:
         self.check = check
         self.styles = {r['code']: r for r in parse_ui_styles(config_path('UIStyle.dat'))}
         self.archives = [zipfile.ZipFile(p) for p in (
-            ROOT/'钢铁华尔兹.apk', ROOT/'base(1).apk',
+            *client_apks(ROOT),
             ROOT/'analysis_apk/official_patch_2_38.zip', ROOT/'analysis_apk/official_summary_2.zip') if p.exists()]
         self.members = [(z, set(z.namelist())) for z in self.archives]
         self.atlases = {}

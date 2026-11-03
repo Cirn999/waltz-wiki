@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -13,6 +14,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(process.argv[2] || "http://127.0.0.1:3017", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const results = [];
   for (const rarityId of [2, 3, 4]) {
     const sample = rows.find((row) => row.implemented && row.rarityId === rarityId && row.allAmmunition.length);

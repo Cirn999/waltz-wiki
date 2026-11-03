@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -29,6 +30,7 @@ try {
     localStorage.setItem("steel-loadout-global-tech-v1", JSON.stringify(tech));
   }, { id: maiden.id, config, tech: Object.fromEntries(tech.blocks.map((block) => [block.id, 16])) });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator(".search-box input").fill(maiden.tank);
   await page.locator(".search-box button").click();
   await page.locator(`tbody tr[data-maiden-id="${maiden.id}"] .table-avatar`).click();

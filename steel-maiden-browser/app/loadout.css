@@ -109,6 +109,9 @@
 .sim-tech-tile strong { position: relative; font-size: 18px; text-shadow: 1px 1px #33291f, -1px -1px #33291f; font-variant-numeric: tabular-nums; }
 .sim-tech-tile span { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 2px; font-size: 8px; line-height: 10px; color: #f7f6db; background: #13241a88; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 .sim-tech-tile:hover { filter: brightness(1.12); }
+.sim-tech-max { min-width: 0; min-height: 36px; border: 1px solid #b0c278; border-radius: 5px; padding: 4px 8px; color: #2c441d; background: #edf5da; font-size: 12px; font-weight: 700; cursor: pointer; }
+.sim-tech-max:hover { background: #dcedba; }
+.sim-tech-max:focus-visible { outline: 2px solid #7c9a37; outline-offset: 2px; }
 .sim-tech-inactive { filter: saturate(.7); }
 .sim-tech-inactive:hover { filter: saturate(.9) brightness(1.12); }
 .sim-footer { display: flex; flex-wrap: wrap; width: 100%; gap: 5px 12px; margin: 10px 0 0; padding: 10px 0 0; border-top: 1px solid #dce5da; color: #69786c; font-size: 10px; }
@@ -177,6 +180,26 @@
 .sim-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
 .sim-dialog-actions button { min-height: 34px; border: 1px solid #d3dfd3; border-radius: 8px; padding: 5px 12px; color: #1b2e24; background: #fff; cursor: pointer; }
 .sim-dialog-actions .primary { color: #fff; background: #1c3225; border-color: #1c3225; }
+.sim-research-editor { margin-top: 16px; }
+.sim-research-editor h3 { margin: 0 0 5px; font-size: 15px; }
+.sim-research-editor > p { margin: 0 0 12px; color: #697a70; font-size: 12px; line-height: 1.6; }
+.sim-research-editor fieldset { min-width: 0; border: 1px solid #d3dfd3; border-radius: 10px; padding: 9px; margin: 10px 0; }
+.sim-research-editor legend { padding: 0 5px; font-size: 13px; font-weight: 700; }
+.sim-research-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11px; }
+.sim-research-actions > span { margin-right: auto; color: #697a70; }
+.sim-research-actions button { border: 1px solid #d3dfd3; border-radius: 6px; background: #fff; padding: 4px 7px; color: #1b2e24; cursor: pointer; }
+.sim-research-nodes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.sim-research-node { min-width: 0; display: flex; align-items: center; gap: 5px; border: 1px solid #dce5da; padding: 6px; border-radius: 7px; background: #fff; cursor: pointer; }
+.sim-research-node:has(input:checked) { border-color: #9bbb5f; background: #edf5df; }
+.sim-research-node.locked { opacity: .5; cursor: default; }
+.sim-research-node input { width: 15px; height: 15px; flex: 0 0 auto; accent-color: #6c8e2d; }
+.sim-research-node img { width: 30px; height: 30px; object-fit: contain; flex: 0 0 auto; }
+.sim-research-node > span { min-width: 0; }
+.sim-research-node strong, .sim-research-node small { display: block; overflow-wrap: anywhere; }
+.sim-research-node strong { font-size: 11px; line-height: 1.4; }
+.sim-research-node small { color: #697a70; font-size: 10px; line-height: 1.4; }
+@media (max-width: 650px) { .sim-research-nodes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 380px) { .sim-research-nodes { grid-template-columns: 1fr; } }
 .sim-shell[data-exporting="true"] .share-export-hide { display: none !important; }
 @media (max-width: 950px) { .sim-stat-strip { grid-template-columns: repeat(6, minmax(0, 1fr)); } .sim-stat:nth-child(6) { border-right: 0; } .sim-stat:nth-child(n+7) { border-top: 1px solid #dce5da; } }
 @media (max-width: 1250px) { .sim-shell { max-height: min(calc((100vw - 40px) * .75), calc(100dvh - 40px)); overflow: auto; } .sim-content-grid { grid-template-columns: 1fr; grid-template-rows: none; } .sim-build-panel, .sim-adjust-panel { display: flex; flex-direction: column; grid-column: auto; grid-row: auto; gap: 11px; } .sim-craft-layout { grid-template-columns: minmax(160px, 26%) minmax(0, 1fr); } }

@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,6 +16,7 @@ const executablePath = (await fs.readdir(playwrightRoot, { withFileTypes: true }
 const browser = await chromium.launch({ headless: true, executablePath });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await page.goto(baseUrl, { waitUntil: "networkidle" });
+await openAttributeTable(page);
 await page.locator(".configurable-maiden-table").waitFor();
 await fs.mkdir(path.join(appRoot, ".cache"), { recursive: true });
 // Desktop scrolls the document; the Android export keeps both axes inside a

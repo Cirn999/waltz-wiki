@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -20,6 +21,7 @@ try {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await openAttributeTable(page);
     await page.locator("tr[data-maiden-id]").first().waitFor();
     const workspace = page.locator(".app-shell.table-mode");
     assert.equal(await workspace.evaluate((element) => getComputedStyle(element).overflowX), "auto");

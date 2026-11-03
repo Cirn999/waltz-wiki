@@ -1,6 +1,6 @@
 import type { GrowthCurveRow, GrowthStatKey } from "./growthCurveData";
 import type { AmmoEfficiencyValues } from "./ammoEfficiencyData";
-import { calculateNativePanel, nativePhaseForLevel, type NativeLoadoutRules, type NativeState } from "./nativeLoadout.ts";
+import { calculateNativePanel, nativePhaseForLevel, nativeInitialState, type NativeLoadoutRules } from "./nativeLoadout.ts";
 
 export const simStats = [
   { key: "durability", label: "耐久" }, { key: "power", label: "火力" },
@@ -17,12 +17,13 @@ export type SimAmmo = SimCraft & { type: string; typeImage: string };
 export type SimEquipmentLevel = { level: number; fundId: number; icon: string; stats: SimStat[]; hiddenStats?: Partial<Record<SimGradeKey, number>>; effects: { skillId?: number; name: string; value: number; description: string }[] };
 export type SimEquipmentFamily = { id: string; name: string; slotTag: number; advanced: boolean; icon: string; typeIcon: string; levels: SimEquipmentLevel[] };
 export type SimEquipmentData = { slots: { tag: number; name: string; icon: string; vehicleKind: string }[]; families: SimEquipmentFamily[] };
-export type SimTechBlock = { id: string; category: string; secondary: string; generation: number; iconCode?: string; nodes: { craftId: number; x: number; image: string; traits?: { name: string; description: string }[] }[]; levels: { level: number; attributes: { propertyId: number; effectType: number; name: string; value: number }[] }[] };
-export type SimTechData = { blocks: SimTechBlock[]; categories: { name: string; secondary: string[] }[] };
+export type SimResearchAttribute = { propertyId: number; effectType: number; value: number };
+export type SimTechBlock = { id: string; category: string; secondary: string; generation: number; iconCode?: string; nodes: { craftId: number; name: string; x: number; image: string; unlockCommanderLevel?: number; researchAttributes?: SimResearchAttribute[]; traits?: { name: string; description: string }[] }[]; levels: { level: number; commanderLevel?: number | null; unlockCommanderLevel?: number; attributes: { propertyId: number; effectType: number; name: string; value: number }[] }[] };
+export type SimTechData = { blocks: SimTechBlock[]; categories: { name: string; secondary: string[] }[]; commanderLimits?: { version: number; maximumRequiredLevel: number; researchRuleCount: number; magicRuleCount: number } };
 export type SimMagicSkill = { trendId: number; name: string; image: string };
 export type SimOrdnanceSkill = SimMagicSkill & { levels: { level: number; timing: string; effect: string; condition: string }[] };
 export type SimMagicData = {
-  progression: Record<string, Record<string, Record<string, { selectorId: number; levels: { level: number; scoutLevel: number; markKind: string; marks: number }[] }[]>>>;
+  progression: Record<string, Record<string, Record<string, { selectorId: number; levels: { level: number; scoutLevel: number; markKind: string; marks: number; phases?: number[] }[] }[]>>>;
   ordnanceBonuses: { level: number; bonuses: { name: string; percent: number }[] }[];
   tactics: (SimMagicSkill & { levels: { level: number; effects: { name: string; description: string; basePercent: number; equipmentPercent: number | null }[] }[] })[];
   markIcons: Record<string, string>;
@@ -30,6 +31,7 @@ export type SimMagicData = {
 export type SimMaiden = {
   id: number; tank: string; person: string; classId: number; image: string; headImage: string;
   ammo: string[];
+  baseAmmunition?: { name: string; type: string };
   baseAmmoEfficiency?: AmmoEfficiencyValues;
   stage: string; stageIcon: string; rarityIcon: string; classIcon: string; nationIcon: string;
   stats: Record<string, Partial<Record<SimStatKey, number | null>>>;
@@ -53,6 +55,40 @@ export type SimConfig = {
   tactics: SimMagicChoice;
 };
 export type SimTechLevels = Record<string, number>;
+export const researchCraftKey = (craftId: number) => `craft:${craftId}`;
+export function maximumTechnologySettings(technologies: SimTechData, current: SimTechLevels = {}): SimTechLevels {
+  const next = { ...current };
+  for (const block of technologies.blocks) {
+    next[block.id] = Math.max(0, ...block.levels.map((row) => row.level));
+    for (const node of block.nodes) next[researchCraftKey(node.craftId)] = 1;
+  }
+  return next;
+}
+export function researchRequiredLevel(block: SimTechBlock, x: number) {
+  return [...new Set(block.nodes.map((node) => node.x))].sort((a, b) => a - b).indexOf(x) + 1;
+}
+
+/** Researching a craft grants role properties even when that craft is not equipped. */
+export function technologyProperties(technologies: SimTechData, tech: SimTechLevels) {
+  const properties: Record<string, number> = {};
+  const add = (attribute: SimResearchAttribute, scale: number) => {
+    if (attribute.effectType !== 0) throw new Error(`未支持的科技属性运算 ${attribute.effectType}`);
+    properties[attribute.propertyId] = (properties[attribute.propertyId] ?? 0) + Math.round(attribute.value * scale);
+  };
+  const counted = new Set<number>();
+  for (const block of technologies.blocks) {
+    const level = tech[block.id] ?? 0;
+    const row = block.levels.find((l) => l.level === level);
+    for (const attribute of row?.attributes ?? []) add(attribute, 100);
+    for (const node of block.nodes) {
+      if (!tech[researchCraftKey(node.craftId)] || researchRequiredLevel(block, node.x) > level || counted.has(node.craftId)) continue;
+      counted.add(node.craftId);
+      // CraftInfo stores integer basis points, unlike the display percentages above.
+      for (const attribute of node.researchAttributes ?? []) add(attribute, 1);
+    }
+  }
+  return properties;
+}
 
 const growthKeys: GrowthStatKey[] = ["durability", "power", "piercing", "armor"];
 export const clampLevel = (value: number, min: number, max: number) => Math.max(min, Math.min(max, Number.isFinite(value) ? Math.trunc(value) : min));
@@ -60,7 +96,8 @@ export const starCount = (level: number) => level >= 70 ? 3 : level >= 35 ? 2 : 
 export const isAirMaiden = (maiden: SimMaiden) => maiden.classId >= 7 && maiden.classId <= 10;
 
 export function defaultAmmo(maiden: SimMaiden): SimAmmo | undefined {
-  return maiden.allAmmunition.find((ammo) => ammo.type === maiden.ammo?.[0] && ammo.rank === 1) ?? maiden.allAmmunition.find((ammo) => ammo.rank === 1) ?? maiden.allAmmunition[0];
+  const type = maiden.baseAmmunition?.type ?? maiden.ammo?.[0];
+  return maiden.allAmmunition.find((ammo) => ammo.type === type && ammo.rank === 1) ?? maiden.allAmmunition.find((ammo) => ammo.type === type) ?? maiden.allAmmunition.find((ammo) => ammo.rank === 1) ?? maiden.allAmmunition[0];
 }
 export function defaultSimConfig(maiden: SimMaiden): SimConfig {
   return {
@@ -189,9 +226,7 @@ export function nativeInputsForConfig(maiden: SimMaiden, config: SimConfig, equi
   if (!rules) throw new Error("原生配装规则尚未加载，不能计算面板");
   const { phase, number } = nativePhaseForLevel(rules, maiden.id, config.level);
   const card = rules.cards[maiden.id];
-  const state: NativeState = Object.fromEntries(Object.entries(phase.categories).map(([id, category]) => [id, {
-    level: card.initialLevels[id] ?? 0, trend: rules.groups[category.group]?.default ?? 0,
-  }]));
+  const state = nativeInitialState(rules, maiden.id, phase);
   state[1].level = config.level;
   const selectTrend = (id: number, trend: number, level = 1) => {
     const category = phase.categories[id];
@@ -212,28 +247,15 @@ export function nativeInputsForConfig(maiden: SimMaiden, config: SimConfig, equi
     if (!trend) throw new Error(`缺少装备 ${slot.familyId} S${slot.level} 的原生映射`);
     selectTrend(card.slots[index], trend);
   });
-  const properties: Record<string, number> = {};
   // Supply all global properties. Native per-phase rules, not UI display labels,
   // decide which generation and which ammunition/defense branch actually apply.
-  for (const block of technologies.blocks) {
-    const row = block.levels.find((l) => l.level === (tech[block.id] ?? 0));
-    for (const attribute of row?.attributes ?? []) {
-      if (attribute.effectType !== 0) throw new Error(`未支持的科技属性运算 ${attribute.effectType}`);
-      properties[attribute.propertyId] = (properties[attribute.propertyId] ?? 0) + Math.round(attribute.value * 100);
-    }
-  }
+  const properties = technologyProperties(technologies, tech);
   return { phase, number, state, properties };
 }
 
-export function calculateSimStats(maiden: SimMaiden, config: SimConfig, equipment: SimEquipmentData, technologies: SimTechData, tech: SimTechLevels, rules: NativeLoadoutRules) {
-  const input = nativeInputsForConfig(maiden, config, equipment, technologies, tech, rules);
-  const native = calculateNativePanel(rules, input.phase, input.state, input.properties);
-  const byName = Object.fromEntries(Object.entries(native.totals).map(([id, value]) => [rules.attributes[id], value]));
+export function nativePanelDisplay(rules: NativeLoadoutRules, totals: Record<string, number>) {
+  const byName = Object.fromEntries(Object.entries(totals).map(([id, value]) => [rules.attributes[id], value]));
   const values = Object.fromEntries(simStats.map(({ key }) => [key, byName[key] ?? 0])) as Record<SimStatKey, number>;
-  const gradeBonuses = Object.fromEntries((['fireproof', 'homogeneity', 'coverage'] as const).map((key) => [key, rules.cards[maiden.id].slots.reduce((sum, id) => {
-    const attribute = Object.keys(rules.attributes).find((a) => rules.attributes[a] === key)!;
-    return sum + (native.breakdown[id]?.[attribute] ?? 0);
-  }, 0)])) as Record<SimGradeKey, number>;
   const gradeFor = (kind: SimGradeKey, raw: number) => {
     if (raw >= 80) return "S";
     if (kind === "homogeneity") return raw >= 72 ? "A" : raw >= 55 ? "B" : raw >= 40 ? "C" : "D";
@@ -241,5 +263,16 @@ export function calculateSimStats(maiden: SimMaiden, config: SimConfig, equipmen
     return raw >= 70 ? "A" : raw >= 60 ? "B" : raw >= 40 ? "C" : "D";
   };
   const grades = Object.fromEntries((['fireproof', 'homogeneity', 'coverage'] as const).map((key) => [key, { value: byName[key] ?? 0, grade: gradeFor(key, byName[key] ?? 0) }])) as Record<SimGradeKey, { value: number; grade: string }>;
+  return { values, grades };
+}
+
+export function calculateSimStats(maiden: SimMaiden, config: SimConfig, equipment: SimEquipmentData, technologies: SimTechData, tech: SimTechLevels, rules: NativeLoadoutRules) {
+  const input = nativeInputsForConfig(maiden, config, equipment, technologies, tech, rules);
+  const native = calculateNativePanel(rules, input.phase, input.state, input.properties);
+  const { values, grades } = nativePanelDisplay(rules, native.totals);
+  const gradeBonuses = Object.fromEntries((['fireproof', 'homogeneity', 'coverage'] as const).map((key) => [key, rules.cards[maiden.id].slots.reduce((sum, id) => {
+    const attribute = Object.keys(rules.attributes).find((a) => rules.attributes[a] === key)!;
+    return sum + (native.breakdown[id]?.[attribute] ?? 0);
+  }, 0)])) as Record<SimGradeKey, number>;
   return { values, grades, gradeBonuses, breakdown: native.breakdown, phase: input.number };
 }

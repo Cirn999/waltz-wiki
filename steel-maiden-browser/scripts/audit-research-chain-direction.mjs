@@ -22,8 +22,8 @@ try {
   const researchNav = page.locator(".primary-nav-group").filter({ has: page.getByRole("button", { name: "钢舞姬", exact: true }) });
   await researchNav.locator(".primary-nav-trigger").click();
   await researchNav.getByRole("menuitem", { name: /研发路线/ }).click();
-  await page.locator(".chain-search input").fill(String(candidate.id));
-  await page.locator(".chain-search button").click();
+  await page.locator(".chain-archive .chain-search input").fill(String(candidate.id));
+  await page.locator(".chain-archive .chain-search button").click();
   const summary = page.locator(".chain-summary");
   await summary.waitFor();
   const count = async () => ({ groups: await page.locator(".chain-flow .chain-group").count(), edges: await page.locator(".chain-flow .chain-link").count() });

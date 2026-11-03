@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -21,6 +22,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const first = page.locator("tr[data-maiden-id]").first();
   const currentId = Number(await first.getAttribute("data-maiden-id"));
   const current = data.rows.find((row) => row.id === currentId);
@@ -101,6 +103,7 @@ try {
   const failure = await browser.newPage();
   await failure.route("**/data/growth-curves.json", (route) => route.fulfill({ status: 503, body: "unavailable" }));
   await failure.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(failure);
   await failure.locator(".table-avatar").first().click();
   await failure.locator('.detail-level-status[role="alert"]').waitFor();
   assert.equal(await failure.locator("#detail-level").isDisabled(), true);

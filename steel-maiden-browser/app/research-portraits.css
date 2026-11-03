@@ -1,0 +1,10 @@
+.research-head.research-square-head { overflow: visible; border: 0; border-radius: 0; background: transparent; }
+.research-square-head > .table-avatar.table-game-avatar { width: 100%; height: 100%; margin: 0; }
+.research-square-head .table-portrait-bottom, .research-square-head .table-portrait-cost { margin: 0; }
+.research-square-head .table-portrait-cost { font-size: 8px; }
+.research-focus-title .research-square-head .table-portrait-cost { font-size: 12px; }
+.chain-avatar:has(.research-square-head) { border: 0; border-radius: 0; background: transparent; }
+.chain-avatar .research-head.research-square-head { width: 100%; height: 100%; }
+.chain-avatar .research-square-head img { border-radius: 0; }
+.chain-avatar .research-square-head .table-portrait-cost { font-size: 9px; }
+.chain-avatar > i { z-index: 5; }

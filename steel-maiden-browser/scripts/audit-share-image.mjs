@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import { chromium } from "playwright";
 import { writeFile } from "node:fs/promises";
 
@@ -35,6 +36,7 @@ async function clipboardPngDataUrl() {
 }
 
 await page.goto(baseUrl, { waitUntil: "networkidle" });
+await openAttributeTable(page);
 await page.locator(".table-avatar").first().click();
 await page.locator(".detail-modal .share-image-button").click();
 await page.locator(".detail-modal .share-image-button", { hasText: "已复制到剪贴板" }).waitFor({ timeout: 60_000 });

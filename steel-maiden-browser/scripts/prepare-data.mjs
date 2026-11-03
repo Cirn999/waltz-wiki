@@ -137,7 +137,7 @@ const resistanceIconCodes = {
   "抗风阻": "bigkj-221", "抗静电": "bigkj-220", "抗深寒": "bigkj-216", "抗植被": "kj-020",
   "抗涉水": "kj-109", "箭型车体": "kj-107", "弧形装甲": "kj-110", "抗远隔": "kj-111",
   "抗潮气": "kj-112", "抗昏睡": "kj-116", "抗迟钝": "kj-117", "抗宽沟": "kj-129",
-  "加长车体": "kj-130",
+  "加长车体": "kj-130", "抗伏击": "bigkj-252",
 };
 
 // RaceInfo.dat is indexed by UnitAppearance.unit_class_id; GetRaceResource
@@ -1064,7 +1064,7 @@ const facets = {
   engineResistances: [...new Set(rows.flatMap((row) => row.engineOptions.flatMap((option) => option.resistance)))].sort(),
   bodyResistances: [...new Set(rows.flatMap((row) => row.bodyOptions.flatMap((option) => option.resistance)))].sort(),
   talents: [...new Set(rows.flatMap((row) => row.talents.map((talent) => talent.name)))].sort(),
-  huntTraits: [...new Set(rows.flatMap((row) => row.huntTraits.map((trait) => `${trait.task} ${trait.name}`)))],
+  huntTraits: [...new Set(rows.flatMap((row) => row.huntTraits.map((trait) => `${trait.task} ${trait.name}`)))].sort(),
 };
 
 const missingSlotIcons = [...new Set(rows.flatMap((row) => row.slotDetails.filter((item) => !item.image).map((item) => item.name)))];
@@ -1097,6 +1097,8 @@ execFileSync(process.execPath, [path.join(appRoot, "scripts", "prepare-card-pers
 execFileSync(process.env.PYTHON || "python", ["-X", "utf8", path.join(projectRoot, "analysis_apk", "tools", "build_slot_unlocks.py")], { cwd: projectRoot, stdio: "inherit", windowsHide: true });
 execFileSync(process.env.PYTHON || "python", ["-X", "utf8", path.join(projectRoot, "analysis_apk", "tools", "export_loadout_assessment_icons.py")], { cwd: projectRoot, stdio: "inherit", windowsHide: true });
 execFileSync(process.env.PYTHON || "python", ["-X", "utf8", path.join(projectRoot, "analysis_apk", "tools", "build_loadout_rules.py")], { cwd: projectRoot, stdio: "inherit", windowsHide: true });
+execFileSync(process.env.PYTHON || "python", ["-X", "utf8", path.join(projectRoot, "analysis_apk", "tools", "build_loadout_support.py")], { cwd: projectRoot, stdio: "inherit", windowsHide: true });
+execFileSync(process.env.PYTHON || "python", ["-X", "utf8", path.join(projectRoot, "analysis_apk", "tools", "build_commander_limits.py")], { cwd: projectRoot, stdio: "inherit", windowsHide: true });
 await fs.copyFile(growthCurvesSourcePath, growthCurvesOutputPath);
 await prepareColonizationCatalog();
 console.log(JSON.stringify({ records: rows.length, attributeIcons, gameIconCounts: { slots: Object.keys(slotIcons).length, resistances: Object.keys(resistanceIcons).length, classes: Object.keys(classIcons).length, nations: Object.keys(nationIcons).length, rarities: Object.keys(rarityIcons).length, stages: Object.keys(stageIcons).length, talents: Object.keys(talentIcons).length }, artCount, rotatedArtCount, live2dArtCount, officialHeadCount, fallbackHeadCount, live2dRenderFailures: liveFailures.length, outputDataPath, sharp: Boolean(sharp) }, null, 2));

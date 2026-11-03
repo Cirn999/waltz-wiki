@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -16,6 +17,7 @@ const browser = await chromium.launch({ headless: true, executablePath });
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator(".search-box input").fill("261-2工程");
   await page.locator(".search-box button").click();
   await page.locator(".maiden-table tbody tr[data-maiden-id]").first().waitFor();

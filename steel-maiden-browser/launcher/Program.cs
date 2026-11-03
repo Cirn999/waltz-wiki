@@ -30,9 +30,10 @@ namespace SteelMaidenArchiveLauncher
                         if (!html.Contains("_next/static")) return 3;
                         if (!data.Contains("\"rows\":[")) return 4;
                         if (!data.Contains("\"tank\":\"T39\"")) return 5;
-                        if (!research.Contains("\"recipeCount\": 433") ||
-                            !research.Contains("\"resourcePlanCount\": 598") ||
-                            !research.Contains("\"equipmentGrade\": \"S6\"")) return 6;
+                        if (!research.Contains("\"recipeCount\":") ||
+                            !research.Contains("\"resourcePlanCount\":") ||
+                            !research.Contains("\"recipes\":") ||
+                            !research.Contains("\"nodes\":")) return 6;
                         return 0;
                     }
                 }

@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -21,6 +22,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator(".primary-navigation .primary-nav-direct").filter({ hasText: "装备" }).click();
   await page.locator(".equipment-atlas").waitFor();
 

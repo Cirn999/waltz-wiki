@@ -157,10 +157,14 @@ def main() -> None:
     config_dir = ROOT / "patch" / "_1.18" / "config"
     catalog_path = ROOT / "steel-maiden-browser" / "public" / "data" / "maidens.json"
     output_dir = ROOT / "analysis_apk" / "output" / "hunt_special_lineups"
-    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
-    evidence = build_rosters(config_dir, catalog)
+    source = json.loads((ROOT / "analysis_apk/output/steel_maiden_catalog_v4/钢舞姬汇总数据.json").read_text(encoding="utf-8"))
+    canonical = {"rows": [{"id": r["钢舞姬卡牌ID"], "tank": r["坦克/载具名称"],
+        "person": r["对应人名"], "className": r["兵种"], "nation": r["国籍/技术归属"],
+        "stage": r["科技阶段"], "rarity": r["稀有度"]} for r in source["rows"]]}
+    evidence = build_rosters(config_dir, canonical)
     result = evidence["tasks"]
     if args.check:
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
         saved = json.loads((output_dir / "狩猎任务特殊阵容_游戏判定.json").read_text(encoding="utf-8"))
         if saved != evidence:
             raise RuntimeError("hunting roster report differs from current client configuration")

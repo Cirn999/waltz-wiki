@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,6 +17,7 @@ await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: 
 const page = await context.newPage();
 
 await page.goto(baseUrl, { waitUntil: "networkidle" });
+await openAttributeTable(page);
 await page.locator(".search-box input").fill("261-2工程");
 await page.locator(".search-box button").click();
 await page.locator("tbody tr[data-maiden-id]").first().waitFor();

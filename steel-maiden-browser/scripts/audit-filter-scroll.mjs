@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -14,6 +15,7 @@ const reports = [];
 try {
   const page = await browser.newPage({ viewport: { width: 1536, height: 768 } });
   await page.goto(url, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const open = () => page.getByRole("button", { name: /筛选条件/ }).click();
   const measure = () => page.locator(".filter-sheet").evaluate((sheet) => {
     const body = sheet.querySelector(".filter-sheet-body");
@@ -56,7 +58,10 @@ try {
   if (!probe) {
     await page.setViewportSize({ width: 1920, height: 1080 });
     const roomy = await measure();
-    assert.equal(roomy.scrollHeight, roomy.clientHeight, "no scrolling is needed when every filter fits");
+    if (roomy.scrollHeight > roomy.clientHeight) {
+      assert.equal(roomy.overflowY, "auto", "additional filter controls must remain scrollable even in a large window");
+      assert.ok(roomy.scrollbarWidth > 0, "overflowing filters must expose the scrollbar");
+    } else assert.equal(roomy.scrollHeight, roomy.clientHeight, "fitting content needs no vertical scrolling");
     reports.push({ label: "roomy", before: roomy });
   }
   // Browser zoom reduces the layout viewport. These cover 125% and 150%

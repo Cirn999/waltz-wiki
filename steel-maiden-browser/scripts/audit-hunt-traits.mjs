@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -14,6 +15,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(process.argv[2] || "http://localhost:3100", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const sheet = page.locator(".filter-sheet");
   const select = async (label) => {
     await sheet.locator(".filter-reset").click();

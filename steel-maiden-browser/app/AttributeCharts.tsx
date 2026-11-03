@@ -59,7 +59,7 @@ function ChartResult({ snapshot, onBack }: { snapshot: ChartSnapshot; onBack: ()
   const { kind, points } = snapshot;
   const center = useMemo(() => ({ x: median(points.map((point) => point.x)), y: median(points.map((point) => point.y)) }), [points]);
   const width = kind === "bar" ? Math.max(viewportWidth, barChartWidth(points.length, Math.max(...points.map((point) => chartNumber(point.y).length)))) : Math.max(1040, viewportWidth) * zoom;
-  const formulaLines = splitLine(kind === "bar" ? `Y = ${snapshot.yLabel}` : `X = ${snapshot.xLabel}    Y = ${snapshot.yLabel}`);
+  const formulaLines = [...(snapshot.calculationLabel ? splitLine(snapshot.calculationLabel) : []), ...splitLine(kind === "bar" ? `Y = ${snapshot.yLabel}` : `X = ${snapshot.xLabel}    Y = ${snapshot.yLabel}`)];
   // Reserve one complete avatar above the zero baseline, including negative-only bars.
   const top = 90 + formulaLines.length * 20 + (kind === "scatter" ? 26 : 44), bottom = top + (kind === "scatter" ? 390 * zoom : 350);
   const height = bottom + (kind === "bar" ? 112 : 94);
@@ -117,15 +117,15 @@ function ChartResult({ snapshot, onBack }: { snapshot: ChartSnapshot; onBack: ()
           <circle data-median-x={center.x} data-median-y={center.y} cx={zeroX} cy={zeroY} r="4" fill="#365941" /><text x={zeroX + 8} y={zeroY + 16} fontSize="12" fill="#365941">0</text><text x={right + 10} y={zeroY + 4} fontSize="14" fill="#365941">X</text><text x={zeroX + 10} y={top - 12} fontSize="14" fill="#365941">Y</text>
           {groups.map((group) => { const point = group[0], x = scaleX(point.x - center.x), y = scaleY(point.y - center.y); return <g className="ac-scatter-point" data-ids={group.map((entry) => entry.maiden.id).join(",")} data-x={point.x} data-y={point.y} key={point.maiden.id} tabIndex={0} role="button" aria-label={`${describe(point)}${group.length > 1 ? `，同坐标共${group.length}辆，点击查看` : ""}`} onMouseEnter={() => setActive(group)} onFocus={() => setActive(group)} onClick={() => setActive(group)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setActive(group); } }}><title>{group.map(describe).join("\n")}</title><Avatar point={point} x={x} y={y} radius={18} prefix={prefix} />{group.length > 1 && <><circle cx={x + 16} cy={y - 16} r="11" fill="#173c2b" /><text x={x + 16} y={y - 12} fontSize="10" fill="#fff" textAnchor="middle">{group.length}</text></>}</g>; })}
         </>}
-        <text x="30" y={height - 20} fontSize="11" fill="#6b7d66">钢舞姬战术档案库 · 属性表基础数值，不含配装加成 · 数值显示最多两位小数，排序与定位使用原始值</text>
+        <text x="30" y={height - 20} fontSize="11" fill="#6b7d66">钢舞姬战术档案库 · {snapshot.calculationLabel ? "指挥官等级培养上限" : "属性表基础数值，不含配装加成"} · 数值显示最多两位小数，排序与定位使用原始值</text>
       </svg>
     </div>
     <div className="ac-point-readout" aria-live="polite">{active.length ? active.map((point) => <span key={point.maiden.id}>{point.maiden.headImage && <img src={point.maiden.headImage} alt="" />}<b>{point.maiden.tank}</b>{kind === "scatter" && `X：${point.x.toLocaleString("zh-CN", { maximumFractionDigits: 6 })}　`}Y：{point.y.toLocaleString("zh-CN", { maximumFractionDigits: 6 })}</span>) : <span>{kind === "scatter" ? "悬停、点击或用 Tab 选中头像查看实际数值；同坐标的车辆合并标出数量，可展开查看。" : "悬停或点击头像查看完整车名与数值；车辆较多时横向滚动，复制会包含完整图表。"}</span>}</div>
   </div>;
 }
 
-export default function AttributeCharts({ allMaidens, candidates, initialQuery, initialLevel, initialKind, icons, filterCount, filterOpen, onOpenFilters, onClose }: {
-  allMaidens: ChartMaiden[]; candidates: ChartMaiden[]; initialQuery: string; initialLevel: number; initialKind: ChartKind; icons: Record<string, string>; filterCount: number; filterOpen: boolean; onOpenFilters: () => void; onClose: () => void;
+export default function AttributeCharts({ allMaidens, candidates, initialQuery, initialLevel, initialKind, icons, filterCount, filterOpen, onOpenFilters, onClose, calculationLabel }: {
+  allMaidens: ChartMaiden[]; candidates: ChartMaiden[]; initialQuery: string; initialLevel: number; initialKind: ChartKind; icons: Record<string, string>; filterCount: number; filterOpen: boolean; onOpenFilters: () => void; onClose: () => void; calculationLabel?: string;
 }) {
   const [kind, setKind] = useState(initialKind), [level, setLevel] = useState(initialLevel);
   const [query, setQuery] = useState(initialQuery), [selected, setSelected] = useState<number[]>([]);
@@ -162,7 +162,7 @@ export default function AttributeCharts({ allMaidens, candidates, initialQuery, 
       const { points, errors } = calculateChart(selectedRows, kind, level, xTokens, yTokens);
       if (errors.length) { setError(`${errors.length} 辆无法计算：${errors.slice(0, 4).join("；")}${errors.length > 4 ? "……" : ""}`); return; }
       if (!points.length) { setError("请至少加入一辆钢舞姬"); return; }
-      setError(""); setSnapshot({ kind, level, points, xLabel: formulaLabel(xTokens), yLabel: formulaLabel(yTokens) });
+      setError(""); setSnapshot({ kind, level, points, xLabel: formulaLabel(xTokens), yLabel: formulaLabel(yTokens), calculationLabel });
     } catch (caught) { setError((caught as Error).message); }
   };
   const vehicleButton = (row: ChartMaiden, remove = false) => <button type="button" key={row.id} className="ac-vehicle" data-id={row.id} aria-label={`${remove ? "移除" : "加入"} ${row.tank}`} onClick={() => setSelected((current) => remove ? current.filter((id) => id !== row.id) : [...current, row.id])}>{row.headImage && <img className="ac-head" src={row.headImage} alt="" loading="lazy" />}<span><strong>{row.tank}</strong><small>{row.person} · {row.stage}</small></span><i aria-hidden="true">{remove ? "←" : "+"}</i></button>;
@@ -174,7 +174,7 @@ export default function AttributeCharts({ allMaidens, candidates, initialQuery, 
       <div className="ac-setup" data-column={mobileColumn}>
         <section className="ac-column ac-candidates" aria-label="可选车辆"><header><h3>可选车辆 <b>{available.length}</b></h3><button type="button" onClick={onOpenFilters}>筛选{filterCount > 0 ? ` (${filterCount})` : ""}</button></header><input className="ac-search" aria-label="搜索图表车辆" placeholder="车名、人名、国籍或 ID" value={query} onChange={(event) => setQuery(event.target.value)} /><button className="ac-import" type="button" disabled={!available.length} onClick={() => setSelected((current) => [...new Set([...current, ...available.map((row) => row.id)])])}>全部加入 → <small>{available.length} 辆</small></button><div className="ac-vehicle-list">{available.map((row) => vehicleButton(row))}{!available.length && <p className="ac-empty">没有待加入的车辆<br />可调整筛选或搜索条件</p>}</div><p className="ac-column-note">仅显示符合当前筛选的未选车辆</p></section>
         <section className="ac-column ac-selected" aria-label="待比较车辆"><header><h3>待比较车辆 <b>{selectedRows.length}</b></h3><button type="button" disabled={!selected.length} onClick={() => setSelected([])}>全部移回</button></header><input className="ac-search" aria-label="搜索待比较车辆" placeholder="查找已选车名、人名或 ID" value={selectedQuery} onChange={(event) => setSelectedQuery(event.target.value)} /><p className="ac-selected-tip">点击车辆移除 · 查找或筛选不会减少出图车辆</p><div className="ac-vehicle-list">{selectedRows.filter((row) => `${row.tank} ${row.person} ${row.id}`.toLowerCase().includes(selectedQuery.trim().toLowerCase())).map((row) => vehicleButton(row, true))}{!selectedRows.length && <p className="ac-empty">从左侧加入钢舞姬<br />也可以一键加入筛选结果</p>}</div></section>
-        <section className="ac-column ac-definitions" aria-label="坐标定义"><header><h3>坐标定义</h3><small>{kind === "bar" ? "只需设置 Y 轴" : "分别设置 X / Y 轴"}</small></header><div className="ac-axis-scroll">{kind === "scatter" && <AxisEditor axis="X" tokens={xTokens} onChange={setXTokens} icons={icons} />}<AxisEditor axis="Y" tokens={yTokens} onChange={setYTokens} icons={icons} /><p className="ac-formula-help">按属性表的 {level} 级基础数值计算，不包含配装模拟加成。{kind === "scatter" ? "原点取已选车辆 X、Y 的中位数。" : "生成后自动按 Y 值从左到右降序排列。"}</p></div></section>
+        <section className="ac-column ac-definitions" aria-label="坐标定义"><header><h3>坐标定义</h3><small>{kind === "bar" ? "只需设置 Y 轴" : "分别设置 X / Y 轴"}</small></header><div className="ac-axis-scroll">{kind === "scatter" && <AxisEditor axis="X" tokens={xTokens} onChange={setXTokens} icons={icons} />}<AxisEditor axis="Y" tokens={yTokens} onChange={setYTokens} icons={icons} /><p className="ac-formula-help">{calculationLabel ? `${calculationLabel}；车辆 ${level} 级，计入可解锁的亮星、科技及魔改。` : `按属性表的 ${level} 级基础数值计算，不包含配装模拟加成。`}{kind === "scatter" ? "原点取已选车辆 X、Y 的中位数。" : "生成后自动按 Y 值从左到右降序排列。"}</p></div></section>
       </div>
       <div className="ac-setup-footer"><span role="status" className={error ? "ac-error" : ""}>{error || `已选 ${selectedRows.length} 辆 · ${level} 级 · ${kind === "bar" ? "柱状图" : "散点图"}`}</span><button className="ac-primary" type="button" onClick={generate} disabled={!selected.length || !!formulaError(yTokens) || (kind === "scatter" && !!formulaError(xTokens))}>生成图表 →</button></div>
     </>}

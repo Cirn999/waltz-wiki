@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
@@ -17,6 +18,7 @@ const browser = await chromium.launch({ headless: true, executablePath });
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 950 } });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator(".search-box input").fill(maiden.tank);
   await page.locator(".search-box button").click();
   await page.locator(`tbody tr[data-maiden-id="${maiden.id}"] .table-avatar`).click();

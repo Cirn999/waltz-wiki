@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const projectRoot = path.resolve(appRoot, "..");
@@ -17,6 +18,7 @@ const expectedFiles = [
   path.join(releaseDirectory, "site", "index.html"),
   path.join(releaseDirectory, "site", "data", "maidens.json"),
   path.join(releaseDirectory, "site", "data", "research-tree.json"),
+  path.join(releaseDirectory, "使用说明.txt"),
 ];
 for (const file of expectedFiles) if (!existsSync(file)) throw new Error(`Missing release file: ${file}`);
 if (!existsSync(zipPath) || statSync(zipPath).size < 1_000_000) throw new Error(`Invalid release zip: ${zipPath}`);
@@ -34,10 +36,14 @@ const unpackedLauncher = path.join(unpackedRoot, "点我启动.exe");
 const unpackedSite = path.join(unpackedRoot, "site", "index.html");
 if (!existsSync(unpackedLauncher) || !existsSync(unpackedSite)) throw new Error("ZIP is missing launcher or site folder");
 const unpackedDataset = JSON.parse(readFileSync(path.join(unpackedRoot, "site", "data", "maidens.json"), "utf8"));
+const sourceDataset = JSON.parse(readFileSync(path.join(appRoot, "public", "data", "maidens.json"), "utf8"));
 const t39 = unpackedDataset.rows.find((row) => row.tank === "T39");
 const project261 = unpackedDataset.rows.find((row) => row.tank === "261-2工程");
 if (!t39 || t39.acquisition.some((route) => route.label === "研发")) throw new Error("Packaged dataset incorrectly marks T39 as researchable");
-if (!project261?.acquisition.some((route) => route.label === "礼包购买" && route.details.some((detail) => detail.includes("夏季限定")))) throw new Error("Packaged dataset is missing the 261-2 gift path");
+// Acquisition routes follow the approved current snapshot. An obsolete summer
+// gift path is not a permanent invariant of later client data.
+const source261 = sourceDataset.rows.find((row) => row.tank === "261-2工程");
+if (!project261 || !source261 || JSON.stringify(project261.acquisition) !== JSON.stringify(source261.acquisition)) throw new Error("Packaged 261-2 acquisition routes differ from current source data");
 const expectedT39Ordnance = ["多重火力装置", "附配掩体", "应急掩护", "分析打击"];
 const packagedT39Ordnance = t39.magicOrdnance ?? [];
 if (
@@ -56,6 +62,20 @@ const selfTest = spawnSync(unpackedLauncher, ["--self-test"], { encoding: "utf8"
 if (selfTest.error) throw selfTest.error;
 if (selfTest.status !== 0) throw new Error(`Launcher self-test failed with exit ${selfTest.status}: ${selfTest.stderr}`);
 
+const listFiles = (directory, relative = "") => readdirSync(path.join(directory, relative), { withFileTypes: true }).flatMap((entry) => {
+  const name = path.join(relative, entry.name);
+  return entry.isDirectory() ? listFiles(directory, name) : [name];
+}).sort();
+const sourceSite = path.join(appRoot, "dist", "client");
+const extractedSite = path.join(unpackedRoot, "site");
+const sourceFiles = listFiles(sourceSite);
+const extractedFiles = listFiles(extractedSite);
+if (JSON.stringify(sourceFiles) !== JSON.stringify(extractedFiles)) throw new Error("Packaged site inventory differs from the current build");
+const sha256 = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
+for (const name of sourceFiles) if (sha256(path.join(sourceSite, name)) !== sha256(path.join(extractedSite, name))) throw new Error(`Packaged site file differs from the current build: ${name}`);
+const compiledLauncher = path.join(appRoot, "launcher", "launcher-new.exe");
+if (existsSync(compiledLauncher) && sha256(compiledLauncher) !== sha256(unpackedLauncher)) throw new Error("Packaged launcher differs from the current compiled launcher");
+
 console.log(JSON.stringify({
   releaseDirectory,
   zipPath,
@@ -64,5 +84,7 @@ console.log(JSON.stringify({
   launcherSelfTest: "passed",
   acquisitionDataCheck: "passed",
   magicOrdnanceDataCheck: "passed",
+  exactBuildFilesChecked: sourceFiles.length,
+  launcherBinaryCheck: "passed",
   requiredFiles: expectedFiles.map((file) => path.relative(releaseDirectory, file)),
 }, null, 2));

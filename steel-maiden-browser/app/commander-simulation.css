@@ -1,0 +1,20 @@
+.table-column-settings:has(.commander-controls){flex-wrap:wrap}
+.commander-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.commander-level-input{display:flex;align-items:center;gap:7px;min-height:36px;padding:0 8px;border:1px solid #c8d3c4;border-radius:8px;background:#fbfcf8;color:#34473b;font-size:11px;font-weight:750}
+.commander-level-input.active{border-color:#92ab57;background:#f2f7e8}
+.commander-level-input input{width:65px;min-width:0;border:0;outline:0;background:transparent;color:#20372a;font-size:13px;font-variant-numeric:tabular-nums}
+.commander-level-input:focus-within{outline:2px solid #8fa743;outline-offset:1px}
+.commander-level-input>button{border:0;border-radius:4px;background:#e1e9d8;color:#536648;font-size:15px;line-height:20px;cursor:pointer}
+.commander-tactic-trigger{display:flex;align-items:center;gap:6px;min-height:36px;border:1px solid #c8d3c4;border-radius:8px;padding:4px 8px;background:#fbfcf8;color:#34473b;cursor:pointer;font-size:11px;font-weight:750}
+.commander-tactic-trigger img{width:25px;height:25px;object-fit:contain;border-radius:5px}.commander-tactic-trigger i{font-style:normal;color:#829173}
+.commander-tactic-trigger:hover{border-color:#8ba94d;background:#eff5e3}
+.commander-mode-status{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px;padding:8px 11px;border:1px solid #d2dfbb;border-radius:8px;background:#f1f6e7;color:#58703c;font-size:11px;line-height:1.6}
+.commander-mode-status strong{color:#355024}.commander-mode-status.error{background:#fff2e9;border-color:#e5c3a6;color:#985a33}.commander-mode-status button{padding:3px 8px;border:1px solid currentColor;border-radius:5px;background:transparent;color:inherit;cursor:pointer}
+.commander-table-pending{padding:50px 16px;text-align:center;color:#647657;font-size:13px}
+.commander-tactic-backdrop{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:18px;background:#09150fd4}
+.commander-tactic-dialog{width:min(760px,100%);max-height:85dvh;overflow:auto;overscroll-behavior:contain;padding:20px;border:1px solid #aab99d;border-radius:17px;background:#f6f9f1;color:#20372a;box-shadow:0 20px 65px #0006}
+.commander-tactic-dialog header{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}.commander-tactic-dialog h2{font-size:20px;margin:0 0 5px}.commander-tactic-dialog p{font-size:11px;color:#728168;margin:0;line-height:1.6}.commander-tactic-dialog header>button{margin-left:auto;border:0;background:none;color:#31492b;font-size:27px;cursor:pointer}
+.commander-tactic-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.commander-tactic-options>button{display:flex;align-items:center;gap:8px;min-width:0;min-height:68px;padding:8px;border:1px solid #ced8c6;border-radius:9px;background:#fff;color:#2f4530;cursor:pointer;text-align:left;font-size:12px}
+.commander-tactic-options>button[aria-pressed=true]{background:#e9f3d7;border-color:#91ac52}.commander-tactic-options img{width:42px;height:42px;object-fit:contain;border-radius:6px}.commander-tactic-options span{overflow-wrap:anywhere}.commander-tactic-options b{margin-left:auto;color:#648630;font-size:10px;white-space:nowrap}
+@media(max-width:1000px){.level-chart-controls:has(.commander-controls){flex-wrap:wrap}}
+@media(max-width:620px){.commander-controls{width:100%}.commander-level-input{flex:1;justify-content:space-between}.commander-tactic-trigger{flex:1;justify-content:center}.commander-tactic-options{grid-template-columns:repeat(2,minmax(0,1fr))}.commander-tactic-options>button{font-size:11px}.commander-tactic-options img{width:34px;height:34px}.commander-mode-status{font-size:10px}}

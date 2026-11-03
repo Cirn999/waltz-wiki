@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -5,6 +6,8 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const catalog = JSON.parse(await fs.readFile(path.join(root, "public/data/maidens.json"), "utf8"));
+const baseWeaponName = (tank) => catalog.rows.find((row) => row.tank === tank).baseAmmunition.name;
 const baseUrl = process.argv[2] || "http://127.0.0.1:3000";
 const playwrightRoot = path.join(process.env.LOCALAPPDATA ?? "", "ms-playwright");
 const executablePath = (await fs.readdir(playwrightRoot, { withFileTypes: true }))
@@ -19,6 +22,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator(".search-box input").fill("T39");
   await page.locator(".search-box button").click();
   await page.locator(".maiden-table tbody tr[data-maiden-id]").first().waitFor();
@@ -28,7 +32,7 @@ try {
   await sim.waitFor();
   await page.waitForFunction(() => document.querySelector('.sim-stat strong')?.textContent !== '—');
   assert.equal(await sim.locator("input[aria-label='钢舞姬等级']").inputValue(), "1");
-  assert.ok((await sim.locator(".sim-craft-card").first().innerText()).includes("基础穿甲弹"));
+  assert.ok((await sim.locator(".sim-craft-card").first().innerText()).includes(baseWeaponName("T39")));
   assert.equal(await sim.getByText("配置科技").count(), 0);
   assert.equal(await sim.locator(".sim-tech-tile").count(), 5);
   await page.waitForFunction(() => [...document.querySelectorAll(".sim-tech-tile img")]
@@ -98,7 +102,7 @@ try {
   await page.locator(".sim-dialog .sim-option:not(.sim-option-empty):not(.locked) > button:first-child").first().click();
   assert.equal(await sim.locator(".sim-tech-inactive").count(), 0, "equipping armor should activate its configured technology tile");
   await sim.getByRole("button", { name: "重置本车" }).click();
-  assert.ok((await sim.locator(".sim-craft-card").first().innerText()).includes("基础穿甲弹"));
+  assert.ok((await sim.locator(".sim-craft-card").first().innerText()).includes(baseWeaponName("T39")));
   assert.equal(await sim.locator(".sim-equipment-slot input").count(), 0);
   assert.equal(await sim.locator(".sim-tech-tile").first().locator("strong").innerText(), "6");
   assert.equal(await defenseTile.locator('strong').innerText(), "6", "reset preserves effective defense research while unequipping armor");
@@ -177,7 +181,7 @@ try {
   await page.locator(".maiden-table tbody tr[data-maiden-id]").first().waitFor();
   await page.locator(".table-avatar").first().click();
   await page.locator(".detail-modal .detail-actions button", { hasText: "配装模拟" }).click();
-  assert.ok((await page.locator(".sim-craft-card").first().innerText()).includes("基础脱壳弹"));
+  assert.ok((await page.locator(".sim-craft-card").first().innerText()).includes(baseWeaponName("缪")));
   await page.locator(".sim-craft-card").first().click();
   const muRocket = page.locator(".sim-dialog .sim-option:not(.locked) > button:first-child", { hasText: "火箭弹" }).first();
   await muRocket.waitFor();

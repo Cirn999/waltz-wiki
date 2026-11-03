@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -19,6 +20,7 @@ const upwardAngle = (points) => Math.atan2(points[0][1] - points[1][1], points[1
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 950 } });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const rows = page.locator(".maiden-table tbody tr[data-maiden-id]");
   const ids = [await rows.nth(0).getAttribute("data-maiden-id"), await rows.nth(1).getAttribute("data-maiden-id")];
   assert.ok(ids[0] && ids[1]);
@@ -75,6 +77,7 @@ try {
 
   // A one-point difference should be visibly separated without changing the exact readouts.
   await page.reload({ waitUntil: "networkidle" });
+  await openAttributeTable(page);
   for (const tank of ["10式主战坦克", "弹链狐中型坦克"]) {
     await page.locator(".search-box input").fill(tank);
     await page.locator(".search-box > button").click();
@@ -107,6 +110,7 @@ try {
 
   // The trailing maiden can grow faster without actually overtaking the leader.
   await page.reload({ waitUntil: "networkidle" });
+  await openAttributeTable(page);
   for (const tank of ["丘吉尔Mk-III", "M2轻型坦克"]) {
     await page.locator(".search-box input").fill(tank);
     await page.locator(".search-box > button").click();

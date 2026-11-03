@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import sharp from "sharp";
+import { clientApkPath } from "./client-apks.mjs";
 
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const root = path.resolve(appRoot, "..");
@@ -13,7 +14,7 @@ run(path.join(root, "analysis_apk/tools/build_ammunition_efficiency.py"));
 const cache = path.join(appRoot, ".cache/ammunition-efficiency");
 const output = path.join(appRoot, "public/art/attributes");
 await fs.mkdir(output, { recursive: true });
-run(path.join(root, "analysis_apk/tools/inspect_apk_ui_icons.py"), path.join(root, "钢铁华尔兹.apk"), cache, "dlc-sx-014", "dlc-sx-013", "--strict");
+run(path.join(root, "analysis_apk/tools/inspect_apk_ui_icons.py"), clientApkPath(root), cache, "dlc-sx-014", "dlc-sx-013", "--strict");
 for (const code of ["dlc-sx-014", "dlc-sx-013"]) {
   await sharp(path.join(cache, `${code}.png`)).webp({ lossless: true }).toFile(path.join(output, `${code}.webp`));
 }

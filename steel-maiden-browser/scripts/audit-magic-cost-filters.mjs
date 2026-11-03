@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -15,6 +16,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const main = page.locator(".filter-sheet");
   const nested = page.getByRole("dialog", { name: "魔改费用", exact: true });
   const openMain = () => page.getByRole("button", { name: /筛选条件/ }).click();

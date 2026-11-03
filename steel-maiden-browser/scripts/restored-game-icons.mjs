@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import sharp from "sharp";
+import { clientApkPath } from "./client-apks.mjs";
 
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const projectRoot = path.resolve(appRoot, "..");
@@ -21,7 +22,7 @@ export async function prepareRestoredGameIcons() {
   const output = path.join(appRoot, ".cache", "restored-game-icons");
   execFileSync(process.env.PYTHON || "python", [
     "-X", "utf8", path.join(projectRoot, "analysis_apk", "tools", "inspect_apk_ui_icons.py"),
-    path.join(projectRoot, "钢铁华尔兹.apk"), output,
+    clientApkPath(projectRoot), output,
     ...restoredGameIcons.map((icon) => icon.code),
     "--strict",
   ], { cwd: projectRoot, stdio: "inherit", windowsHide: true });

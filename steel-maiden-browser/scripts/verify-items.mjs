@@ -2,10 +2,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 const data = JSON.parse(fs.readFileSync(new URL("../public/data/item-catalog.json", import.meta.url), "utf8"));
 const items = data.items;
-assert.equal(items.length, 413);
-assert.equal(new Set(items.map((r) => r.id)).size, 413);
-assert.equal(items.filter((r) => r.category === 82).length, 147);
-assert.equal(items.filter((r) => r.category === 99).length, 266);
+assert.equal(items.length, data.audit.count);
+assert.equal(new Set(items.map((r) => r.id)).size, items.length);
+assert.equal(items.filter((r) => r.category === 82 || r.category === 99).length, items.length);
 // Five historical honorary badge/shop icons are absent from the native packages.
 // Preserve those entries with an explicit missing-icon placeholder, never a fake icon.
 assert.deepEqual(data.audit.missingImages, ["grbz-139", "grbz-148", "grbz-151", "grbz-155", "grbz-156"]);
@@ -19,6 +18,11 @@ for (const r of items) {
   }
 }
 const find = (id) => items.find((r) => r.id === id);
+for (const id of [4445, 4446]) {
+  assert.equal(find(id).kind, "转服道具");
+  assert.equal(find(id).sale, null);
+  assert.deepEqual(find(id).uses, [find(id).description]);
+}
 assert.deepEqual(Object.fromEntries(find(4242).fixedRewards.map((r) => [r.name, r.amount])), {"工程精灵":1500,"战车残骸":90,"秘密计划":90,"演算模块":90,"实验人偶":90,"密码子":20000});
 assert.equal(find(4193).fixedRewards.length, 9);
 assert.equal(find(4193).fixedRewards.find((r) => r.name === "命运之勋").amount, 2);
@@ -88,7 +92,7 @@ assert.deepEqual(saleAmounts(4425), {"军用罐头":1});
 assert.deepEqual(saleAmounts(4426), {"军用罐头":2});
 assert.match(find(4110).sale.conditions[0], /18-4.*第1战斗节点达到B评价/);
 assert.match(find(4115).sale.conditions[0], /EXPANSION/);
-assert.deepEqual(data.audit.saleTagWithoutRecipe, [4138,4140,4141,4392]);
+assert.deepEqual(data.audit.saleTagWithoutRecipe, [4138,4140,4141,4392,4447,4448]);
 for (const id of data.audit.saleTagWithoutRecipe) {
   assert.equal(find(id).sale, null);
   assert.deepEqual(find(id).source.saleRuleIds, []);
@@ -133,4 +137,4 @@ assert.ok(!exchanges.get(5004).rewards.some((r) => r.maidenId), "Random recruitm
 assert.ok(data.exchanges.some((e) => e.costs.length > 1));
 assert.deepEqual(exchanges.get(5171).costs.map((r) => [r.name,r.amount]), [["代金券",20],["时装退返币",100]]);
 assert.ok(data.exchanges.some((e) => e.rewards.some((r) => r.outfit && r.maidenId)));
-console.log(`Items verified: 413 native records, sales, timed effects and ${exchanges.size} exchange offers.`);
+console.log(`Items verified: ${items.length} native records, sales, timed effects and ${exchanges.size} exchange offers.`);

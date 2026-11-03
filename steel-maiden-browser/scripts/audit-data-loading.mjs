@@ -20,7 +20,7 @@ try {
   if (!(await page.locator(".loading-error p").innerText()).includes("HTTP 503")) throw new Error("HTTP failure was not explained");
   await page.unroute(maidenUrl);
   await page.getByRole("button", { name: "重试加载" }).click();
-  await page.locator(".table-archive").waitFor();
+  await page.locator(".atlas-album-avatars").waitFor();
 
   const technologyUrl = "**/data/technology-catalog.json";
   await page.route(technologyUrl, (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
@@ -29,7 +29,7 @@ try {
   if (!(await page.locator(".loading-error p").innerText()).includes("数据结构不符合预期")) throw new Error("Invalid JSON shape was not explained");
   await page.unroute(technologyUrl);
   await page.getByRole("button", { name: "重试加载" }).click();
-  await page.locator(".table-archive").waitFor();
+  await page.locator(".atlas-album-avatars").waitFor();
   console.log("Data loading, HTTP failure, invalid shape, and retry all passed.");
 } finally {
   await browser.close();

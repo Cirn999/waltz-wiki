@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
@@ -14,6 +15,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 
 try {
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const bt5Row = page.locator('tr[data-maiden-id="6364"]');
   const bt2Row = page.locator('tr[data-maiden-id="6361"]');
   await bt5Row.locator(".table-avatar").click();

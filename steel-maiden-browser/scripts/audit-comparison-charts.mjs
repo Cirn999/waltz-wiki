@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
@@ -12,6 +13,7 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
 await page.goto(baseUrl, { waitUntil: "networkidle" });
+await openAttributeTable(page);
 
 const tableDeltaCount = await page.locator(".maiden-table .number-cell-sorted .value-delta").count();
 const positiveTableDeltas = await page.locator(".maiden-table .value-delta.positive").count();

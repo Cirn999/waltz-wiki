@@ -1,7 +1,7 @@
 {
   "meta": {
     "source": "测试服 APK / patch _1.18 静态配置",
-    "generatedAt": "2026-09-24",
+    "generatedAt": "2026-10-31",
     "recipeSemantics": "同一配方内前置为 AND；同一目标的多条不同配方为 OR",
     "resourcePlanSemantics": "同一前置组合下的资源方案是不同活动、渠道或时期的配置变体，不累计；实际可用方案由服务器状态决定",
     "achievementTags": {
@@ -9,18 +9,18 @@
       "5": "代数",
       "7": "等级"
     },
-    "rawRuleCount": 598,
-    "recipeCount": 433,
-    "nodeCount": 419,
-    "targetCount": 417,
-    "edgeCount": 934,
-    "resourcePlanCount": 598,
-    "resourceItemCount": 2604,
-    "equipmentResourceCount": 532,
-    "equipmentGradeResolvedCount": 532,
+    "rawRuleCount": 600,
+    "recipeCount": 434,
+    "nodeCount": 420,
+    "targetCount": 418,
+    "edgeCount": 936,
+    "resourcePlanCount": 600,
+    "resourceItemCount": 2612,
+    "equipmentResourceCount": 533,
+    "equipmentGradeResolvedCount": 533,
     "prerequisiteCountDistribution": {
       "1": 89,
-      "2": 187,
+      "2": 188,
       "3": 157
     }
   },
@@ -109,7 +109,7 @@
           "targetId": 7021
         },
         {
-          "recipeId": "R0426",
+          "recipeId": "R0427",
           "targetId": 9956
         }
       ]
@@ -151,7 +151,7 @@
           "targetId": 6692
         },
         {
-          "recipeId": "R0426",
+          "recipeId": "R0427",
           "targetId": 9956
         }
       ]
@@ -363,7 +363,7 @@
           "targetId": 9731
         },
         {
-          "recipeId": "R0406",
+          "recipeId": "R0407",
           "targetId": 9882
         }
       ]
@@ -808,15 +808,19 @@
           "targetId": 7911
         },
         {
-          "recipeId": "R0406",
+          "recipeId": "R0393",
+          "targetId": 9826
+        },
+        {
+          "recipeId": "R0407",
           "targetId": 9882
         },
         {
-          "recipeId": "R0413",
+          "recipeId": "R0414",
           "targetId": 9905
         },
         {
-          "recipeId": "R0432",
+          "recipeId": "R0433",
           "targetId": 9986
         }
       ]
@@ -907,7 +911,7 @@
           "targetId": 7381
         },
         {
-          "recipeId": "R0412",
+          "recipeId": "R0413",
           "targetId": 9899
         }
       ]
@@ -965,7 +969,7 @@
           "targetId": 7181
         },
         {
-          "recipeId": "R0430",
+          "recipeId": "R0431",
           "targetId": 9974
         }
       ]
@@ -1033,11 +1037,11 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0402",
+          "recipeId": "R0403",
           "targetId": 9867
         },
         {
-          "recipeId": "R0414",
+          "recipeId": "R0415",
           "targetId": 9906
         }
       ]
@@ -1099,7 +1103,7 @@
           "targetId": 6681
         },
         {
-          "recipeId": "R0424",
+          "recipeId": "R0425",
           "targetId": 9953
         }
       ]
@@ -1389,7 +1393,7 @@
           "targetId": 9561
         },
         {
-          "recipeId": "R0420",
+          "recipeId": "R0421",
           "targetId": 9934
         }
       ]
@@ -1420,7 +1424,7 @@
           "targetId": 6972
         },
         {
-          "recipeId": "R0424",
+          "recipeId": "R0425",
           "targetId": 9953
         }
       ]
@@ -1466,7 +1470,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0400",
+          "recipeId": "R0401",
           "targetId": 9857
         }
       ]
@@ -1611,7 +1615,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0427",
+          "recipeId": "R0428",
           "targetId": 9957
         }
       ]
@@ -1941,7 +1945,7 @@
           "targetId": 7191
         },
         {
-          "recipeId": "R0415",
+          "recipeId": "R0416",
           "targetId": 9914
         }
       ]
@@ -2086,7 +2090,7 @@
           "targetId": 9731
         },
         {
-          "recipeId": "R0430",
+          "recipeId": "R0431",
           "targetId": 9974
         }
       ]
@@ -2399,7 +2403,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0400",
+          "recipeId": "R0401",
           "targetId": 9857
         }
       ]
@@ -2661,7 +2665,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0431",
+          "recipeId": "R0432",
           "targetId": 9975
         }
       ]
@@ -2998,7 +3002,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0412",
+          "recipeId": "R0413",
           "targetId": 9899
         }
       ]
@@ -3056,7 +3060,7 @@
           "targetId": 6721
         },
         {
-          "recipeId": "R0423",
+          "recipeId": "R0424",
           "targetId": 9952
         }
       ]
@@ -3228,7 +3232,7 @@
           "targetId": 6971
         },
         {
-          "recipeId": "R0430",
+          "recipeId": "R0431",
           "targetId": 9974
         }
       ]
@@ -3278,7 +3282,7 @@
           "targetId": 6861
         },
         {
-          "recipeId": "R0424",
+          "recipeId": "R0425",
           "targetId": 9953
         }
       ]
@@ -3490,7 +3494,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0411",
+          "recipeId": "R0412",
           "targetId": 9898
         }
       ]
@@ -3525,7 +3529,7 @@
           "targetId": 7281
         },
         {
-          "recipeId": "R0408",
+          "recipeId": "R0409",
           "targetId": 9891
         }
       ]
@@ -3629,7 +3633,7 @@
           "targetId": 9823
         },
         {
-          "recipeId": "R0422",
+          "recipeId": "R0423",
           "targetId": 9951
         }
       ]
@@ -3754,15 +3758,15 @@
           "targetId": 6757
         },
         {
-          "recipeId": "R0394",
+          "recipeId": "R0395",
           "targetId": 9836
         },
         {
-          "recipeId": "R0405",
+          "recipeId": "R0406",
           "targetId": 9881
         },
         {
-          "recipeId": "R0411",
+          "recipeId": "R0412",
           "targetId": 9898
         }
       ]
@@ -3829,7 +3833,7 @@
           "targetId": 8971
         },
         {
-          "recipeId": "R0408",
+          "recipeId": "R0409",
           "targetId": 9891
         }
       ]
@@ -3985,7 +3989,7 @@
           "targetId": 7091
         },
         {
-          "recipeId": "R0431",
+          "recipeId": "R0432",
           "targetId": 9975
         }
       ]
@@ -4150,7 +4154,7 @@
           "targetId": 7251
         },
         {
-          "recipeId": "R0409",
+          "recipeId": "R0410",
           "targetId": 9892
         }
       ]
@@ -4575,7 +4579,7 @@
           "targetId": 8971
         },
         {
-          "recipeId": "R0426",
+          "recipeId": "R0427",
           "targetId": 9956
         }
       ]
@@ -4598,7 +4602,7 @@
           "targetId": 6074
         },
         {
-          "recipeId": "R0405",
+          "recipeId": "R0406",
           "targetId": 9881
         }
       ]
@@ -4687,7 +4691,7 @@
           "targetId": 6871
         },
         {
-          "recipeId": "R0423",
+          "recipeId": "R0424",
           "targetId": 9952
         }
       ]
@@ -4764,7 +4768,7 @@
           "targetId": 6474
         },
         {
-          "recipeId": "R0428",
+          "recipeId": "R0429",
           "targetId": 9958
         }
       ]
@@ -4803,7 +4807,7 @@
           "targetId": 9691
         },
         {
-          "recipeId": "R0422",
+          "recipeId": "R0423",
           "targetId": 9951
         }
       ]
@@ -4945,7 +4949,7 @@
           "targetId": 6901
         },
         {
-          "recipeId": "R0402",
+          "recipeId": "R0403",
           "targetId": 9867
         }
       ]
@@ -5137,7 +5141,7 @@
           "targetId": 7011
         },
         {
-          "recipeId": "R0396",
+          "recipeId": "R0397",
           "targetId": 9846
         }
       ]
@@ -5207,7 +5211,7 @@
           "targetId": 7771
         },
         {
-          "recipeId": "R0417",
+          "recipeId": "R0418",
           "targetId": 9923
         }
       ]
@@ -5265,7 +5269,7 @@
           "targetId": 7511
         },
         {
-          "recipeId": "R0410",
+          "recipeId": "R0411",
           "targetId": 9895
         }
       ]
@@ -5328,15 +5332,15 @@
           "targetId": 8251
         },
         {
-          "recipeId": "R0394",
+          "recipeId": "R0395",
           "targetId": 9836
         },
         {
-          "recipeId": "R0417",
+          "recipeId": "R0418",
           "targetId": 9923
         },
         {
-          "recipeId": "R0421",
+          "recipeId": "R0422",
           "targetId": 9949
         }
       ]
@@ -5355,7 +5359,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0419",
+          "recipeId": "R0420",
           "targetId": 9933
         }
       ]
@@ -5457,7 +5461,7 @@
           "targetId": 7031
         },
         {
-          "recipeId": "R0399",
+          "recipeId": "R0400",
           "targetId": 9854
         }
       ]
@@ -5583,7 +5587,7 @@
           "targetId": 9591
         },
         {
-          "recipeId": "R0412",
+          "recipeId": "R0413",
           "targetId": 9899
         }
       ]
@@ -5617,7 +5621,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0393",
+          "recipeId": "R0394",
           "targetId": 9835
         }
       ]
@@ -5640,15 +5644,15 @@
           "targetId": 7911
         },
         {
-          "recipeId": "R0393",
+          "recipeId": "R0394",
           "targetId": 9835
         },
         {
-          "recipeId": "R0395",
+          "recipeId": "R0396",
           "targetId": 9843
         },
         {
-          "recipeId": "R0427",
+          "recipeId": "R0428",
           "targetId": 9957
         }
       ]
@@ -5866,7 +5870,12 @@
       "upstreamRecipeIds": [
         "R0224"
       ],
-      "downstream": []
+      "downstream": [
+        {
+          "recipeId": "R0393",
+          "targetId": 9826
+        }
+      ]
     },
     {
       "id": 6581,
@@ -6037,7 +6046,7 @@
           "targetId": 6671
         },
         {
-          "recipeId": "R0428",
+          "recipeId": "R0429",
           "targetId": 9958
         }
       ]
@@ -6104,7 +6113,7 @@
           "targetId": 7571
         },
         {
-          "recipeId": "R0422",
+          "recipeId": "R0423",
           "targetId": 9951
         }
       ]
@@ -6520,7 +6529,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0409",
+          "recipeId": "R0410",
           "targetId": 9892
         }
       ]
@@ -6628,7 +6637,7 @@
           "targetId": 6753
         },
         {
-          "recipeId": "R0423",
+          "recipeId": "R0424",
           "targetId": 9952
         }
       ]
@@ -6689,11 +6698,11 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0399",
+          "recipeId": "R0400",
           "targetId": 9854
         },
         {
-          "recipeId": "R0418",
+          "recipeId": "R0419",
           "targetId": 9925
         }
       ]
@@ -6713,11 +6722,11 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0421",
+          "recipeId": "R0422",
           "targetId": 9949
         },
         {
-          "recipeId": "R0425",
+          "recipeId": "R0426",
           "targetId": 9955
         }
       ]
@@ -7029,11 +7038,11 @@
           "targetId": 7581
         },
         {
-          "recipeId": "R0398",
+          "recipeId": "R0399",
           "targetId": 9851
         },
         {
-          "recipeId": "R0416",
+          "recipeId": "R0417",
           "targetId": 9919
         }
       ]
@@ -7240,7 +7249,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0414",
+          "recipeId": "R0415",
           "targetId": 9906
         }
       ]
@@ -7337,7 +7346,7 @@
           "targetId": 7711
         },
         {
-          "recipeId": "R0429",
+          "recipeId": "R0430",
           "targetId": 9959
         }
       ]
@@ -7438,7 +7447,7 @@
           "targetId": 7731
         },
         {
-          "recipeId": "R0395",
+          "recipeId": "R0396",
           "targetId": 9843
         }
       ]
@@ -7518,7 +7527,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0433",
+          "recipeId": "R0434",
           "targetId": 9998
         }
       ]
@@ -7555,7 +7564,7 @@
           "targetId": 7012
         },
         {
-          "recipeId": "R0429",
+          "recipeId": "R0430",
           "targetId": 9959
         }
       ]
@@ -7639,11 +7648,11 @@
           "targetId": 7821
         },
         {
-          "recipeId": "R0406",
+          "recipeId": "R0407",
           "targetId": 9882
         },
         {
-          "recipeId": "R0413",
+          "recipeId": "R0414",
           "targetId": 9905
         }
       ]
@@ -7696,7 +7705,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0405",
+          "recipeId": "R0406",
           "targetId": 9881
         }
       ]
@@ -7729,7 +7738,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0410",
+          "recipeId": "R0411",
           "targetId": 9895
         }
       ]
@@ -7748,7 +7757,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0425",
+          "recipeId": "R0426",
           "targetId": 9955
         }
       ]
@@ -7781,7 +7790,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0404",
+          "recipeId": "R0405",
           "targetId": 9876
         }
       ]
@@ -7804,7 +7813,7 @@
           "targetId": 6144
         },
         {
-          "recipeId": "R0404",
+          "recipeId": "R0405",
           "targetId": 9876
         }
       ]
@@ -7827,7 +7836,7 @@
           "targetId": 8971
         },
         {
-          "recipeId": "R0428",
+          "recipeId": "R0429",
           "targetId": 9958
         }
       ]
@@ -7864,7 +7873,7 @@
           "targetId": 7381
         },
         {
-          "recipeId": "R0398",
+          "recipeId": "R0399",
           "targetId": 9851
         }
       ]
@@ -7883,7 +7892,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0403",
+          "recipeId": "R0404",
           "targetId": 9873
         }
       ]
@@ -7919,15 +7928,15 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0404",
+          "recipeId": "R0405",
           "targetId": 9876
         },
         {
-          "recipeId": "R0409",
+          "recipeId": "R0410",
           "targetId": 9892
         },
         {
-          "recipeId": "R0432",
+          "recipeId": "R0433",
           "targetId": 9986
         }
       ]
@@ -7946,11 +7955,11 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0411",
+          "recipeId": "R0412",
           "targetId": 9898
         },
         {
-          "recipeId": "R0433",
+          "recipeId": "R0434",
           "targetId": 9998
         }
       ]
@@ -8006,7 +8015,7 @@
           "targetId": 7681
         },
         {
-          "recipeId": "R0419",
+          "recipeId": "R0420",
           "targetId": 9933
         }
       ]
@@ -8086,7 +8095,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0407",
+          "recipeId": "R0408",
           "targetId": 9886
         }
       ]
@@ -8180,7 +8189,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0401",
+          "recipeId": "R0402",
           "targetId": 9864
         }
       ]
@@ -8241,7 +8250,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0401",
+          "recipeId": "R0402",
           "targetId": 9864
         }
       ]
@@ -8274,11 +8283,11 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0403",
+          "recipeId": "R0404",
           "targetId": 9873
         },
         {
-          "recipeId": "R0413",
+          "recipeId": "R0414",
           "targetId": 9905
         }
       ]
@@ -8311,7 +8320,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0416",
+          "recipeId": "R0417",
           "targetId": 9919
         }
       ]
@@ -8344,7 +8353,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0400",
+          "recipeId": "R0401",
           "targetId": 9857
         }
       ]
@@ -8847,11 +8856,11 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0415",
+          "recipeId": "R0416",
           "targetId": 9914
         },
         {
-          "recipeId": "R0419",
+          "recipeId": "R0420",
           "targetId": 9933
         }
       ]
@@ -9137,7 +9146,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0397",
+          "recipeId": "R0398",
           "targetId": 9849
         }
       ]
@@ -9287,7 +9296,7 @@
       ],
       "downstream": [
         {
-          "recipeId": "R0417",
+          "recipeId": "R0418",
           "targetId": 9923
         }
       ]
@@ -9307,6 +9316,20 @@
       "downstream": []
     },
     {
+      "id": 9826,
+      "tank": "T3F试验型",
+      "person": "德莱雅·康妮",
+      "nation": "德国",
+      "className": "中型坦克",
+      "stage": "N6",
+      "rarity": "三级",
+      "headImage": "/art/heads/9826.webp",
+      "upstreamRecipeIds": [
+        "R0393"
+      ],
+      "downstream": []
+    },
+    {
       "id": 9835,
       "tank": "AMX-50重装型",
       "person": "芬妮·朱安",
@@ -9316,7 +9339,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9835.webp",
       "upstreamRecipeIds": [
-        "R0393"
+        "R0394"
       ],
       "downstream": []
     },
@@ -9330,7 +9353,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9836.webp",
       "upstreamRecipeIds": [
-        "R0394"
+        "R0395"
       ],
       "downstream": []
     },
@@ -9344,7 +9367,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9843.webp",
       "upstreamRecipeIds": [
-        "R0395"
+        "R0396"
       ],
       "downstream": []
     },
@@ -9358,7 +9381,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9846.webp",
       "upstreamRecipeIds": [
-        "R0396"
+        "R0397"
       ],
       "downstream": []
     },
@@ -9372,7 +9395,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9849.webp",
       "upstreamRecipeIds": [
-        "R0397"
+        "R0398"
       ],
       "downstream": []
     },
@@ -9386,19 +9409,19 @@
       "rarity": "三级",
       "headImage": "/art/heads/9851.webp",
       "upstreamRecipeIds": [
-        "R0398"
+        "R0399"
       ],
       "downstream": [
         {
-          "recipeId": "R0407",
+          "recipeId": "R0408",
           "targetId": 9886
         },
         {
-          "recipeId": "R0418",
+          "recipeId": "R0419",
           "targetId": 9925
         },
         {
-          "recipeId": "R0425",
+          "recipeId": "R0426",
           "targetId": 9955
         }
       ]
@@ -9413,7 +9436,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9854.webp",
       "upstreamRecipeIds": [
-        "R0399"
+        "R0400"
       ],
       "downstream": []
     },
@@ -9427,7 +9450,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9857.webp",
       "upstreamRecipeIds": [
-        "R0400"
+        "R0401"
       ],
       "downstream": []
     },
@@ -9441,7 +9464,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9864.webp",
       "upstreamRecipeIds": [
-        "R0401"
+        "R0402"
       ],
       "downstream": []
     },
@@ -9455,7 +9478,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9867.webp",
       "upstreamRecipeIds": [
-        "R0402"
+        "R0403"
       ],
       "downstream": []
     },
@@ -9469,7 +9492,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9873.webp",
       "upstreamRecipeIds": [
-        "R0403"
+        "R0404"
       ],
       "downstream": []
     },
@@ -9483,7 +9506,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9876.webp",
       "upstreamRecipeIds": [
-        "R0404"
+        "R0405"
       ],
       "downstream": []
     },
@@ -9497,7 +9520,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9881.webp",
       "upstreamRecipeIds": [
-        "R0405"
+        "R0406"
       ],
       "downstream": []
     },
@@ -9511,7 +9534,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9882.webp",
       "upstreamRecipeIds": [
-        "R0406"
+        "R0407"
       ],
       "downstream": []
     },
@@ -9525,7 +9548,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9886.webp",
       "upstreamRecipeIds": [
-        "R0407"
+        "R0408"
       ],
       "downstream": []
     },
@@ -9539,7 +9562,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9891.webp",
       "upstreamRecipeIds": [
-        "R0408"
+        "R0409"
       ],
       "downstream": []
     },
@@ -9553,7 +9576,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9892.webp",
       "upstreamRecipeIds": [
-        "R0409"
+        "R0410"
       ],
       "downstream": []
     },
@@ -9567,7 +9590,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9895.webp",
       "upstreamRecipeIds": [
-        "R0410"
+        "R0411"
       ],
       "downstream": []
     },
@@ -9581,7 +9604,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9898.webp",
       "upstreamRecipeIds": [
-        "R0411"
+        "R0412"
       ],
       "downstream": []
     },
@@ -9595,7 +9618,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9899.webp",
       "upstreamRecipeIds": [
-        "R0412"
+        "R0413"
       ],
       "downstream": []
     },
@@ -9609,7 +9632,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9905.webp",
       "upstreamRecipeIds": [
-        "R0413"
+        "R0414"
       ],
       "downstream": []
     },
@@ -9623,7 +9646,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9906.webp",
       "upstreamRecipeIds": [
-        "R0414"
+        "R0415"
       ],
       "downstream": []
     },
@@ -9637,11 +9660,11 @@
       "rarity": "三级",
       "headImage": "/art/heads/9914.webp",
       "upstreamRecipeIds": [
-        "R0415"
+        "R0416"
       ],
       "downstream": [
         {
-          "recipeId": "R0403",
+          "recipeId": "R0404",
           "targetId": 9873
         }
       ]
@@ -9656,7 +9679,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9919.webp",
       "upstreamRecipeIds": [
-        "R0416"
+        "R0417"
       ],
       "downstream": []
     },
@@ -9670,7 +9693,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9923.webp",
       "upstreamRecipeIds": [
-        "R0417"
+        "R0418"
       ],
       "downstream": []
     },
@@ -9684,7 +9707,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9925.webp",
       "upstreamRecipeIds": [
-        "R0418"
+        "R0419"
       ],
       "downstream": []
     },
@@ -9715,7 +9738,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9933.webp",
       "upstreamRecipeIds": [
-        "R0419"
+        "R0420"
       ],
       "downstream": []
     },
@@ -9729,7 +9752,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9934.webp",
       "upstreamRecipeIds": [
-        "R0420"
+        "R0421"
       ],
       "downstream": []
     },
@@ -9743,7 +9766,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9949.webp",
       "upstreamRecipeIds": [
-        "R0421"
+        "R0422"
       ],
       "downstream": []
     },
@@ -9757,11 +9780,11 @@
       "rarity": "三级",
       "headImage": "/art/heads/9951.webp",
       "upstreamRecipeIds": [
-        "R0422"
+        "R0423"
       ],
       "downstream": [
         {
-          "recipeId": "R0418",
+          "recipeId": "R0419",
           "targetId": 9925
         }
       ]
@@ -9776,7 +9799,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9952.webp",
       "upstreamRecipeIds": [
-        "R0423"
+        "R0424"
       ],
       "downstream": []
     },
@@ -9790,7 +9813,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9953.webp",
       "upstreamRecipeIds": [
-        "R0424"
+        "R0425"
       ],
       "downstream": []
     },
@@ -9804,7 +9827,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9955.webp",
       "upstreamRecipeIds": [
-        "R0425"
+        "R0426"
       ],
       "downstream": []
     },
@@ -9818,7 +9841,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9956.webp",
       "upstreamRecipeIds": [
-        "R0426"
+        "R0427"
       ],
       "downstream": []
     },
@@ -9832,7 +9855,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9957.webp",
       "upstreamRecipeIds": [
-        "R0427"
+        "R0428"
       ],
       "downstream": []
     },
@@ -9846,15 +9869,15 @@
       "rarity": "三级",
       "headImage": "/art/heads/9958.webp",
       "upstreamRecipeIds": [
-        "R0428"
+        "R0429"
       ],
       "downstream": [
         {
-          "recipeId": "R0397",
+          "recipeId": "R0398",
           "targetId": 9849
         },
         {
-          "recipeId": "R0420",
+          "recipeId": "R0421",
           "targetId": 9934
         }
       ]
@@ -9869,15 +9892,15 @@
       "rarity": "三级",
       "headImage": "/art/heads/9959.webp",
       "upstreamRecipeIds": [
-        "R0429"
+        "R0430"
       ],
       "downstream": [
         {
-          "recipeId": "R0396",
+          "recipeId": "R0397",
           "targetId": 9846
         },
         {
-          "recipeId": "R0402",
+          "recipeId": "R0403",
           "targetId": 9867
         }
       ]
@@ -9892,7 +9915,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9974.webp",
       "upstreamRecipeIds": [
-        "R0430"
+        "R0431"
       ],
       "downstream": []
     },
@@ -9906,7 +9929,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9975.webp",
       "upstreamRecipeIds": [
-        "R0431"
+        "R0432"
       ],
       "downstream": []
     },
@@ -9920,7 +9943,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9986.webp",
       "upstreamRecipeIds": [
-        "R0432"
+        "R0433"
       ],
       "downstream": []
     },
@@ -9934,7 +9957,7 @@
       "rarity": "三级",
       "headImage": "/art/heads/9998.webp",
       "upstreamRecipeIds": [
-        "R0433"
+        "R0434"
       ],
       "downstream": []
     }
@@ -14121,7 +14144,7 @@
             {
               "fundId": 1,
               "name": "银币",
-              "amount": 5910000,
+              "amount": 5925000,
               "category": "silver",
               "categoryName": "银币",
               "icon": "IC_033",
@@ -14151,7 +14174,7 @@
             {
               "fundId": 3002,
               "name": "秘密计划",
-              "amount": 443,
+              "amount": 444,
               "category": "material",
               "categoryName": "其他材料",
               "icon": "IC_075",
@@ -55730,6 +55753,150 @@
     },
     {
       "id": "R0393",
+      "targetId": 9826,
+      "target": {
+        "tank": "T3F试验型",
+        "person": "德莱雅·康妮",
+        "stage": "N6",
+        "className": "中型坦克",
+        "nation": "德国",
+        "headImage": "/art/heads/9826.webp"
+      },
+      "requirements": [
+        {
+          "cardId": 6068,
+          "obtained": true,
+          "generation": 3,
+          "level": 90,
+          "tank": "豹1坦克",
+          "person": "卡拉·拜尔",
+          "stage": "N6",
+          "headImage": "/art/heads/6068.webp"
+        },
+        {
+          "cardId": 6577,
+          "obtained": true,
+          "generation": 3,
+          "level": 90,
+          "tank": "黄鼠狼步兵战车",
+          "person": "弗丽达·朗格",
+          "stage": "N6",
+          "headImage": "/art/heads/6577.webp"
+        }
+      ],
+      "resourcePlans": [
+        {
+          "id": "R0393-P01",
+          "commanderLevel": 64,
+          "resources": [
+            {
+              "fundId": 1,
+              "name": "银币",
+              "amount": 6286000,
+              "category": "silver",
+              "categoryName": "银币",
+              "icon": "IC_033",
+              "equipmentRank": null,
+              "equipmentGrade": ""
+            },
+            {
+              "fundId": 3106,
+              "name": "N6图谱",
+              "amount": 43,
+              "category": "blueprint",
+              "categoryName": "图纸",
+              "icon": "IC_079",
+              "equipmentRank": null,
+              "equipmentGrade": ""
+            },
+            {
+              "fundId": 13344,
+              "name": "主动探测装置",
+              "amount": 1,
+              "category": "equipment",
+              "categoryName": "装备",
+              "icon": "",
+              "equipmentRank": 6,
+              "equipmentGrade": "S6"
+            },
+            {
+              "fundId": 12,
+              "name": "军牌",
+              "amount": 108,
+              "category": "material",
+              "categoryName": "其他材料",
+              "icon": "",
+              "equipmentRank": null,
+              "equipmentGrade": ""
+            },
+            {
+              "fundId": 3002,
+              "name": "秘密计划",
+              "amount": 552,
+              "category": "material",
+              "categoryName": "其他材料",
+              "icon": "IC_075",
+              "equipmentRank": null,
+              "equipmentGrade": ""
+            }
+          ],
+          "ruleIds": [
+            4598261
+          ],
+          "hasPermanentVariant": false,
+          "hasLimitedVariant": true
+        },
+        {
+          "id": "R0393-P02",
+          "commanderLevel": 64,
+          "resources": [
+            {
+              "fundId": 1,
+              "name": "银币",
+              "amount": 5070,
+              "category": "silver",
+              "categoryName": "银币",
+              "icon": "IC_033",
+              "equipmentRank": null,
+              "equipmentGrade": ""
+            },
+            {
+              "fundId": 3106,
+              "name": "N6图谱",
+              "amount": 7,
+              "category": "blueprint",
+              "categoryName": "图纸",
+              "icon": "IC_079",
+              "equipmentRank": null,
+              "equipmentGrade": ""
+            },
+            {
+              "fundId": 4285,
+              "name": "源石",
+              "amount": 25,
+              "category": "material",
+              "categoryName": "其他材料",
+              "icon": "",
+              "equipmentRank": null,
+              "equipmentGrade": ""
+            }
+          ],
+          "ruleIds": [
+            4598262
+          ],
+          "hasPermanentVariant": false,
+          "hasLimitedVariant": true
+        }
+      ],
+      "ruleIds": [
+        4598261,
+        4598262
+      ],
+      "hasPermanentVariant": false,
+      "hasLimitedVariant": true
+    },
+    {
+      "id": "R0394",
       "targetId": 9835,
       "target": {
         "tank": "AMX-50重装型",
@@ -55763,7 +55930,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0393-P01",
+          "id": "R0394-P01",
           "commanderLevel": 65,
           "resources": [
             {
@@ -55824,7 +55991,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0393-P02",
+          "id": "R0394-P02",
           "commanderLevel": 65,
           "resources": [
             {
@@ -55873,7 +56040,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0394",
+      "id": "R0395",
       "targetId": 9836,
       "target": {
         "tank": "T69",
@@ -55907,7 +56074,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0394-P01",
+          "id": "R0395-P01",
           "commanderLevel": 68,
           "resources": [
             {
@@ -55968,7 +56135,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0394-P02",
+          "id": "R0395-P02",
           "commanderLevel": 68,
           "resources": [
             {
@@ -56017,7 +56184,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0395",
+      "id": "R0396",
       "targetId": 9843,
       "target": {
         "tank": "Kranvagn重型坦克",
@@ -56051,7 +56218,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0395-P01",
+          "id": "R0396-P01",
           "commanderLevel": 53,
           "resources": [
             {
@@ -56109,7 +56276,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0396",
+      "id": "R0397",
       "targetId": 9846,
       "target": {
         "tank": "SFGP",
@@ -56143,7 +56310,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0396-P01",
+          "id": "R0397-P01",
           "commanderLevel": 61,
           "resources": [
             {
@@ -56201,7 +56368,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0397",
+      "id": "R0398",
       "targetId": 9849,
       "target": {
         "tank": "BK1970",
@@ -56235,7 +56402,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0397-P01",
+          "id": "R0398-P01",
           "commanderLevel": 67,
           "resources": [
             {
@@ -56296,7 +56463,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0397-P02",
+          "id": "R0398-P02",
           "commanderLevel": 67,
           "resources": [
             {
@@ -56345,7 +56512,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0398",
+      "id": "R0399",
       "targetId": 9851,
       "target": {
         "tank": "432工程",
@@ -56379,7 +56546,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0398-P01",
+          "id": "R0399-P01",
           "commanderLevel": 60,
           "resources": [
             {
@@ -56420,7 +56587,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0398-P02",
+          "id": "R0399-P02",
           "commanderLevel": 60,
           "resources": [
             {
@@ -56489,7 +56656,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0399",
+      "id": "R0400",
       "targetId": 9854,
       "target": {
         "tank": "278工程",
@@ -56523,7 +56690,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0399-P01",
+          "id": "R0400-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -56584,7 +56751,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0399-P02",
+          "id": "R0400-P02",
           "commanderLevel": 74,
           "resources": [
             {
@@ -56633,7 +56800,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0400",
+      "id": "R0401",
       "targetId": 9857,
       "target": {
         "tank": "迫击虎",
@@ -56677,7 +56844,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0400-P01",
+          "id": "R0401-P01",
           "commanderLevel": 63,
           "resources": [
             {
@@ -56738,7 +56905,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0400-P02",
+          "id": "R0401-P02",
           "commanderLevel": 63,
           "resources": [
             {
@@ -56787,7 +56954,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0401",
+      "id": "R0402",
       "targetId": 9864,
       "target": {
         "tank": "UDES-XX20",
@@ -56821,7 +56988,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0401-P01",
+          "id": "R0402-P01",
           "commanderLevel": 75,
           "resources": [
             {
@@ -56882,7 +57049,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0401-P02",
+          "id": "R0402-P02",
           "commanderLevel": 75,
           "resources": [
             {
@@ -56931,7 +57098,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0402",
+      "id": "R0403",
       "targetId": 9867,
       "target": {
         "tank": "涅墨西斯",
@@ -56975,7 +57142,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0402-P01",
+          "id": "R0403-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -57033,7 +57200,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0403",
+      "id": "R0404",
       "targetId": 9873,
       "target": {
         "tank": "VBPA Centauro轮式自行火炮",
@@ -57077,7 +57244,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0403-P01",
+          "id": "R0404-P01",
           "commanderLevel": 64,
           "resources": [
             {
@@ -57138,7 +57305,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0403-P02",
+          "id": "R0404-P02",
           "commanderLevel": 64,
           "resources": [
             {
@@ -57187,7 +57354,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0404",
+      "id": "R0405",
       "targetId": 9876,
       "target": {
         "tank": "豹2K",
@@ -57231,7 +57398,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0404-P01",
+          "id": "R0405-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -57292,7 +57459,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0404-P02",
+          "id": "R0405-P02",
           "commanderLevel": 74,
           "resources": [
             {
@@ -57341,7 +57508,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0405",
+      "id": "R0406",
       "targetId": 9881,
       "target": {
         "tank": "M26潘兴(T99)",
@@ -57385,7 +57552,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0405-P01",
+          "id": "R0406-P01",
           "commanderLevel": 61,
           "resources": [
             {
@@ -57443,7 +57610,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0406",
+      "id": "R0407",
       "targetId": 9882,
       "target": {
         "tank": "Radpanzer 90",
@@ -57487,13 +57654,13 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0406-P01",
+          "id": "R0407-P01",
           "commanderLevel": 75,
           "resources": [
             {
               "fundId": 1,
               "name": "银币",
-              "amount": 7403000,
+              "amount": 7370000,
               "category": "silver",
               "categoryName": "银币",
               "icon": "IC_033",
@@ -57548,7 +57715,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0406-P02",
+          "id": "R0407-P02",
           "commanderLevel": 75,
           "resources": [
             {
@@ -57597,7 +57764,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0407",
+      "id": "R0408",
       "targetId": 9886,
       "target": {
         "tank": "450工程",
@@ -57631,7 +57798,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0407-P01",
+          "id": "R0408-P01",
           "commanderLevel": 66,
           "resources": [
             {
@@ -57692,7 +57859,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0407-P02",
+          "id": "R0408-P02",
           "commanderLevel": 66,
           "resources": [
             {
@@ -57741,7 +57908,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0408",
+      "id": "R0409",
       "targetId": 9891,
       "target": {
         "tank": "M60A2主战坦克",
@@ -57775,7 +57942,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0408-P01",
+          "id": "R0409-P01",
           "commanderLevel": 67,
           "resources": [
             {
@@ -57836,7 +58003,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0408-P02",
+          "id": "R0409-P02",
           "commanderLevel": 67,
           "resources": [
             {
@@ -57885,7 +58052,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0409",
+      "id": "R0410",
       "targetId": 9892,
       "target": {
         "tank": "M1 CATTB",
@@ -57929,7 +58096,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0409-P01",
+          "id": "R0410-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -57990,7 +58157,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0409-P02",
+          "id": "R0410-P02",
           "commanderLevel": 74,
           "resources": [
             {
@@ -58039,7 +58206,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0410",
+      "id": "R0411",
       "targetId": 9895,
       "target": {
         "tank": "MOWAG轮式火箭炮",
@@ -58073,7 +58240,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0410-P01",
+          "id": "R0411-P01",
           "commanderLevel": 57,
           "resources": [
             {
@@ -58131,7 +58298,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0411",
+      "id": "R0412",
       "targetId": 9898,
       "target": {
         "tank": "SARAH中型坦克",
@@ -58175,7 +58342,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0411-P01",
+          "id": "R0412-P01",
           "commanderLevel": 58,
           "resources": [
             {
@@ -58236,7 +58403,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0411-P02",
+          "id": "R0412-P02",
           "commanderLevel": 58,
           "resources": [
             {
@@ -58285,7 +58452,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0412",
+      "id": "R0413",
       "targetId": 9899,
       "target": {
         "tank": "ALVT",
@@ -58329,7 +58496,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0412-P01",
+          "id": "R0413-P01",
           "commanderLevel": 66,
           "resources": [
             {
@@ -58390,7 +58557,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0412-P02",
+          "id": "R0413-P02",
           "commanderLevel": 66,
           "resources": [
             {
@@ -58439,7 +58606,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0413",
+      "id": "R0414",
       "targetId": 9905,
       "target": {
         "tank": "天龙座",
@@ -58483,13 +58650,13 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0413-P01",
+          "id": "R0414-P01",
           "commanderLevel": 64,
           "resources": [
             {
               "fundId": 1,
               "name": "银币",
-              "amount": 6210000,
+              "amount": 6180000,
               "category": "silver",
               "categoryName": "银币",
               "icon": "IC_033",
@@ -58544,7 +58711,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0413-P02",
+          "id": "R0414-P02",
           "commanderLevel": 64,
           "resources": [
             {
@@ -58593,7 +58760,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0414",
+      "id": "R0415",
       "targetId": 9906,
       "target": {
         "tank": "圣剑",
@@ -58627,7 +58794,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0414-P01",
+          "id": "R0415-P01",
           "commanderLevel": 53,
           "resources": [
             {
@@ -58688,7 +58855,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0414-P02",
+          "id": "R0415-P02",
           "commanderLevel": 53,
           "resources": [
             {
@@ -58737,7 +58904,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0415",
+      "id": "R0416",
       "targetId": 9914,
       "target": {
         "tank": "圣卡洛斯",
@@ -58771,7 +58938,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0415-P01",
+          "id": "R0416-P01",
           "commanderLevel": 61,
           "resources": [
             {
@@ -58832,7 +58999,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0415-P02",
+          "id": "R0416-P02",
           "commanderLevel": 61,
           "resources": [
             {
@@ -58881,7 +59048,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0416",
+      "id": "R0417",
       "targetId": 9919,
       "target": {
         "tank": "T-72M1",
@@ -58915,7 +59082,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0416-P01",
+          "id": "R0417-P01",
           "commanderLevel": 60,
           "resources": [
             {
@@ -58976,7 +59143,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0416-P02",
+          "id": "R0417-P02",
           "commanderLevel": 60,
           "resources": [
             {
@@ -59025,7 +59192,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0417",
+      "id": "R0418",
       "targetId": 9923,
       "target": {
         "tank": "AMX-10 ALLARM",
@@ -59069,7 +59236,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0417-P01",
+          "id": "R0418-P01",
           "commanderLevel": 64,
           "resources": [
             {
@@ -59130,7 +59297,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0417-P02",
+          "id": "R0418-P02",
           "commanderLevel": 64,
           "resources": [
             {
@@ -59179,7 +59346,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0418",
+      "id": "R0419",
       "targetId": 9925,
       "target": {
         "tank": "640工程",
@@ -59223,7 +59390,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0418-P01",
+          "id": "R0419-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -59284,7 +59451,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0418-P02",
+          "id": "R0419-P02",
           "commanderLevel": 74,
           "resources": [
             {
@@ -59333,7 +59500,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0419",
+      "id": "R0420",
       "targetId": 9933,
       "target": {
         "tank": "AMX-32",
@@ -59377,7 +59544,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0419-P01",
+          "id": "R0420-P01",
           "commanderLevel": 62,
           "resources": [
             {
@@ -59435,7 +59602,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0420",
+      "id": "R0421",
       "targetId": 9934,
       "target": {
         "tank": "62G",
@@ -59469,7 +59636,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0420-P01",
+          "id": "R0421-P01",
           "commanderLevel": 55,
           "resources": [
             {
@@ -59527,7 +59694,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0421",
+      "id": "R0422",
       "targetId": 9949,
       "target": {
         "tank": "752工程",
@@ -59561,7 +59728,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0421-P01",
+          "id": "R0422-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -59622,7 +59789,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0421-P02",
+          "id": "R0422-P02",
           "commanderLevel": 74,
           "resources": [
             {
@@ -59671,7 +59838,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0422",
+      "id": "R0423",
       "targetId": 9951,
       "target": {
         "tank": "2S9秋牡丹",
@@ -59715,7 +59882,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0422-P01",
+          "id": "R0423-P01",
           "commanderLevel": 55,
           "resources": [
             {
@@ -59776,7 +59943,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0422-P02",
+          "id": "R0423-P02",
           "commanderLevel": 55,
           "resources": [
             {
@@ -59825,7 +59992,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0423",
+      "id": "R0424",
       "targetId": 9952,
       "target": {
         "tank": "FV1620亨伯蜂",
@@ -59869,7 +60036,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0423-P01",
+          "id": "R0424-P01",
           "commanderLevel": 51,
           "resources": [
             {
@@ -59927,7 +60094,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0424",
+      "id": "R0425",
       "targetId": 9953,
       "target": {
         "tank": "狮式重型坦克",
@@ -59971,7 +60138,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0424-P01",
+          "id": "R0425-P01",
           "commanderLevel": 53,
           "resources": [
             {
@@ -60029,7 +60196,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0425",
+      "id": "R0426",
       "targetId": 9955,
       "target": {
         "tank": "195工程",
@@ -60073,7 +60240,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0425-P01",
+          "id": "R0426-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -60134,7 +60301,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0425-P02",
+          "id": "R0426-P02",
           "commanderLevel": 74,
           "resources": [
             {
@@ -60183,7 +60350,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0426",
+      "id": "R0427",
       "targetId": 9956,
       "target": {
         "tank": "丘吉尔GC火箭炮",
@@ -60227,7 +60394,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0426-P01",
+          "id": "R0427-P01",
           "commanderLevel": 61,
           "resources": [
             {
@@ -60288,7 +60455,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0426-P02",
+          "id": "R0427-P02",
           "commanderLevel": 61,
           "resources": [
             {
@@ -60337,7 +60504,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0427",
+      "id": "R0428",
       "targetId": 9957,
       "target": {
         "tank": "AC-120",
@@ -60371,7 +60538,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0427-P01",
+          "id": "R0428-P01",
           "commanderLevel": 66,
           "resources": [
             {
@@ -60429,7 +60596,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0428",
+      "id": "R0429",
       "targetId": 9958,
       "target": {
         "tank": "BJ212A",
@@ -60473,7 +60640,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0428-P01",
+          "id": "R0429-P01",
           "commanderLevel": 51,
           "resources": [
             {
@@ -60531,7 +60698,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0429",
+      "id": "R0430",
       "targetId": 9959,
       "target": {
         "tank": "FV4201",
@@ -60565,7 +60732,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0429-P01",
+          "id": "R0430-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -60623,7 +60790,7 @@
       "hasLimitedVariant": false
     },
     {
-      "id": "R0430",
+      "id": "R0431",
       "targetId": 9974,
       "target": {
         "tank": "III/IV(导弹型)",
@@ -60667,7 +60834,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0430-P01",
+          "id": "R0431-P01",
           "commanderLevel": 60,
           "resources": [
             {
@@ -60728,7 +60895,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0430-P02",
+          "id": "R0431-P02",
           "commanderLevel": 60,
           "resources": [
             {
@@ -60777,7 +60944,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0431",
+      "id": "R0432",
       "targetId": 9975,
       "target": {
         "tank": "B.IV Wanze",
@@ -60811,7 +60978,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0431-P01",
+          "id": "R0432-P01",
           "commanderLevel": 61,
           "resources": [
             {
@@ -60852,7 +61019,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0431-P02",
+          "id": "R0432-P02",
           "commanderLevel": 61,
           "resources": [
             {
@@ -60921,7 +61088,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0432",
+      "id": "R0433",
       "targetId": 9986,
       "target": {
         "tank": "豹2A4",
@@ -60955,7 +61122,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0432-P01",
+          "id": "R0433-P01",
           "commanderLevel": 74,
           "resources": [
             {
@@ -61016,7 +61183,7 @@
           "hasLimitedVariant": true
         },
         {
-          "id": "R0432-P02",
+          "id": "R0433-P02",
           "commanderLevel": 74,
           "resources": [
             {
@@ -61065,7 +61232,7 @@
       "hasLimitedVariant": true
     },
     {
-      "id": "R0433",
+      "id": "R0434",
       "targetId": 9998,
       "target": {
         "tank": "Concept No.2",
@@ -61099,7 +61266,7 @@
       ],
       "resourcePlans": [
         {
-          "id": "R0433-P01",
+          "id": "R0434-P01",
           "commanderLevel": 58,
           "resources": [
             {

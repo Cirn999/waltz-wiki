@@ -58,7 +58,8 @@ for (const row of maidens.rows) {
   assert.ok(row.magicCostGroup, `${row.id} 缺少魔改费用分组`);
 }
 
-for (const id of [9822, 9823, 9824]) {
+const newCardIds = [9825, 9826, 9827];
+for (const id of newCardIds) {
   assert.ok(canonicalIds.includes(id), `主目录缺少本次新增卡牌 ${id}`);
   for (const [name, rawIds] of datasets) {
     assert.ok(rawIds.map(Number).includes(id), `${name}缺少本次新增卡牌 ${id}`);
@@ -68,6 +69,6 @@ for (const id of [9822, 9823, 9824]) {
 console.log(JSON.stringify({
   canonicalCards: canonicalIds.length,
   exactIdSetChecks: checks,
-  newCardsChecked: [9822, 9823, 9824],
+  newCardsChecked: newCardIds,
   perCardFieldsChecked: ["stats.60", "magicOrdnance", "magicSelectors", "magicCostGroup"],
 }));

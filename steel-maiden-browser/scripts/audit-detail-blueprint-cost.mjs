@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -23,6 +24,7 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(process.argv[2] || "http://127.0.0.1:3017", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await fs.mkdir(path.join(root, ".cache"), { recursive: true });
   for (const maiden of cases) {
     await page.locator(".search-box input").fill(maiden.tank);

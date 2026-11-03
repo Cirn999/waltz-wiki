@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -33,11 +34,12 @@ try {
     if (response.url().startsWith(baseUrl) && response.status() >= 400) failedRequests.push(`${response.status()} ${response.url()}`);
   });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator("tr[data-maiden-id]").first().waitFor();
   const dataset = await (await context.request.get(new URL("data/maidens.json", baseUrl).href)).json();
   const implemented = dataset.rows.filter((row) => row.implemented);
-  assert.equal(implemented.length, 618);
-  assert.equal(dataset.rows.length, 777);
+  assert.equal(implemented.length, dataset.implementation.counts.implemented);
+  assert.equal(dataset.rows.length, dataset.implementation.counts.archive);
   const assertRows = async (expected) => {
     await page.waitForFunction((count) => document.querySelectorAll("tr[data-maiden-id]").length === count, expected.length);
     const ids = await page.locator("tr[data-maiden-id]").evaluateAll((rows) => rows.map((row) => Number(row.dataset.maidenId)));
@@ -106,6 +108,7 @@ try {
   assert.ok(png.length > 1000);
   await fs.writeFile(path.join(root, ".cache/android-loadout-gallery.png"), png);
   await page.reload({ waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator(`tr[data-maiden-id="${maidenId}"] .table-avatar`).tap();
   await page.locator(".detail-modal .detail-actions").getByRole("button", { name: "配装模拟", exact: true }).tap();
   await sim.locator(".sim-growth-status").waitFor({ state: "hidden" });

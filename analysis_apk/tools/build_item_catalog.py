@@ -170,7 +170,10 @@ def build(check=False):
         sale = None
         # FundUI.lua:10381–10405 checks fund tag 1701, then recipe tags 1701/1501
         # and the exact consumed fund. A sale tag alone is NOT a valid sell recipe.
-        sale_rules = [r for r in spending[fid] if {1701, 1501} <= set(r['field_40']) and 1701 in f['tags']]
+        # The transfer tickets are informational only in this archive. Their
+        # hidden purchase counters and refund mechanics are intentionally omitted.
+        presence_only = fid in (4445, 4446)
+        sale_rules = [] if presence_only else [r for r in spending[fid] if {1701, 1501} <= set(r['field_40']) and 1701 in f['tags']]
         assert len(sale_rules) <= 1, (fid, sale_rules)
         if sale_rules:
             sell = sale_rules[0]
@@ -220,12 +223,15 @@ def build(check=False):
         if sale:
             uses.append('可在仓库出售；每出售1个的所得列于下方，与使用奖励、兑换用途分开计算。')
             if kind == '其他': kind = '可出售道具'
-        elif 1701 in f['tags']:
+        elif 1701 in f['tags'] and not presence_only:
             uses.append('客户端带有出售标记，但本地未找到对应的仓库出售配方，暂不列出未经确认的出售所得。')
         if not uses and spending[fid]:
             uses = ['本地配方将此道具列为消耗材料；具体用途与用量以对应研发、兑换或活动界面为准。']
             kind = '材料'
         if not uses: uses = [description or '本地配置未提供明确用途说明；保留原版道具记录，暂不推测效果。']
+        if presence_only:
+            kind = '转服道具'
+            uses = [description]
         rows.append({'id': fid, 'name': text(f['name_string_id']), 'image': fund_image(fid),
             'category': cats.pop(), 'kind': kind, 'description': description, 'uses': uses,
             'fixedRewards': fixed, 'possibleRewards': possible,
@@ -237,14 +243,14 @@ def build(check=False):
                 'saleDemandGroups': [demands[did] for r in sale_rules for did in r['field_98']],
                 'awardTableIds': [t for r in gift for t in r['field_c8']]}})
     assets.close()
-    assert len(rows) == 413
+    assert {r['id'] for r in rows} == item_ids
     # Native tm-001 is deliberately transparent, not a missing replacement icon.
     assert [r['id'] for r in rows if not r['image']] == [4229]
     assert all(r['name'] for r in rows)
     return {'schemaVersion': 1, 'items': rows, 'exchanges': exchanges, 'sources': sources,
         'audit': {'count': len(rows), 'missingImages': sorted(assets.missing),
             'saleCount': sum(r['sale'] is not None for r in rows),
-            'saleTagWithoutRecipe': [r['id'] for r in rows if 1701 in r['source']['tags'] and not r['sale']]}}
+            'saleTagWithoutRecipe': [r['id'] for r in rows if r['id'] not in (4445, 4446) and 1701 in r['source']['tags'] and not r['sale']]}}
 
 
 if __name__ == '__main__':

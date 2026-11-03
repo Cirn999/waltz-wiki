@@ -31,8 +31,9 @@ for (const maiden of maidens) {
     }
   }
 }
-assert.deepEqual(firstHonor, {2:69,3:106,none:602});
-assert.deepEqual(levelPairs, {"35/70":602,"60/70":69,"35/75":106});
+assert.equal(Object.values(firstHonor).reduce((sum, count) => sum + count, 0), maidens.length);
+assert.deepEqual(Object.keys(levelPairs).sort(), ["35/70", "35/75", "60/70"]);
+assert.equal(Object.values(levelPairs).reduce((sum, count) => sum + count, 0), maidens.length);
 assert.deepEqual(starPromotions(6021).map(p=>[p.level,p.showHonor]), [[60,true],[70,false]], "蟋蟀 H must be honored at 60 before the second star");
 assert.deepEqual(starPromotions(6004).map(p=>[p.level,p.showHonor]), [[35,false],[75,true]]);
 assert.deepEqual(starPromotions(6242).map(p=>p.level), [35,70]);

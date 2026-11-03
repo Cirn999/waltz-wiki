@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
@@ -57,6 +58,7 @@ const assertCardText = async () => {
 try {
   await fs.mkdir(path.join(root, ".cache"), { recursive: true });
   await page.goto(process.argv[2] || "http://127.0.0.1:3173", { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   await page.locator("tr[data-maiden-id]").first().waitFor();
   const tableOrder = await page.locator("tr[data-maiden-id]").evaluateAll((rows) => rows.map((row) => row.dataset.maidenId));
   await nav("卡牌图鉴");

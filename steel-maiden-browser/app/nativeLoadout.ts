@@ -20,6 +20,14 @@ export type NativeLoadoutRules = {
 };
 export type NativeState = Record<string, { level: number; trend: number }>;
 
+export function nativeInitialState(data: NativeLoadoutRules, cardId: number, phase: NativePhase): NativeState {
+  const card = data.cards[cardId];
+  if (!card) throw new Error(`缺少钢舞姬 #${cardId} 的原生配装规则`);
+  return Object.fromEntries(Object.entries(phase.categories).map(([id, category]) => [id, {
+    level: card.initialLevels[id] ?? 0, trend: data.groups[category.group]?.default ?? 0,
+  }]));
+}
+
 let pending: Promise<NativeLoadoutRules> | null = null;
 export function loadNativeLoadoutRules(): Promise<NativeLoadoutRules> {
   if (!pending) pending = fetch('/data/loadout-rules.json').then(async (response) => {

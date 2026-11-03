@@ -1,3 +1,4 @@
+import { openAttributeTable } from "./audit-table-setup.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -45,6 +46,7 @@ try {
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
   await page.goto(url, { waitUntil: "networkidle" });
+  await openAttributeTable(page);
   const open = async (id) => { await page.locator(`tr[data-maiden-id="${id}"] .table-avatar`).click(); await page.locator(".portrait-gallery").waitFor(); };
   await open(7002);
   const gallery = page.locator(".portrait-gallery");
@@ -150,6 +152,7 @@ try {
   const failedPage = await browser.newPage();
   await failedPage.route("**/data/maiden-skins.json", (route) => route.fulfill({ status: 503, body: "unavailable" }));
   await failedPage.goto(url, { waitUntil: "networkidle" });
+  await openAttributeTable(failedPage);
   await failedPage.locator('tr[data-maiden-id="7002"] .table-avatar').click();
   await failedPage.locator(".portrait-gallery-error").waitFor();
   assert.equal(await failedPage.locator(".portrait-gallery img").count(), 1);

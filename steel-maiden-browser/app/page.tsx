@@ -10,6 +10,9 @@ import DetailEquipmentSlots from "./DetailEquipmentSlots";
 import MaidenQuotesSection from "./MaidenQuotesSection";
 import { isGrowthCurveRow, loadGrowthCurves, type GrowthCurveDataset } from "./growthCurveData";
 import LoadoutSimulator from "./LoadoutSimulator";
+import CommanderSimulationControls from "./CommanderSimulationControls";
+import { useCommanderSimulation } from "./useCommanderSimulation";
+import { defaultCommanderTactic, parseCommanderLevel, type CommanderPanel } from "./commanderSimulation";
 import GenerationTabs from "./GenerationTabs";
 import CraftProperties from "./CraftProperties";
 import AmmoEfficiency from "./AmmoEfficiency";
@@ -20,14 +23,21 @@ import StageArchive from "./StageArchive";
 import TaskArchive from "./TaskArchive";
 import ItemArchive from "./ItemArchive";
 import TerrainArchive from "./TerrainArchive";
+import BaseArchive from "./BaseArchive";
 import StoryArchive from "./StoryArchive";
 import TablePortrait from "./TablePortrait";
+import ResearchPortrait, { ResearchPortraitProvider, useResearchPortraits } from "./ResearchPortrait";
+import ManualResearchGraph from "./ManualResearchGraph";
+import { squarePortraitCanvases } from "./portraitCanvas";
+import { createManualGraph, type ManualGraph } from "./researchManualGraph";
 import CardAtlas, { type CardAtlasMode, type CardAtlasSkinMode } from "./CardAtlas";
 import { createAtlasTeamWorkspace, updateAtlasTeam } from "./atlasTeamState";
 import TableAmmunition from "./TableAmmunition";
 import type { ChartKind } from "./attributeChartMath";
 import { deliverPng, hasAndroidGalleryBridge, useAndroidGalleryBridge } from "./imageDelivery";
 import { compareTalentLevels } from "./talentSort";
+import { matchesCraftResistances } from "./resistanceFilters";
+import "./resistance-filters.css";
 import { technologyPathPoints, technologyPrerequisites } from "./technologyPaths";
 
 type StatKey = "durability" | "power" | "piercing" | "accuracy" | "armor" | "evasion" | "stealth" | "recon" | "economy" | "potential";
@@ -101,6 +111,7 @@ type Maiden = {
   magicSelectors: { ordnance: number; tactics: number };
   magicCostGroup: string;
   stats: Record<string, StatSet>;
+  commanderPanel?: CommanderPanel;
 };
 type Dataset = {
   levels: number[];
@@ -133,12 +144,13 @@ type TechnologyDataset = { source: Record<string, string>; categories: { name: s
 type ColonizationKey = "durability" | "evasion" | "accuracy" | "armor" | "piercing" | "power";
 type ColonizationBonuses = Record<ColonizationKey, number[]>;
 type ColonizationDataset = { source: Record<string, string>; semantics: string; maxLevel: number; rows: Record<string, ColonizationBonuses> };
-type Filters = { nation: string[]; className: string[]; rarity: string[]; stage: string[]; magicCost: string[]; ammo: string[]; engineResistance: string[]; bodyResistance: string[]; talents: string[]; huntTraits: string; includeUnimplemented: boolean };
+type Filters = { nation: string[]; className: string[]; rarity: string[]; stage: string[]; magicCost: string[]; ammo: string[]; engineResistance: string[]; bodyResistance: string[]; talents: string[]; huntTraits: string; includeUnimplemented: boolean; allowCrossCraftResistance: boolean };
+type MultiFilterKey = Exclude<keyof Filters, "huntTraits" | "includeUnimplemented" | "allowCrossCraftResistance">;
 type VisibleStatKey = Exclude<StatKey, "economy" | "potential">;
 type SortKey = VisibleStatKey | "id" | "tank" | "person" | "className" | "nation" | "rarity" | "stage" | "ammo" | "slots" | "engineResistance" | "bodyResistance" | "fireproof" | "homogeneity" | "coverage" | "talents";
 type RankResult = { rank: number; total: number } | null;
-type RankFilters = { classNames: string[]; nations: string[]; rarities: string[]; stages: string[]; magicCost: string[]; ammunition: string[]; engineResistances: string[]; bodyResistances: string[]; talents: string[]; huntTraits: string; includeUnimplemented: boolean };
-type RankFilterKey = Exclude<keyof RankFilters, "huntTraits" | "includeUnimplemented">;
+type RankFilters = { classNames: string[]; nations: string[]; rarities: string[]; stages: string[]; magicCost: string[]; ammunition: string[]; engineResistances: string[]; bodyResistances: string[]; talents: string[]; huntTraits: string; includeUnimplemented: boolean; allowCrossCraftResistance: boolean };
+type RankFilterKey = Exclude<keyof RankFilters, "huntTraits" | "includeUnimplemented" | "allowCrossCraftResistance">;
 type RankFilterOption = { name: string; label?: string; image?: string; hideLabel?: boolean };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -220,8 +232,8 @@ const statMeta: { key: VisibleStatKey; label: string; short: string }[] = [
   { key: "stealth", label: "隐蔽", short: "隐" },
   { key: "recon", label: "侦查", short: "侦" },
 ];
-const emptyFilters: Filters = { nation: [], className: [], rarity: [], stage: [], magicCost: [], ammo: [], engineResistance: [], bodyResistance: [], talents: [], huntTraits: "", includeUnimplemented: false };
-const emptyRankFilters: RankFilters = { classNames: [], nations: [], rarities: [], stages: [], magicCost: [], ammunition: [], engineResistances: [], bodyResistances: [], talents: [], huntTraits: "", includeUnimplemented: false };
+const emptyFilters: Filters = { nation: [], className: [], rarity: [], stage: [], magicCost: [], ammo: [], engineResistance: [], bodyResistance: [], talents: [], huntTraits: "", includeUnimplemented: false, allowCrossCraftResistance: false };
+const emptyRankFilters: RankFilters = { classNames: [], nations: [], rarities: [], stages: [], magicCost: [], ammunition: [], engineResistances: [], bodyResistances: [], talents: [], huntTraits: "", includeUnimplemented: false, allowCrossCraftResistance: false };
 
 type TableColumnKey = Exclude<SortKey, "person" | "className" | "rarity" | "stage">;
 type TableColumnDefinition = { key: TableColumnKey; label: string };
@@ -276,8 +288,8 @@ function filterRankRows(rows: Maiden[], filters: RankFilters) {
     (!filters.stages.length || filters.stages.includes(row.stage)) &&
     (!filters.magicCost.length || filters.magicCost.includes(row.magicCostGroup)) &&
     (!filters.ammunition.length || filters.ammunition.every((type) => row.ammo.includes(type))) &&
-    (!filters.engineResistances.length || filters.engineResistances.every((name) => row.engineOptions.some((option) => option.resistance.includes(name)))) &&
-    (!filters.bodyResistances.length || filters.bodyResistances.every((name) => row.bodyOptions.some((option) => option.resistance.includes(name)))) &&
+    matchesCraftResistances(row.engineOptions, filters.engineResistances, filters.allowCrossCraftResistance) &&
+    matchesCraftResistances(row.bodyOptions, filters.bodyResistances, filters.allowCrossCraftResistance) &&
     (!filters.talents.length || filters.talents.every((talent) => row.talents.some((item) => item.name === talent))) &&
     (!filters.huntTraits || row.huntTraits.some((item) => `${item.task} ${item.name}` === filters.huntTraits))
   );
@@ -300,10 +312,10 @@ function searchable(row: Maiden) {
 }
 
 function activeMainFilterCount(filters: Filters) {
-  return Object.values(filters).reduce((sum, value) => sum + (Array.isArray(value) ? value.length : value ? 1 : 0), 0);
+  return Object.entries(filters).reduce((sum, [key, value]) => sum + (key === "allowCrossCraftResistance" ? 0 : Array.isArray(value) ? value.length : value ? 1 : 0), 0);
 }
 function activeRankFilterCount(filters: RankFilters) {
-  return Object.values(filters).reduce((sum, value) => sum + (Array.isArray(value) ? value.length : value ? 1 : 0), 0);
+  return Object.entries(filters).reduce((sum, [key, value]) => sum + (key === "allowCrossCraftResistance" ? 0 : Array.isArray(value) ? value.length : value ? 1 : 0), 0);
 }
 function sortValue(row: Maiden, key: Exclude<SortKey, "talents">, level: number): string | number {
   if (isDisplayedStatKey(key)) return row.stats[String(level)]?.[key] ?? -Infinity;
@@ -544,7 +556,7 @@ function CraftCardGroup({ label, type, options }: { label: string; type: "引擎
   </section>;
 }
 
-function ConfigurableMaidenTable({ rows, level, sortKey, descending, onSort, talentSortName, talentSortOptions, onTalentSortChange, selectedIds, onCompare, onOpen, controlsTarget, onResetFilters }: { rows: Maiden[]; level: number; sortKey: SortKey; descending: boolean; onSort: (key: SortKey) => void; talentSortName: string; talentSortOptions: NamedIcon[]; onTalentSortChange: (name: string) => void; selectedIds: number[]; onCompare: (id: number) => void; onOpen: (id: number) => void; controlsTarget: HTMLDivElement | null; onResetFilters: () => void }) {
+function ConfigurableMaidenTable({ rows, level, sortKey, descending, onSort, talentSortName, talentSortOptions, onTalentSortChange, selectedIds, onCompare, onOpen, controlsTarget, onResetFilters, extraControls, emptyMessage }: { rows: Maiden[]; level: number; sortKey: SortKey; descending: boolean; onSort: (key: SortKey) => void; talentSortName: string; talentSortOptions: NamedIcon[]; onTalentSortChange: (name: string) => void; selectedIds: number[]; onCompare: (id: number) => void; onOpen: (id: number) => void; controlsTarget: HTMLDivElement | null; onResetFilters: () => void; extraControls?: ReactNode; emptyMessage?: string }) {
   const [columnOrder, setColumnOrder] = useState<TableColumnKey[]>(defaultTableColumnOrder);
   const [hiddenColumns, setHiddenColumns] = useState<TableColumnKey[]>(defaultHiddenTableColumns);
   const [minimums, setMinimums] = useState<TableStatMinimums>(emptyTableStatMinimums);
@@ -603,7 +615,7 @@ function ConfigurableMaidenTable({ rows, level, sortKey, descending, onSort, tal
     }
     switch (column) {
       case "id": return <FollowCell key={column} className={`${columnClass} avatar-cell`}><TablePortrait maiden={maiden} onOpen={onOpen} /></FollowCell>;
-      case "tank": return <FollowCell key={column} className={`${columnClass} tank-cell`}><div className="table-tank-follow"><button className="table-tank-link" onClick={() => onOpen(maiden.id)}><strong>{maiden.tank}</strong><span className="table-person-name">{maiden.person}</span></button><button className={selected ? "table-compare selected" : "table-compare"} onClick={() => onCompare(maiden.id)}>{selected ? "已加入" : "+ 对比"}</button></div></FollowCell>;
+      case "tank": return <FollowCell key={column} className={`${columnClass} tank-cell`}><div className="table-tank-follow"><button className="table-tank-link" title={maiden.commanderPanel ? `${maiden.commanderPanel.phase}星 · 辎械魔改${maiden.commanderPanel.ordnanceLevel}级 · 战术魔改${maiden.commanderPanel.tacticsLevel}级` : undefined} onClick={() => onOpen(maiden.id)}><strong>{maiden.tank}</strong><span className="table-person-name">{maiden.person}</span></button><button className={selected ? "table-compare selected" : "table-compare"} onClick={() => onCompare(maiden.id)}>{selected ? "已加入" : "+ 对比"}</button></div></FollowCell>;
       case "nation": return <FollowCell key={column} className={`${columnClass} identity-display`}><NationChip maiden={maiden} /></FollowCell>;
       case "ammo": return <FollowCell key={column} className={`${columnClass} table-ammo-cell`}><TableAmmunition types={maiden.ammo} /></FollowCell>;
       case "slots": return <td key={column} className={`${columnClass} slot-cell`}><SlotList items={maiden.slotDetails} iconOnly /></td>;
@@ -640,6 +652,7 @@ function ConfigurableMaidenTable({ rows, level, sortKey, descending, onSort, tal
   return <div className="configurable-maiden-table" data-hidden-columns={hiddenColumns.join(" ")} style={{ "--attribute-table-width": `calc(${fixedTableWidth - tableColumnWidths.id! - tableColumnWidths.tank!}px + var(--table-avatar-column-width) + var(--table-name-column-width))` } as CSSProperties}>
     {controlsTarget && createPortal(<div className="table-column-settings">
         <button className={`table-column-settings-trigger ${settingsOpen ? "active" : ""}`} type="button" aria-expanded={settingsOpen} onClick={() => setSettingsOpen((open) => !open)}><span aria-hidden="true">▦</span>列设置 <b>{visibleColumns.length}/{columnOrder.length}</b></button>
+        {extraControls}
         {activeMinimumCount > 0 && <button className="table-clear-minimums" type="button" onClick={() => setMinimums({ ...emptyTableStatMinimums })}>清除数值筛选</button>}
         {settingsOpen && <div className="table-column-settings-panel" role="dialog" aria-label="属性表列设置">
           <header><div><strong>展示与排列</strong><small>拖动项目调整列位置</small></div><button type="button" onClick={() => setSettingsOpen(false)} aria-label="关闭列设置">×</button></header>
@@ -681,15 +694,16 @@ function ConfigurableMaidenTable({ rows, level, sortKey, descending, onSort, tal
         <div className="table-body-chunks">{tableBodyChunks}</div>
       </div>
     </div>
-    {!filteredRows.length && <div className="empty-state table-minimum-empty"><strong>{rows.length ? "没有达到数值下限的钢舞姬" : "没有符合条件的钢舞姬"}</strong><p>{rows.length ? "降低表头下方的筛选数值，或清除全部数值筛选。" : "试试减少筛选条件，或换一个关键词。"}</p><button type="button" onClick={() => { setMinimums({ ...emptyTableStatMinimums }); if (!rows.length) onResetFilters(); }}>{rows.length ? "清除数值筛选" : "重置筛选"}</button></div>}
+    {emptyMessage ? <div className="commander-table-pending" role="status">{emptyMessage}</div> : !filteredRows.length && <div className="empty-state table-minimum-empty"><strong>{rows.length ? "没有达到数值下限的钢舞姬" : "没有符合条件的钢舞姬"}</strong><p>{rows.length ? "降低表头下方的筛选数值，或清除全部数值筛选。" : "试试减少筛选条件，或换一个关键词。"}</p><button type="button" onClick={() => { setMinimums({ ...emptyTableStatMinimums }); if (!rows.length) onResetFilters(); }}>{rows.length ? "清除数值筛选" : "重置筛选"}</button></div>}
   </div>;
 }
 
-function GroupedMaidenFilters<Key extends string>({ rows, selected, onToggle, maidens, magicCost, onMagicCostChange, includeUnimplemented }: {
+function GroupedMaidenFilters<Key extends string>({ rows, selected, onToggle, maidens, magicCost, onMagicCostChange, includeUnimplemented, allowCrossCraftResistance, onCrossCraftResistanceChange }: {
   rows: { key: Key; label: string; options: RankFilterOption[] }[];
   selected: (key: Key) => string[]; onToggle: (key: Key, value: string) => void;
   maidens: Maiden[]; magicCost: string[]; onMagicCostChange: (values: string[]) => void;
   includeUnimplemented: boolean;
+  allowCrossCraftResistance: boolean; onCrossCraftResistanceChange: (value: boolean) => void;
 }) {
   const costMeta = useMemo(() => {
     const counts: Record<string, number> = {}, stageIcons: Record<string, string> = {};
@@ -705,6 +719,9 @@ function GroupedMaidenFilters<Key extends string>({ rows, selected, onToggle, ma
   return <>{rows.map((row) => row === stage ? null : row.key === "rarity" || row.key === "rarities" ? <div className="filter-grade-row" key={row.key}>
     {renderRow(row, "rarity")}{stage && renderRow(stage, "stage")}
     <MagicCostFilter selected={magicCost} onChange={onMagicCostChange} counts={costMeta.counts} stageIcons={costMeta.stageIcons} />
+  </div> : row.key === "bodyResistance" || row.key === "bodyResistances" ? <div className="resistance-filter-group" key={row.key}>
+    {renderRow(row)}
+    <div className="resistance-match-setting"><button type="button" role="switch" aria-checked={allowCrossCraftResistance} onClick={() => onCrossCraftResistanceChange(!allowCrossCraftResistance)}><i aria-hidden="true" /><span>允许跨引擎／车体匹配抗性</span></button><small>{allowCrossCraftResistance ? "同类抗性可由不同引擎或不同车体合并满足" : "所选引擎抗性须由同一引擎满足，所选车体抗性须由同一车体满足"}</small></div>
   </div> : renderRow(row))}</>;
 }
 
@@ -746,10 +763,11 @@ function CardFilterDialog({ title, description, onClose, onReset, onConfirm, chi
   </div>, document.body);
 }
 
-function AttributeChartWorkspace({ dataset, initialFilters, initialQuery, level, kind, filterRows, onClose }: {
+function AttributeChartWorkspace({ dataset, initialFilters, initialQuery, level, kind, filterRows, onClose, calculationLabel }: {
   dataset: Dataset; initialFilters: Filters; initialQuery: string; level: number; kind: ChartKind;
-  filterRows: { key: Exclude<keyof Filters, "huntTraits" | "includeUnimplemented">; label: string; options: RankFilterOption[] }[];
+  filterRows: { key: MultiFilterKey; label: string; options: RankFilterOption[] }[];
   onClose: () => void;
+  calculationLabel?: string;
 }) {
   const [filters, setFilters] = useState(initialFilters);
   const [draft, setDraft] = useState(initialFilters);
@@ -758,12 +776,13 @@ function AttributeChartWorkspace({ dataset, initialFilters, initialQuery, level,
     classNames: filters.className, nations: filters.nation, rarities: filters.rarity, stages: filters.stage,
     magicCost: filters.magicCost, ammunition: filters.ammo, engineResistances: filters.engineResistance,
     bodyResistances: filters.bodyResistance, talents: filters.talents, huntTraits: filters.huntTraits, includeUnimplemented: filters.includeUnimplemented,
+    allowCrossCraftResistance: filters.allowCrossCraftResistance,
   }), [dataset.rows, filters]);
-  const toggle = (key: Exclude<keyof Filters, "huntTraits" | "includeUnimplemented">, value: string) => setDraft((current) => ({ ...current, [key]: current[key].includes(value) ? current[key].filter((item) => item !== value) : [...current[key], value] }));
+  const toggle = (key: MultiFilterKey, value: string) => setDraft((current) => ({ ...current, [key]: current[key].includes(value) ? current[key].filter((item) => item !== value) : [...current[key], value] }));
   return <>
-    <AttributeCharts allMaidens={dataset.rows} candidates={candidates} initialQuery={initialQuery} initialLevel={level} initialKind={kind} icons={dataset.attributeIcons} filterCount={activeMainFilterCount(filters)} filterOpen={filterOpen} onOpenFilters={() => { setDraft(filters); setFilterOpen(true); }} onClose={onClose} />
+    <AttributeCharts allMaidens={dataset.rows} candidates={candidates} initialQuery={initialQuery} initialLevel={level} initialKind={kind} icons={dataset.attributeIcons} filterCount={activeMainFilterCount(filters)} filterOpen={filterOpen} onOpenFilters={() => { setDraft(filters); setFilterOpen(true); }} onClose={onClose} calculationLabel={calculationLabel} />
     {filterOpen && <CardFilterDialog title="图表车辆筛选" description="仅调整左侧可选车辆；不会清空已选车辆，也不会改变背景属性表的筛选。" onClose={() => setFilterOpen(false)} onReset={() => setDraft({ ...emptyFilters })} onConfirm={() => { setFilters(draft); setFilterOpen(false); }}><div className="rank-filter-board main-filter-board">
-      <GroupedMaidenFilters rows={filterRows} selected={(key) => draft[key]} onToggle={toggle} includeUnimplemented={draft.includeUnimplemented} maidens={dataset.rows} magicCost={draft.magicCost} onMagicCostChange={(magicCost) => setDraft((current) => ({ ...current, magicCost }))} />
+      <GroupedMaidenFilters rows={filterRows} selected={(key) => draft[key]} onToggle={toggle} includeUnimplemented={draft.includeUnimplemented} maidens={dataset.rows} magicCost={draft.magicCost} onMagicCostChange={(magicCost) => setDraft((current) => ({ ...current, magicCost }))} allowCrossCraftResistance={draft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
       <MultiFilterRow label="才艺（且）" options={[...new Map(dataset.rows.flatMap((row) => row.talents.map((talent) => [talent.name, { name: talent.name, image: talent.image }]))).values()]} selected={draft.talents} onToggle={(value) => toggle("talents", value)} />
       <MaidenFilterLastRow huntOptions={dataset.facets.huntTraits.map((name) => ({ name }))} huntTraits={draft.huntTraits} onHuntChange={(huntTraits) => setDraft((current) => ({ ...current, huntTraits }))} includeUnimplemented={draft.includeUnimplemented} onImplementationChange={(includeUnimplemented) => setDraft((current) => ({ ...current, includeUnimplemented }))} />
     </div></CardFilterDialog>}
@@ -1012,7 +1031,7 @@ function DetailModal({ maiden, initialLevel, onClose, selected, onCompare, onOpe
       </div>
     </section>
     {rankFilterOpen && <CardFilterDialog title="属性排名筛选" description="车种、国籍、稀有度、图纸、魔改费用各项内取 OR；弹种、抗性、才艺取 AND；狩猎任务单选。" onClose={() => setRankFilterOpen(false)} onReset={() => setRankFilterDraft({ ...emptyRankFilters })} onConfirm={() => { setRankFilters({ ...rankFilterDraft, classNames: [...rankFilterDraft.classNames], nations: [...rankFilterDraft.nations], rarities: [...rankFilterDraft.rarities], stages: [...rankFilterDraft.stages], magicCost: [...rankFilterDraft.magicCost], ammunition: [...rankFilterDraft.ammunition], engineResistances: [...rankFilterDraft.engineResistances], bodyResistances: [...rankFilterDraft.bodyResistances], talents: [...rankFilterDraft.talents] }); setRankFilterOpen(false); }}>
-      <GroupedMaidenFilters rows={rankFilterRows} selected={(key) => rankFilterDraft[key]} onToggle={toggleRankFilterDraft} includeUnimplemented={rankFilterDraft.includeUnimplemented} maidens={allMaidens} magicCost={rankFilterDraft.magicCost} onMagicCostChange={(magicCost) => setRankFilterDraft((current) => ({ ...current, magicCost }))} />
+      <GroupedMaidenFilters rows={rankFilterRows} selected={(key) => rankFilterDraft[key]} onToggle={toggleRankFilterDraft} includeUnimplemented={rankFilterDraft.includeUnimplemented} maidens={allMaidens} magicCost={rankFilterDraft.magicCost} onMagicCostChange={(magicCost) => setRankFilterDraft((current) => ({ ...current, magicCost }))} allowCrossCraftResistance={rankFilterDraft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setRankFilterDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
       <MaidenFilterLastRow huntOptions={huntTraitOptions} huntTraits={rankFilterDraft.huntTraits} onHuntChange={(value) => setRankFilterDraft((current) => ({ ...current, huntTraits: value }))} includeUnimplemented={rankFilterDraft.includeUnimplemented} onImplementationChange={(includeUnimplemented) => setRankFilterDraft((current) => ({ ...current, includeUnimplemented }))} />
     </CardFilterDialog>}
   </div>;
@@ -1101,7 +1120,7 @@ function CompareModal({ maidens, onClose, onRemove }: { maidens: Maiden[]; onClo
 }
 
 function ResearchHead({ node }: { node: Pick<ResearchNode, "id" | "tank" | "headImage"> }) {
-  return <span className="research-head">{node.headImage ? <img src={node.headImage} alt="" loading="lazy" /> : <b>{node.tank.slice(0, 2)}</b>}</span>;
+  return <ResearchPortrait node={node} />;
 }
 
 function requirementText(requirement: ResearchRequirement) {
@@ -1278,6 +1297,7 @@ function LegacyResearchGraph({ data }: { data: ResearchDataset }) {
 }
 
 function ResearchGraph({ data, onOpenResearch }: { data: ResearchDataset; onOpenResearch: (id: number) => void }) {
+  const portraitMaidens = useResearchPortraits();
   const nodeById = useMemo(() => new Map(data.nodes.map((node) => [node.id, node])), [data]);
   const recipeById = useMemo(() => new Map(data.recipes.map((recipe) => [recipe.id, recipe])), [data]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -1772,7 +1792,9 @@ function ResearchGraph({ data, onOpenResearch }: { data: ResearchDataset; onOpen
         if (!pending) return;
         panXRef.current = pending.panX;
         if (chainFlowRef.current) chainFlowRef.current.style.transform = `translate3d(${pending.panX}px, 0, 0)`;
-        window.scrollTo(0, pending.pageScrollY);
+        // Dragging must follow each frame immediately; CSS smooth scrolling
+        // otherwise restarts its animation on every pointer update.
+        window.scrollTo({ left: 0, top: pending.pageScrollY, behavior: "instant" });
       });
     }
     event.preventDefault();
@@ -1789,7 +1811,7 @@ function ResearchGraph({ data, onOpenResearch }: { data: ResearchDataset; onOpen
     if (pending) {
       panXRef.current = pending.panX;
       if (chainFlowRef.current) chainFlowRef.current.style.transform = `translate3d(${pending.panX}px, 0, 0)`;
-      window.scrollTo(0, pending.pageScrollY);
+      window.scrollTo({ left: 0, top: pending.pageScrollY, behavior: "instant" });
     }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     panStateRef.current = null;
@@ -1853,17 +1875,10 @@ function ResearchGraph({ data, onOpenResearch }: { data: ResearchDataset; onOpen
         while (text.length > 1 && context.measureText(`${text}…`).width > maxWidth) text = text.slice(0, -1);
         return `${text}…`;
       };
-      const imageUrls = [...new Set(displayLayout.groups.flatMap((group) => group.members.map((member) => member.node.headImage).filter(Boolean) as string[]))];
-      setExportNotice(`正在载入 ${imageUrls.length} 张头像…`);
+      const portraitIds = [...new Set(displayLayout.groups.flatMap((group) => group.members.map((member) => member.node.id)))];
+      setExportNotice(`正在载入 ${portraitIds.length} 张头像…`);
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      const imageEntries = await Promise.all(imageUrls.map((url) => new Promise<[string, HTMLImageElement | null]>((resolve) => {
-        const image = new Image();
-        const timer = window.setTimeout(() => resolve([url, null]), 8000);
-        image.onload = () => { window.clearTimeout(timer); resolve([url, image]); };
-        image.onerror = () => { window.clearTimeout(timer); resolve([url, null]); };
-        image.src = url;
-      })));
-      const imageByUrl = new Map(imageEntries);
+      const portraitImages = await squarePortraitCanvases(portraitIds.flatMap((id) => { const maiden = portraitMaidens.get(id); return maiden ? [maiden] : []; }));
 
       context.lineCap = "round";
       context.lineJoin = "round";
@@ -1891,21 +1906,13 @@ function ResearchGraph({ data, onOpenResearch }: { data: ResearchDataset; onOpen
         context.restore();
       });
 
-      const drawAvatar = (url: string | null | undefined, fallback: string, x: number, y: number, size: number) => {
+      const drawAvatar = (id: number, fallback: string, x: number, y: number, size: number) => {
+        const image = portraitImages.get(id);
+        if (image) { context.drawImage(image, x, y, size, size); return; }
         roundedRect(x, y, size, size, size > 54 ? 12 : 10);
         context.fillStyle = "#bdc9bb";
         context.fill();
-        const image = url ? imageByUrl.get(url) : null;
-        if (image?.naturalWidth && image.naturalHeight) {
-          context.save();
-          roundedRect(x, y, size, size, size > 54 ? 12 : 10);
-          context.clip();
-          const ratio = Math.max(size / image.naturalWidth, size / image.naturalHeight);
-          const width = image.naturalWidth * ratio;
-          const height = image.naturalHeight * ratio;
-          context.drawImage(image, x + (size - width) / 2, y + (size - height) / 2, width, height);
-          context.restore();
-        } else {
+        {
           context.fillStyle = "#263a2f";
           context.font = "700 15px 'Microsoft YaHei', sans-serif";
           context.textAlign = "center";
@@ -1975,7 +1982,7 @@ function ResearchGraph({ data, onOpenResearch }: { data: ResearchDataset; onOpen
           const avatarSize = primary ? 60 : 52;
           const avatarX = memberX + (slotWidth - avatarSize) / 2;
           const avatarY = y + 54;
-          drawAvatar(node.headImage, node.tank, avatarX, avatarY, avatarSize);
+          drawAvatar(node.id, node.tank, avatarX, avatarY, avatarSize);
           if (node.id === selectedId) {
             roundedRect(avatarX + avatarSize - 30, avatarY - 6, 34, 17, 5);
             context.fillStyle = "#b1d547";
@@ -2078,7 +2085,7 @@ function ResearchGraph({ data, onOpenResearch }: { data: ResearchDataset; onOpen
           const orderedMembers = [...group.members].sort((left, right) => Number(right.node.id === group.mainId) - Number(left.node.id === group.mainId));
           return <article data-group-key={group.key} className={`chain-group chain-positioned ${group.terminal ? "terminal" : ""} ${tracedGroupKey && !tracedKeys.groups.has(group.key) ? "trace-muted" : ""} ${activeLockedGroupKey === group.key ? "trace-locked" : ""}`} key={group.key} style={{ left: `${group.x}px`, top: `${group.y}px`, width: `${displayLayout.cardWidth}px`, height: `${displayLayout.cardHeight}px` }} onMouseEnter={() => setHoveredGroupKey(group.key)} onMouseLeave={() => setHoveredGroupKey(null)}>
             <header><div><span>{group.terminal ? "研发链终点" : group.members.length > 1 ? `${group.members.length} 位共同参与` : "单一钢舞姬"}</span>{targets.length > 0 && <strong>{targets.length > 1 ? `后续 ${targets.length} 个分支` : `研发 ${targets[0].tank}`}</strong>}</div>{targets.length > 1 && <b>分支 × {targets.length}</b>}</header>
-            <div className="chain-members">{orderedMembers.map(({ node }) => <button className={`${node.id === group.mainId ? "primary" : "support"} ${node.id === selectedId ? "selected" : ""}`} key={`${group.key}-${node.id}`} onClick={() => setLockedGroupKey(group.key)} onDoubleClick={() => onOpenResearch(node.id)} aria-pressed={activeLockedGroupKey === group.key} title={`单击锁定路线；双击打开 ${node.tank} 的研发配方`}><span className="chain-avatar">{node.headImage ? <img src={node.headImage} alt={`${node.person}头像`} loading="lazy" /> : <b>{node.tank.slice(0, 2)}</b>}{node.id === selectedId && <i>指定</i>}</span><strong>{node.tank}</strong><small>{node.person}</small><em>{node.stage} · #{node.id}</em></button>)}</div>
+            <div className="chain-members">{orderedMembers.map(({ node }) => <button className={`${node.id === group.mainId ? "primary" : "support"} ${node.id === selectedId ? "selected" : ""}`} key={`${group.key}-${node.id}`} onClick={() => setLockedGroupKey(group.key)} onDoubleClick={() => onOpenResearch(node.id)} aria-pressed={activeLockedGroupKey === group.key} title={`单击锁定路线；双击打开 ${node.tank} 的研发配方`}><span className="chain-avatar"><ResearchHead node={node}/>{node.id === selectedId && <i>指定</i>}</span><strong>{node.tank}</strong><small>{node.person}</small><em>{node.stage} · #{node.id}</em></button>)}</div>
             {targets.length > 0 && <footer><span>{group.members.length > 1 ? "AND · 全部参与" : "后续关系"}</span><b title={targetLabel}>→ {targetLabel}</b></footer>}
           </article>;
         })}
@@ -2089,7 +2096,7 @@ function ResearchGraph({ data, onOpenResearch }: { data: ResearchDataset; onOpen
   </section>;
 }
 
-function ResearchWorkspace({ data, maidens, mode, focusId, onOpenResearch }: { data: ResearchDataset; maidens: Maiden[]; mode: "research" | "researchGraph"; focusId: number | null; onOpenResearch: (id: number) => void }) {
+function ResearchWorkspace({ data, maidens, mode, focusId, onOpenResearch, manualHistory, onManualHistoryChange, routeMode, onRouteModeChange }: { data: ResearchDataset; maidens: Maiden[]; mode: "research" | "researchGraph"; focusId: number | null; onOpenResearch: (id: number) => void; manualHistory: ManualGraph[]; onManualHistoryChange: (next: ManualGraph[] | ((current: ManualGraph[]) => ManualGraph[])) => void; routeMode: "complete" | "manual"; onRouteModeChange: (mode: "complete" | "manual") => void }) {
   const [includeUnimplemented, setIncludeUnimplemented] = useState(() => focusId !== null && maidens.some((maiden) => maiden.id === focusId && !maiden.implemented));
   const visibleData = useMemo(() => {
     if (includeUnimplemented) return data;
@@ -2107,7 +2114,11 @@ function ResearchWorkspace({ data, maidens, mode, focusId, onOpenResearch }: { d
       edgeCount: recipes.reduce((sum, recipe) => sum + recipe.requirements.length, 0),
     } };
   }, [data, maidens, includeUnimplemented]);
-  return <><section className="research-implementation-filter" aria-label="研发实装筛选"><ImplementationFilter includeUnimplemented={includeUnimplemented} onChange={setIncludeUnimplemented} /></section>{mode === "research" ? <ResearchTree data={visibleData} focusId={focusId} /> : <ResearchGraph data={visibleData} onOpenResearch={onOpenResearch} />}</>;
+  return <ResearchPortraitProvider maidens={maidens}><section className="research-implementation-filter" aria-label="研发实装筛选"><ImplementationFilter includeUnimplemented={includeUnimplemented} onChange={setIncludeUnimplemented} /></section>{mode === "research" ? <ResearchTree data={visibleData} focusId={focusId} /> : <>
+    <div className="research-route-modes" role="group" aria-label="研发路线模式"><button type="button" aria-pressed={routeMode==="complete"} onClick={()=>onRouteModeChange("complete")}>完整模式</button><button type="button" aria-pressed={routeMode==="manual"} onClick={()=>onRouteModeChange("manual")}>手动模式</button><small>{routeMode==="manual"?"从任意节点逐步展开所需车辆":"展示完整的上下游研发关系"}</small></div>
+    <div className="research-route-panel" hidden={routeMode!=="complete"}><ResearchGraph data={visibleData} onOpenResearch={onOpenResearch}/></div>
+    <div className="research-route-panel" hidden={routeMode!=="manual"}><ManualResearchGraph data={visibleData} onOpenResearch={onOpenResearch} history={manualHistory} onHistoryChange={onManualHistoryChange}/></div>
+  </>}</ResearchPortraitProvider>;
 }
 
 function ResearchTree({ data, focusId }: { data: ResearchDataset; focusId?: number | null }) {
@@ -2366,6 +2377,18 @@ function TechnologyPage({ data, attributeIcons, maidens, onOpenMaiden }: { data:
   </section>;
 }
 
+const commanderPreferencesKey = "steel-commander-simulation-v1";
+function readCommanderPreferences() {
+  const defaults={input:"",tacticTrend:defaultCommanderTactic};
+  if(typeof window==="undefined")return defaults;
+  try{
+    const value=JSON.parse(window.localStorage.getItem(commanderPreferencesKey)??"null") as {input?:unknown;tacticTrend?:unknown}|null;
+    if(!value||typeof value.input!=="string")return defaults;
+    parseCommanderLevel(value.input);
+    return {input:value.input,tacticTrend:typeof value.tacticTrend==="number"?value.tacticTrend:defaultCommanderTactic};
+  }catch{return defaults;}
+}
+
 export default function Home() {
   const [dataset, setDataset] = useState<Dataset | null>(null);
   const [researchData, setResearchData] = useState<ResearchDataset | null>(null);
@@ -2376,10 +2399,11 @@ export default function Home() {
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState(1);
+  const [commanderPreferences,setCommanderPreferences]=useState(readCommanderPreferences);
   const [sortKey, setSortKey] = useState<SortKey>("power");
   const [descending, setDescending] = useState(true);
   const [selectedTalentSort, setSelectedTalentSort] = useState("");
-  const [viewMode, setViewMode] = useState<"table" | "cards" | "research" | "researchGraph" | "equipment" | "technology" | "tasks" | "items" | "terrains" | "stages" | "stories">("table");
+  const [viewMode, setViewMode] = useState<"table" | "cards" | "research" | "researchGraph" | "equipment" | "technology" | "tasks" | "items" | "terrains" | "base" | "stages" | "stories">("cards");
   const [cardAtlasMode, setCardAtlasMode] = useState<CardAtlasMode>("avatars");
   const [atlasTeamWorkspace, setAtlasTeamWorkspace] = useState(createAtlasTeamWorkspace);
   const [cardAtlasSkinMode, setCardAtlasSkinMode] = useState<CardAtlasSkinMode>("merged");
@@ -2395,6 +2419,8 @@ export default function Home() {
   const [chartKind, setChartKind] = useState<ChartKind | null>(null);
   const [tableControlsTarget, setTableControlsTarget] = useState<HTMLDivElement | null>(null);
   const [researchFocusId, setResearchFocusId] = useState<number | null>(null);
+  const [manualResearchHistory, setManualResearchHistory] = useState<ManualGraph[]>(() => [createManualGraph()]);
+  const [researchRouteMode, setResearchRouteMode] = useState<"complete" | "manual">("complete");
   const [navOpen, setNavOpen] = useState<"maidens" | "manual" | "stages" | "guides" | null>(null);
 
   useEffect(() => {
@@ -2418,6 +2444,29 @@ export default function Home() {
     });
     return () => { cancelled = true; controller.abort(); };
   }, [loadAttempt]);
+
+  useEffect(()=>{
+    try{window.localStorage.setItem(commanderPreferencesKey,JSON.stringify(commanderPreferences));}catch{/* Session preferences still work. */}
+  },[commanderPreferences]);
+  const commanderTactic=dataset?.magicProgression?.tactics.some((item)=>item.trendId===commanderPreferences.tacticTrend)
+    ?commanderPreferences.tacticTrend:defaultCommanderTactic;
+  const commanderSimulation=useCommanderSimulation({input:commanderPreferences.input,tacticTrend:commanderTactic,enabled:viewMode==="table",
+    maidens:dataset?.rows,levels:dataset?.levels,technology:technologyData,magic:dataset?.magicProgression});
+  const commanderTacticName=dataset?.magicProgression?.tactics.find((item)=>item.trendId===commanderTactic)?.name??"泛用战法定制";
+  const commanderCaption=commanderSimulation.result?`指挥官${commanderSimulation.result.commanderLevel}级上限 · ${commanderTacticName} · 默认工艺／空装备／0强殖`:undefined;
+  const commanderRows=useMemo(()=>{
+    if(!dataset)return [];
+    if(!commanderSimulation.active)return dataset.rows;
+    const result=commanderSimulation.result;
+    if(!result)return [];
+    return dataset.rows.map((maiden)=>{
+      const panels=result.rows[maiden.id];
+      const stats=Object.fromEntries(Object.entries(panels).map(([lv,panel])=>[lv,{...maiden.stats[lv],...panel.values}]));
+      return {...maiden,stats:{...maiden.stats,...stats},grades:panels[level].grades,commanderPanel:panels[level]};
+    });
+  },[dataset,commanderSimulation.active,commanderSimulation.result,level]);
+  const calculationRows=viewMode==="table"?commanderRows:dataset?.rows;
+  const commanderDataset=useMemo(()=>dataset?{...dataset,rows:commanderRows}:null,[dataset,commanderRows]);
 
   const searchIndex = useMemo(() => new Map((dataset?.rows ?? []).map((row) => [row.id, searchable(row)])), [dataset]);
   const talentSortOptions = useMemo(() => [...new Map((dataset?.rows ?? []).flatMap((row) => row.talents.map((talent) => [talent.name, { name: talent.name, image: talent.image }]))).values()], [dataset]);
@@ -2446,7 +2495,7 @@ export default function Home() {
   const rows = useMemo(() => {
     if (!dataset) return [];
     const needle = query.toLowerCase();
-    const result = dataset.rows.filter((row) =>
+    const result = (calculationRows??[]).filter((row) =>
       (filters.includeUnimplemented || row.implemented)
       && (!needle || searchIndex.get(row.id)?.includes(needle))
       && (!filters.nation.length || filters.nation.includes(row.nation))
@@ -2455,8 +2504,8 @@ export default function Home() {
       && (!filters.stage.length || filters.stage.includes(row.stage))
       && (!filters.magicCost.length || filters.magicCost.includes(row.magicCostGroup))
       && (!filters.ammo.length || filters.ammo.every((type) => row.ammo.includes(type)))
-      && (!filters.engineResistance.length || filters.engineResistance.every((name) => row.engineOptions.some((option) => option.resistance.includes(name))))
-      && (!filters.bodyResistance.length || filters.bodyResistance.every((name) => row.bodyOptions.some((option) => option.resistance.includes(name))))
+      && matchesCraftResistances(row.engineOptions, filters.engineResistance, filters.allowCrossCraftResistance)
+      && matchesCraftResistances(row.bodyOptions, filters.bodyResistance, filters.allowCrossCraftResistance)
       && filters.talents.every((talent) => row.talents.some((item) => item.name === talent))
       && (!filters.huntTraits || row.huntTraits.some((item) => `${item.task} ${item.name}` === filters.huntTraits))
     );
@@ -2466,7 +2515,7 @@ export default function Home() {
       return descending ? -comparison : comparison;
     });
     return result;
-  }, [dataset, query, filters, level, sortKey, descending, talentSortName, searchIndex]);
+  }, [dataset, calculationRows, query, filters, level, sortKey, descending, talentSortName, searchIndex]);
 
   const byId = useMemo(() => new Map((dataset?.rows ?? []).map((row) => [row.id, row])), [dataset]);
   const detail = detailId ? byId.get(detailId) ?? null : null;
@@ -2485,7 +2534,7 @@ export default function Home() {
     setViewMode("research");
     setTimeout(() => document.querySelector(".research-archive")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   }
-  function openView(mode: "table" | "cards" | "research" | "researchGraph" | "equipment" | "technology" | "tasks" | "items" | "terrains" | "stages" | "stories") {
+  function openView(mode: "table" | "cards" | "research" | "researchGraph" | "equipment" | "technology" | "tasks" | "items" | "terrains" | "base" | "stages" | "stories") {
     setViewMode(mode);
     if (mode === "cards") setCardAtlasMode("avatars");
     setNavOpen(null);
@@ -2502,20 +2551,21 @@ export default function Home() {
         <div className="primary-nav-group" data-open={navOpen === "maidens"} onMouseEnter={() => setNavOpen("maidens")} onMouseLeave={() => setNavOpen((current) => current === "maidens" ? null : current)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setNavOpen((current) => current === "maidens" ? null : current); }}>
           <button className={`primary-nav-trigger ${viewMode === "table" || viewMode === "cards" || viewMode === "research" || viewMode === "researchGraph" ? "active" : ""}`} type="button" aria-haspopup="menu" aria-controls="maiden-section-menu" aria-expanded={navOpen === "maidens"} onFocus={() => setNavOpen("maidens")} onClick={() => setNavOpen("maidens")}><span>钢舞姬</span><i aria-hidden="true">⌄</i></button>
           <div className="primary-nav-menu" id="maiden-section-menu" role="menu" aria-label="钢舞姬">
-            <button className={viewMode === "table" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("table")}><span><b>属性表</b><small>全量属性、筛选、排序与对比</small></span><i>01</i></button>
-            <button className={viewMode === "cards" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("cards")}><span><b>卡牌图鉴</b><small>卡面与头像集卡册，点击查看档案</small></span><i>02</i></button>
+            <button className={viewMode === "cards" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("cards")}><span><b>卡牌图鉴</b><small>卡面与头像集卡册，点击查看档案</small></span><i>01</i></button>
+            <button className={viewMode === "table" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("table")}><span><b>属性表</b><small>全量属性、筛选、排序与对比</small></span><i>02</i></button>
             <button className={viewMode === "research" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("research")}><span><b>研发配方</b><small>查看研发条件、资源与上下级</small></span><i>03</i></button>
             <button className={viewMode === "researchGraph" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("researchGraph")}><span><b>研发路线</b><small>纵览完整研发网络与分支</small></span><i>04</i></button>
           </div>
         </div>
         <div className="primary-nav-group" data-open={navOpen === "manual"} onMouseEnter={() => setNavOpen("manual")} onMouseLeave={() => setNavOpen((current) => current === "manual" ? null : current)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setNavOpen((current) => current === "manual" ? null : current); }}>
-          <button className={`primary-nav-trigger ${viewMode === "equipment" || viewMode === "technology" || viewMode === "tasks" || viewMode === "items" || viewMode === "terrains" ? "active" : ""}`} type="button" aria-haspopup="menu" aria-controls="manual-section-menu" aria-expanded={navOpen === "manual"} onFocus={() => setNavOpen("manual")} onClick={() => setNavOpen("manual")}><span>手册</span><i aria-hidden="true">⌄</i></button>
+          <button className={`primary-nav-trigger ${viewMode === "equipment" || viewMode === "technology" || viewMode === "tasks" || viewMode === "items" || viewMode === "terrains" || viewMode === "base" ? "active" : ""}`} type="button" aria-haspopup="menu" aria-controls="manual-section-menu" aria-expanded={navOpen === "manual"} onFocus={() => setNavOpen("manual")} onClick={() => setNavOpen("manual")}><span>手册</span><i aria-hidden="true">⌄</i></button>
           <div className="primary-nav-menu" id="manual-section-menu" role="menu" aria-label="手册">
             <button className={viewMode === "equipment" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("equipment")}><span><b>装备</b><small>装备图鉴、等级属性与搭配效果</small></span><i>01</i></button>
             <button className={viewMode === "technology" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("technology")}><span><b>科技</b><small>各期科技、研发路线与工艺属性</small></span><i>02</i></button>
             <button className={viewMode === "tasks" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("tasks")}><span><b>任务</b><small>任务要求、奖励与解锁前置条件</small></span><i>03</i></button>
             <button className={viewMode === "items" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("items")}><span><b>道具</b><small>资材、活动道具与使用奖励</small></span><i>04</i></button>
             <button className={viewMode === "terrains" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("terrains")}><span><b>地形</b><small>地形图标、环境效果与减益说明</small></span><i>05</i></button>
+            <button className={viewMode === "base" ? "active" : ""} type="button" role="menuitem" onClick={() => openView("base")}><span><b>根据地</b><small>建筑升级、等级效果与军旅物资</small></span><i>06</i></button>
           </div>
         </div>
         <div className="primary-nav-group" data-open={navOpen === "stages"} onMouseEnter={() => setNavOpen("stages")} onMouseLeave={() => setNavOpen((current) => current === "stages" ? null : current)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setNavOpen((current) => current === "stages" ? null : current); }}>
@@ -2551,18 +2601,25 @@ export default function Home() {
           <button type="button" aria-pressed={cardAtlasSkinMode === "merged"} onClick={() => { setCardAtlasSkinMode("merged"); setLimit(48); }}>皮肤合并</button>
           <button type="button" aria-pressed={cardAtlasSkinMode === "separate"} onClick={() => { setCardAtlasSkinMode("separate"); setLimit(48); }}>皮肤分散</button>
         </div></> : <LevelPicker level={level} setLevel={setLevel} />}
-        {viewMode === "table" && <><div className="attribute-chart-launchers"><button type="button" onClick={() => setChartKind("bar")}><svg viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><path d="M2 3h1v14h15v1H2z" /><rect x="5" y="10" width="3" height="5" /><rect x="10" y="6" width="3" height="9" /><rect x="15" y="3" width="3" height="12" /></svg>柱状图</button><button type="button" onClick={() => setChartKind("scatter")}><svg viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><path d="M2 3h1v14h15v1H2z" /><circle cx="7" cy="11" r="1.8" /><circle cx="12" cy="8" r="1.8" /><circle cx="9" cy="5" r="1.8" /><circle cx="16" cy="4" r="1.8" /></svg>散点图</button></div><div className="table-controls-target" ref={setTableControlsTarget} /></>}
+        {viewMode === "table" && <><div className="attribute-chart-launchers"><button type="button" disabled={commanderSimulation.active&&!commanderSimulation.result} onClick={() => setChartKind("bar")}><svg viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><path d="M2 3h1v14h15v1H2z" /><rect x="5" y="10" width="3" height="5" /><rect x="10" y="6" width="3" height="9" /><rect x="15" y="3" width="3" height="12" /></svg>柱状图</button><button type="button" disabled={commanderSimulation.active&&!commanderSimulation.result} onClick={() => setChartKind("scatter")}><svg viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><path d="M2 3h1v14h15v1H2z" /><circle cx="7" cy="11" r="1.8" /><circle cx="12" cy="8" r="1.8" /><circle cx="9" cy="5" r="1.8" /><circle cx="16" cy="4" r="1.8" /></svg>散点图</button></div><div className="table-controls-target" ref={setTableControlsTarget} /></>}
       </div><div className="main-filter-launcher"><span>{activeMainFilterCount(filters) ? `已应用 ${activeMainFilterCount(filters)} 项筛选` : "当前仅显示已实装钢舞姬"}</span><button onClick={() => { setFilterDraft({ ...filters, nation: [...filters.nation], className: [...filters.className], rarity: [...filters.rarity], stage: [...filters.stage], magicCost: [...filters.magicCost], ammo: [...filters.ammo], engineResistance: [...filters.engineResistance], bodyResistance: [...filters.bodyResistance], talents: [...filters.talents] }); setFilterOpen(true); }}>筛选条件{activeMainFilterCount(filters) ? <b>{activeMainFilterCount(filters)}</b> : null}</button></div></div>
+      {viewMode==="table"&&commanderSimulation.active&&<div className={`commander-mode-status${commanderSimulation.error?" error":""}`} role={commanderSimulation.error?"alert":"status"} aria-live="polite">
+        <strong>培养上限模拟</strong><span>{commanderSimulation.error|| (commanderSimulation.pending?`正在计算指挥官${commanderSimulation.commanderLevel}级的全部车辆…`:commanderCaption)}</span>
+        {commanderSimulation.error&&commanderSimulation.commanderLevel!==null&&<button type="button" onClick={commanderSimulation.retry}>重试计算</button>}
+        <button type="button" onClick={()=>setCommanderPreferences((current)=>({...current,input:""}))}>恢复基础属性</button>
+      </div>}
     </section>}
 
-    {viewMode === "table" && <section className="archive-section table-archive">
-      <ConfigurableMaidenTable rows={rows} level={level} sortKey={sortKey} descending={descending} onSort={selectSort} talentSortName={talentSortName} talentSortOptions={talentSortOptions} onTalentSortChange={selectTalentSort} selectedIds={compareIds} onCompare={toggleCompare} onOpen={setDetailId} controlsTarget={tableControlsTarget} onResetFilters={clearConditions} />
+    {viewMode === "table" && <section className="archive-section table-archive" aria-busy={commanderSimulation.pending}>
+      <ConfigurableMaidenTable rows={rows} level={level} sortKey={sortKey} descending={descending} onSort={selectSort} talentSortName={talentSortName} talentSortOptions={talentSortOptions} onTalentSortChange={selectTalentSort} selectedIds={compareIds} onCompare={toggleCompare} onOpen={setDetailId} controlsTarget={tableControlsTarget} onResetFilters={clearConditions}
+        extraControls={<CommanderSimulationControls input={commanderPreferences.input} onInput={(input)=>setCommanderPreferences((current)=>({...current,input}))} tacticTrend={commanderTactic} tactics={dataset.magicProgression?.tactics??[]} onTactic={(tacticTrend)=>setCommanderPreferences((current)=>({...current,tacticTrend}))}/>}
+        emptyMessage={commanderSimulation.active&&!commanderSimulation.result?(commanderSimulation.error?"上限模拟暂不可用，请检查输入或重试计算":"正在计算培养上限…"):undefined}/>
     </section>}
 
     {viewMode === "cards" && <CardAtlas rows={rows} allRows={dataset.rows} teamWorkspace={atlasTeamWorkspace} onTeamAction={(action) => setAtlasTeamWorkspace((current) => updateAtlasTeam(current, action))} mode={cardAtlasMode} skinMode={cardAtlasSkinMode} limit={limit} selectedTalents={filters.talents} onOpen={setDetailId} onLoadMore={() => setLimit((value) => value + 48)} onResetFilters={clearConditions} hasFilters={Boolean(query || activeMainFilterCount(filters))} />}
 
-    {viewMode === "research" && researchData && <ResearchWorkspace key={`research:${researchFocusId ?? "default"}`} data={researchData} maidens={dataset.rows} mode="research" focusId={researchFocusId} onOpenResearch={openResearchTree} />}
-    {viewMode === "researchGraph" && researchData && <ResearchWorkspace key="researchGraph" data={researchData} maidens={dataset.rows} mode="researchGraph" focusId={null} onOpenResearch={openResearchTree} />}
+    {viewMode === "research" && researchData && <ResearchWorkspace key={`research:${researchFocusId ?? "default"}`} data={researchData} maidens={dataset.rows} mode="research" focusId={researchFocusId} onOpenResearch={openResearchTree} manualHistory={manualResearchHistory} onManualHistoryChange={setManualResearchHistory} routeMode={researchRouteMode} onRouteModeChange={setResearchRouteMode} />}
+    {viewMode === "researchGraph" && researchData && <ResearchWorkspace key="researchGraph" data={researchData} maidens={dataset.rows} mode="researchGraph" focusId={null} onOpenResearch={openResearchTree} manualHistory={manualResearchHistory} onManualHistoryChange={setManualResearchHistory} routeMode={researchRouteMode} onRouteModeChange={setResearchRouteMode} />}
     {viewMode === "equipment" && equipmentData && <EquipmentAtlas data={equipmentData} attributeIcons={dataset.attributeIcons ?? {}} />}
     {viewMode === "technology" && technologyData && <TechnologyPage data={technologyData} attributeIcons={dataset.attributeIcons ?? {}} maidens={dataset.rows.filter((row) => row.implemented)} onOpenMaiden={setDetailId} />}
     {viewMode === "stages" && <StageArchive section={stageSection} />}
@@ -2570,17 +2627,18 @@ export default function Home() {
     {viewMode === "tasks" && <TaskArchive />}
     {viewMode === "items" && <ItemArchive maidens={dataset.rows} onOpenMaiden={setDetailId} />}
     {viewMode === "terrains" && <TerrainArchive />}
+    {viewMode === "base" && <BaseArchive />}
 
     {compareIds.length > 0 && <div className="compare-tray"><div className="tray-title"><span>VS</span><div><strong>双车对比</strong><small>{compareIds.length === 1 ? "再选择一辆钢舞姬" : "已准备好逐项比较"}</small></div></div><div className="tray-slots">{[0, 1].map((index) => { const maiden = comparison[index]; return maiden ? <button key={maiden.id} onClick={() => toggleCompare(maiden.id)}><span>{maiden.image && <img src={maiden.image} alt="" />}</span><b>{maiden.tank}</b><i>×</i></button> : <div key={index} className="empty-slot">＋ 选择车辆</div>; })}</div><button className="open-compare" disabled={compareIds.length < 2} onClick={() => setCompareOpen(true)}>开始比较 →</button></div>}
     {detail && <DetailModal key={detail.id} maiden={detail} initialLevel={level} onClose={() => setDetailId(null)} selected={compareIds.includes(detail.id)} onCompare={() => toggleCompare(detail.id)} onOpenResearch={() => { setDetailId(null); openResearchTree(detail.id); }} onOpenSimulator={() => setSimulatorId(detail.id)} simulatorOpen={simulatorId === detail.id} allMaidens={dataset.rows} colonization={colonizationData?.rows[String(detail.id)]} magicProgression={dataset.magicProgression} />}
     {simulatorMaiden && equipmentData && technologyData && <LoadoutSimulator maiden={simulatorMaiden} equipment={equipmentData} technology={technologyData} colonization={colonizationData?.rows[String(simulatorMaiden.id)]} magic={dataset.magicProgression} attributeIcons={dataset.attributeIcons} onClose={() => setSimulatorId(null)} />}
     {compareOpen && <CompareModal maidens={comparison} onClose={() => setCompareOpen(false)} onRemove={toggleCompare} />}
-    {chartKind && <AttributeChartWorkspace dataset={dataset} initialFilters={filters} initialQuery={query} level={level} kind={chartKind} filterRows={mainFilterRows} onClose={() => setChartKind(null)} />}
+    {chartKind && <AttributeChartWorkspace dataset={commanderSimulation.active&&commanderDataset?commanderDataset:dataset} initialFilters={filters} initialQuery={query} level={level} kind={chartKind} filterRows={mainFilterRows} onClose={() => setChartKind(null)} calculationLabel={commanderCaption} />}
     {filterOpen && <CardFilterDialog title="钢舞姬筛选" description="车种、国籍、稀有度、图纸、魔改费用各项内取 OR；弹种、抗性、才艺取 AND；狩猎任务单选。" onClose={() => setFilterOpen(false)} onReset={() => setFilterDraft({ ...emptyFilters })} onConfirm={() => { setFilters({ ...filterDraft, nation: [...filterDraft.nation], className: [...filterDraft.className], rarity: [...filterDraft.rarity], stage: [...filterDraft.stage], magicCost: [...filterDraft.magicCost], ammo: [...filterDraft.ammo], engineResistance: [...filterDraft.engineResistance], bodyResistance: [...filterDraft.bodyResistance], talents: [...filterDraft.talents] }); setLimit(48); setFilterOpen(false); }}><div className="rank-filter-board main-filter-board">
-      <GroupedMaidenFilters rows={mainFilterRows} selected={(key) => filterDraft[key]} onToggle={(key, value) => setFilterDraft((current) => ({ ...current, [key]: current[key].includes(value) ? current[key].filter((item) => item !== value) : [...current[key], value] }))} includeUnimplemented={filterDraft.includeUnimplemented} maidens={dataset.rows} magicCost={filterDraft.magicCost} onMagicCostChange={(magicCost) => setFilterDraft((current) => ({ ...current, magicCost }))} />
+      <GroupedMaidenFilters rows={mainFilterRows} selected={(key) => filterDraft[key]} onToggle={(key, value) => setFilterDraft((current) => ({ ...current, [key]: current[key].includes(value) ? current[key].filter((item) => item !== value) : [...current[key], value] }))} includeUnimplemented={filterDraft.includeUnimplemented} maidens={dataset.rows} magicCost={filterDraft.magicCost} onMagicCostChange={(magicCost) => setFilterDraft((current) => ({ ...current, magicCost }))} allowCrossCraftResistance={filterDraft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setFilterDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
       <MultiFilterRow label="才艺（且）" options={[...new Map(dataset.rows.flatMap((row) => row.talents.map((talent) => [talent.name, { name: talent.name, image: talent.image }]))).values()]} selected={filterDraft.talents} onToggle={(value) => setFilterDraft((current) => ({ ...current, talents: current.talents.includes(value) ? current.talents.filter((item) => item !== value) : [...current.talents, value] }))} />
       <MaidenFilterLastRow huntOptions={dataset.facets.huntTraits.map((name) => ({ name }))} huntTraits={filterDraft.huntTraits} onHuntChange={(value) => setFilterDraft((current) => ({ ...current, huntTraits: value }))} includeUnimplemented={filterDraft.includeUnimplemented} onImplementationChange={(includeUnimplemented) => setFilterDraft((current) => ({ ...current, includeUnimplemented }))} />
     </div></CardFilterDialog>}
-    <footer><span>钢铁华尔兹 · 测试服静态配置档案</span><span>{viewMode === "stages" ? "关卡内容来自客户端静态配置，活动开放状态以游戏内为准" : "数据不含装备、好感、账号科技及战斗临时加成"}</span></footer>
+    <footer><span>钢铁华尔兹 · 测试服静态配置档案</span><span>{viewMode === "base" ? "建筑与物资来自客户端配置，实际刷新与活动开放以游戏内为准" : viewMode === "stages" ? "关卡内容来自客户端静态配置，活动开放状态以游戏内为准" : viewMode === "table" && commanderSimulation.active ? "培养上限假设资源充足；按车辆等级满足亮星与授勋条件，计入可解锁科技和魔改" : "数据不含装备、好感、账号科技及战斗临时加成"}</span></footer>
   </main>;
 }
