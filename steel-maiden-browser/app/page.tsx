@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- local APK art is already pre-sized and encoded as WebP */
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type Dispatch, type SetStateAction, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import MaidenPortraitGallery from "./MaidenPortraitGallery";
 import CompareGrowthCurve from "./CompareGrowthCurve";
@@ -30,6 +30,7 @@ import ResearchPortrait, { ResearchPortraitProvider, useResearchPortraits } from
 import ManualResearchGraph from "./ManualResearchGraph";
 import { squarePortraitCanvases } from "./portraitCanvas";
 import { createManualGraph, type ManualGraph } from "./researchManualGraph";
+import ArchiveSearch from "./ArchiveSearch";
 import CardAtlas, { type CardAtlasMode, type CardAtlasSkinMode } from "./CardAtlas";
 import { createAtlasTeamWorkspace, updateAtlasTeam } from "./atlasTeamState";
 import TableAmmunition from "./TableAmmunition";
@@ -339,11 +340,6 @@ function sortValue(row: Maiden, key: Exclude<SortKey, "talents">, level: number)
 function compareValues(left: string | number, right: string | number) {
   return typeof left === "number" && typeof right === "number" ? left - right : String(left).localeCompare(String(right), "zh-CN", { numeric: true });
 }
-function ArchiveSearch({ value, onSearch }: { value: string; onSearch: (value: string) => void }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const submit = () => onSearch(inputRef.current?.value.trim() ?? "");
-  return <div className="search-box"><span>⌕</span><input key={value} ref={inputRef} defaultValue={value} onKeyDown={(event) => event.key === "Enter" && submit()} placeholder="搜索坦克名、人名、车种、弹药、才艺或工艺…" /><button onClick={submit}>搜索</button></div>;
-}
 
 function Portrait({ maiden, eager = false }: { maiden: Maiden; eager?: boolean }) {
   if (!maiden.image) return <div className="portrait-fallback"><span>{maiden.tank.slice(0, 2)}</span><small>NO ART / {maiden.id}</small></div>;
@@ -556,22 +552,14 @@ function CraftCardGroup({ label, type, options }: { label: string; type: "引擎
   </section>;
 }
 
-function ConfigurableMaidenTable({ rows, level, sortKey, descending, onSort, talentSortName, talentSortOptions, onTalentSortChange, selectedIds, onCompare, onOpen, controlsTarget, onResetFilters, extraControls, emptyMessage }: { rows: Maiden[]; level: number; sortKey: SortKey; descending: boolean; onSort: (key: SortKey) => void; talentSortName: string; talentSortOptions: NamedIcon[]; onTalentSortChange: (name: string) => void; selectedIds: number[]; onCompare: (id: number) => void; onOpen: (id: number) => void; controlsTarget: HTMLDivElement | null; onResetFilters: () => void; extraControls?: ReactNode; emptyMessage?: string }) {
+function ConfigurableMaidenTable({ rows, minimums, setMinimums, level, sortKey, descending, onSort, talentSortName, talentSortOptions, onTalentSortChange, selectedIds, onCompare, onOpen, controlsTarget, onResetFilters, extraControls, emptyMessage }: { rows: Maiden[]; minimums: TableStatMinimums; setMinimums: Dispatch<SetStateAction<TableStatMinimums>>; level: number; sortKey: SortKey; descending: boolean; onSort: (key: SortKey) => void; talentSortName: string; talentSortOptions: NamedIcon[]; onTalentSortChange: (name: string) => void; selectedIds: number[]; onCompare: (id: number) => void; onOpen: (id: number) => void; controlsTarget: HTMLDivElement | null; onResetFilters: () => void; extraControls?: ReactNode; emptyMessage?: string }) {
   const [columnOrder, setColumnOrder] = useState<TableColumnKey[]>(defaultTableColumnOrder);
   const [hiddenColumns, setHiddenColumns] = useState<TableColumnKey[]>(defaultHiddenTableColumns);
-  const [minimums, setMinimums] = useState<TableStatMinimums>(emptyTableStatMinimums);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [draggedColumn, setDraggedColumn] = useState<TableColumnKey | null>(null);
 
   const visibleColumns = columnOrder.filter((column) => !hiddenColumns.includes(column));
-  const filteredRows = useMemo(() => rows.filter((row) => statMeta.every((meta) => {
-    const rawMinimum = minimums[meta.key]?.trim();
-    if (!rawMinimum) return true;
-    const minimum = Number(rawMinimum);
-    if (!Number.isFinite(minimum)) return true;
-    const value = row.stats[String(level)]?.[meta.key];
-    return value !== null && value !== undefined && value >= minimum;
-  })), [rows, level, minimums]);
+  const filteredRows = rows;
   const sortedStat = statMeta.find((meta) => meta.key === sortKey);
   const sortedMedian = sortedStat ? median(filteredRows.map((row) => row.stats[String(level)]?.[sortedStat.key]).filter((value): value is number => value !== null && value !== undefined)) : null;
   const activeMinimumCount = statMeta.filter((meta) => minimums[meta.key]?.trim()).length;
@@ -2398,6 +2386,9 @@ export default function Home() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [query, setQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [pinnedIds, setPinnedIds] = useState<number[]>([]);
+  const [statMinimums, setStatMinimums] = useState<TableStatMinimums>(emptyTableStatMinimums);
   const [level, setLevel] = useState(1);
   const [commanderPreferences,setCommanderPreferences]=useState(readCommanderPreferences);
   const [sortKey, setSortKey] = useState<SortKey>("power");
@@ -2492,37 +2483,72 @@ export default function Home() {
     ];
   }, [dataset]);
 
+  const hasRegularConditions = Boolean(query || activeMainFilterCount(filters)
+    || Object.values(statMinimums).some((value) => value.trim()));
+
   const rows = useMemo(() => {
     if (!dataset) return [];
     const needle = query.toLowerCase();
+    const pinOrder = new Map(pinnedIds.map((id, index) => [id, index]));
+    const includeMatches = !pinnedIds.length || hasRegularConditions;
     const result = (calculationRows??[]).filter((row) =>
-      (filters.includeUnimplemented || row.implemented)
-      && (!needle || searchIndex.get(row.id)?.includes(needle))
-      && (!filters.nation.length || filters.nation.includes(row.nation))
-      && (!filters.className.length || filters.className.includes(row.className))
-      && (!filters.rarity.length || filters.rarity.includes(row.rarity))
-      && (!filters.stage.length || filters.stage.includes(row.stage))
-      && (!filters.magicCost.length || filters.magicCost.includes(row.magicCostGroup))
-      && (!filters.ammo.length || filters.ammo.every((type) => row.ammo.includes(type)))
-      && matchesCraftResistances(row.engineOptions, filters.engineResistance, filters.allowCrossCraftResistance)
-      && matchesCraftResistances(row.bodyOptions, filters.bodyResistance, filters.allowCrossCraftResistance)
-      && filters.talents.every((talent) => row.talents.some((item) => item.name === talent))
-      && (!filters.huntTraits || row.huntTraits.some((item) => `${item.task} ${item.name}` === filters.huntTraits))
+      pinOrder.has(row.id) || includeMatches && (
+        (filters.includeUnimplemented || row.implemented)
+        && (!needle || searchIndex.get(row.id)?.includes(needle))
+        && (!filters.nation.length || filters.nation.includes(row.nation))
+        && (!filters.className.length || filters.className.includes(row.className))
+        && (!filters.rarity.length || filters.rarity.includes(row.rarity))
+        && (!filters.stage.length || filters.stage.includes(row.stage))
+        && (!filters.magicCost.length || filters.magicCost.includes(row.magicCostGroup))
+        && (!filters.ammo.length || filters.ammo.every((type) => row.ammo.includes(type)))
+        && matchesCraftResistances(row.engineOptions, filters.engineResistance, filters.allowCrossCraftResistance)
+        && matchesCraftResistances(row.bodyOptions, filters.bodyResistance, filters.allowCrossCraftResistance)
+        && filters.talents.every((talent) => row.talents.some((item) => item.name === talent))
+        && (!filters.huntTraits || row.huntTraits.some((item) => `${item.task} ${item.name}` === filters.huntTraits))
+        && statMeta.every((meta) => {
+          const rawMinimum = statMinimums[meta.key]?.trim();
+          if (!rawMinimum) return true;
+          const minimum = Number(rawMinimum);
+          if (!Number.isFinite(minimum)) return true;
+          const value = row.stats[String(level)]?.[meta.key];
+          return value !== null && value !== undefined && value >= minimum;
+        })
+      )
     );
     result.sort((a, b) => {
+      const pinDifference = (pinOrder.get(a.id) ?? pinnedIds.length) - (pinOrder.get(b.id) ?? pinnedIds.length);
+      if (pinDifference) return pinDifference;
       if (sortKey === "talents") return compareTalentLevels(a, b, talentSortName, descending);
       const comparison = compareValues(sortValue(a, sortKey, level), sortValue(b, sortKey, level));
       return descending ? -comparison : comparison;
     });
     return result;
-  }, [dataset, calculationRows, query, filters, level, sortKey, descending, talentSortName, searchIndex]);
+  }, [dataset, calculationRows, query, filters, level, sortKey, descending, talentSortName, searchIndex, pinnedIds, hasRegularConditions, statMinimums]);
 
   const byId = useMemo(() => new Map((dataset?.rows ?? []).map((row) => [row.id, row])), [dataset]);
   const detail = detailId ? byId.get(detailId) ?? null : null;
   const simulatorMaiden = simulatorId ? byId.get(simulatorId) ?? null : null;
   const comparison = compareIds.map((id) => byId.get(id)).filter(Boolean) as Maiden[];
   function toggleCompare(id: number) { setCompareIds((current) => current.includes(id) ? current.filter((value) => value !== id) : current.length >= 2 ? [current[1], id] : [...current, id]); }
-  function clearConditions() { setQuery(""); setFilters({ ...emptyFilters }); setFilterDraft({ ...emptyFilters }); setFilterOpen(false); }
+  function applySearch(value: string) {
+    setSearchInput(value);
+    setQuery(value);
+    setLimit(48);
+  }
+  function pinMaiden(id: number) {
+    setPinnedIds((current) => current.includes(id) ? current : [...current, id]);
+    setSearchInput("");
+    setQuery("");
+    setLimit(48);
+  }
+  function clearConditions() {
+    setSearchInput("");
+    setQuery("");
+    setFilters({ ...emptyFilters });
+    setFilterDraft({ ...emptyFilters });
+    setStatMinimums({ ...emptyTableStatMinimums });
+    setFilterOpen(false);
+  }
   function selectSort(key: SortKey) { if (sortKey === key) setDescending((value) => !value); else { setSortKey(key); setDescending(statMeta.some((item) => item.key === key) || ["id", "rarity", "stage", "fireproof", "homogeneity", "coverage", "talents"].includes(key)); } }
   function selectTalentSort(name: string) {
     setSelectedTalentSort(name);
@@ -2592,7 +2618,8 @@ export default function Home() {
     </header>
 
     {(viewMode === "table" || viewMode === "cards") && <section className="control-panel" aria-label="筛选与排序">
-      <ArchiveSearch value={query} onSearch={setQuery} />
+      <ArchiveSearch value={searchInput} onChange={setSearchInput} onSearch={applySearch} maidens={dataset.rows}
+        pinnedIds={pinnedIds} onPin={pinMaiden} onRemove={(id) => setPinnedIds((current) => current.filter((value) => value !== id))} />
       <div className="control-row"><div className="level-chart-controls">
         {viewMode === "cards" ? <><div className="card-atlas-mode-switch" role="group" aria-label="卡牌图鉴显示模式">
           <button type="button" aria-pressed={cardAtlasMode === "avatars"} onClick={() => setCardAtlasMode("avatars")}><span aria-hidden="true">▦</span>方形头像</button>
@@ -2602,7 +2629,7 @@ export default function Home() {
           <button type="button" aria-pressed={cardAtlasSkinMode === "separate"} onClick={() => { setCardAtlasSkinMode("separate"); setLimit(48); }}>皮肤分散</button>
         </div></> : <LevelPicker level={level} setLevel={setLevel} />}
         {viewMode === "table" && <><div className="attribute-chart-launchers"><button type="button" disabled={commanderSimulation.active&&!commanderSimulation.result} onClick={() => setChartKind("bar")}><svg viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><path d="M2 3h1v14h15v1H2z" /><rect x="5" y="10" width="3" height="5" /><rect x="10" y="6" width="3" height="9" /><rect x="15" y="3" width="3" height="12" /></svg>柱状图</button><button type="button" disabled={commanderSimulation.active&&!commanderSimulation.result} onClick={() => setChartKind("scatter")}><svg viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><path d="M2 3h1v14h15v1H2z" /><circle cx="7" cy="11" r="1.8" /><circle cx="12" cy="8" r="1.8" /><circle cx="9" cy="5" r="1.8" /><circle cx="16" cy="4" r="1.8" /></svg>散点图</button></div><div className="table-controls-target" ref={setTableControlsTarget} /></>}
-      </div><div className="main-filter-launcher"><span>{activeMainFilterCount(filters) ? `已应用 ${activeMainFilterCount(filters)} 项筛选` : "当前仅显示已实装钢舞姬"}</span><button onClick={() => { setFilterDraft({ ...filters, nation: [...filters.nation], className: [...filters.className], rarity: [...filters.rarity], stage: [...filters.stage], magicCost: [...filters.magicCost], ammo: [...filters.ammo], engineResistance: [...filters.engineResistance], bodyResistance: [...filters.bodyResistance], talents: [...filters.talents] }); setFilterOpen(true); }}>筛选条件{activeMainFilterCount(filters) ? <b>{activeMainFilterCount(filters)}</b> : null}</button></div></div>
+      </div><div className="main-filter-launcher"><span>{pinnedIds.length ? `已固定 ${pinnedIds.length} 位 · ${hasRegularConditions ? "追加筛选结果" : "仅显示固定车辆"}` : activeMainFilterCount(filters) ? `已应用 ${activeMainFilterCount(filters)} 项筛选` : "当前仅显示已实装钢舞姬"}</span><button onClick={() => { setFilterDraft({ ...filters, nation: [...filters.nation], className: [...filters.className], rarity: [...filters.rarity], stage: [...filters.stage], magicCost: [...filters.magicCost], ammo: [...filters.ammo], engineResistance: [...filters.engineResistance], bodyResistance: [...filters.bodyResistance], talents: [...filters.talents] }); setFilterOpen(true); }}>筛选条件{activeMainFilterCount(filters) ? <b>{activeMainFilterCount(filters)}</b> : null}</button></div></div>
       {viewMode==="table"&&commanderSimulation.active&&<div className={`commander-mode-status${commanderSimulation.error?" error":""}`} role={commanderSimulation.error?"alert":"status"} aria-live="polite">
         <strong>培养上限模拟</strong><span>{commanderSimulation.error|| (commanderSimulation.pending?`正在计算指挥官${commanderSimulation.commanderLevel}级的全部车辆…`:commanderCaption)}</span>
         {commanderSimulation.error&&commanderSimulation.commanderLevel!==null&&<button type="button" onClick={commanderSimulation.retry}>重试计算</button>}
@@ -2611,12 +2638,12 @@ export default function Home() {
     </section>}
 
     {viewMode === "table" && <section className="archive-section table-archive" aria-busy={commanderSimulation.pending}>
-      <ConfigurableMaidenTable rows={rows} level={level} sortKey={sortKey} descending={descending} onSort={selectSort} talentSortName={talentSortName} talentSortOptions={talentSortOptions} onTalentSortChange={selectTalentSort} selectedIds={compareIds} onCompare={toggleCompare} onOpen={setDetailId} controlsTarget={tableControlsTarget} onResetFilters={clearConditions}
+      <ConfigurableMaidenTable rows={rows} minimums={statMinimums} setMinimums={setStatMinimums} level={level} sortKey={sortKey} descending={descending} onSort={selectSort} talentSortName={talentSortName} talentSortOptions={talentSortOptions} onTalentSortChange={selectTalentSort} selectedIds={compareIds} onCompare={toggleCompare} onOpen={setDetailId} controlsTarget={tableControlsTarget} onResetFilters={clearConditions}
         extraControls={<CommanderSimulationControls input={commanderPreferences.input} onInput={(input)=>setCommanderPreferences((current)=>({...current,input}))} tacticTrend={commanderTactic} tactics={dataset.magicProgression?.tactics??[]} onTactic={(tacticTrend)=>setCommanderPreferences((current)=>({...current,tacticTrend}))}/>}
         emptyMessage={commanderSimulation.active&&!commanderSimulation.result?(commanderSimulation.error?"上限模拟暂不可用，请检查输入或重试计算":"正在计算培养上限…"):undefined}/>
     </section>}
 
-    {viewMode === "cards" && <CardAtlas rows={rows} allRows={dataset.rows} teamWorkspace={atlasTeamWorkspace} onTeamAction={(action) => setAtlasTeamWorkspace((current) => updateAtlasTeam(current, action))} mode={cardAtlasMode} skinMode={cardAtlasSkinMode} limit={limit} selectedTalents={filters.talents} onOpen={setDetailId} onLoadMore={() => setLimit((value) => value + 48)} onResetFilters={clearConditions} hasFilters={Boolean(query || activeMainFilterCount(filters))} />}
+    {viewMode === "cards" && <CardAtlas rows={rows} pinnedIds={pinnedIds} allRows={dataset.rows} teamWorkspace={atlasTeamWorkspace} onTeamAction={(action) => setAtlasTeamWorkspace((current) => updateAtlasTeam(current, action))} mode={cardAtlasMode} skinMode={cardAtlasSkinMode} limit={limit} selectedTalents={filters.talents} onOpen={setDetailId} onLoadMore={(displayed) => setLimit((value) => Math.max(value, displayed) + 48)} onResetFilters={clearConditions} hasFilters={hasRegularConditions} />}
 
     {viewMode === "research" && researchData && <ResearchWorkspace key={`research:${researchFocusId ?? "default"}`} data={researchData} maidens={dataset.rows} mode="research" focusId={researchFocusId} onOpenResearch={openResearchTree} manualHistory={manualResearchHistory} onManualHistoryChange={setManualResearchHistory} routeMode={researchRouteMode} onRouteModeChange={setResearchRouteMode} />}
     {viewMode === "researchGraph" && researchData && <ResearchWorkspace key="researchGraph" data={researchData} maidens={dataset.rows} mode="researchGraph" focusId={null} onOpenResearch={openResearchTree} manualHistory={manualResearchHistory} onManualHistoryChange={setManualResearchHistory} routeMode={researchRouteMode} onRouteModeChange={setResearchRouteMode} />}

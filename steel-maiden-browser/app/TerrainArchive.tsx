@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadStageCatalog } from "./stageCatalogData";
 import type { StageCatalog } from "./stageTypes";
-import { handbookTerrains, matchesTerrain, type TerrainPerspective } from "./terrainHandbook";
+import { aviationRangeNotice, handbookTerrains, matchesTerrain, type TerrainPerspective } from "./terrainHandbook";
 import "./terrains.css";
 
 export default function TerrainArchive() {
@@ -37,6 +37,7 @@ export default function TerrainArchive() {
       </div>
       <div className="terrain-results" role="status">显示 <b>{visible.length}</b> / {terrains.length} 张地形卡片{query && <button type="button" onClick={() => setQuery("")}>清除搜索</button>}</div>
     </div>
+    {perspective === "air" && <p className="terrain-variant-note">{aviationRangeNotice}</p>}
     {terrains.length > nameCounts.size && <p className="terrain-variant-note">同名地形在部分关卡的效果配置不同，以下分别列出，不合并叠加。</p>}
     {visible.length ? <div className="terrain-grid">{visible.map((terrain) => <article className="terrain-card" key={terrain.ids[0]} data-terrain-ids={terrain.ids.join(",")} aria-labelledby={`terrain-title-${terrain.ids[0]}`}>
       <header className="terrain-card-heading">
@@ -44,8 +45,8 @@ export default function TerrainArchive() {
         <div className="terrain-card-identity">
           <div className="terrain-title-row">
             <h2 id={`terrain-title-${terrain.ids[0]}`}>{terrain.name}</h2>
-            <div className="terrain-combat-range" data-values={terrain.range.join(",")} data-kind={perspective === "air" ? "altitude" : "distance"}>
-              <span className="terrain-range-label"><img src={terrain.rangeIcon} alt="" />{perspective === "air" ? "作战高度" : "作战距离"}<small>m</small></span>
+            <div className="terrain-combat-range" data-values={terrain.range.join(",")} data-kind="distance">
+              <span className="terrain-range-label"><img src={terrain.rangeIcon} alt="" />作战距离<small>m</small></span>
               <strong>{terrain.range.map((value, index) => <span key={index}>{value}{index < terrain.range.length - 1 && <i aria-hidden="true">→</i>}</span>)}</strong>
               <span className="terrain-range-phases">炮击 → 接近 → 缠斗</span>
             </div>

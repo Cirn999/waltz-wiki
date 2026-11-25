@@ -53,7 +53,7 @@ const base=calculateCommanderSimulation({...request,commanderLevel:1,levels:[1]}
 for(const row of data.rows)for(const [key,value]of Object.entries(base.rows[row.id][1].values))if(row.stats['1'][key]!=null)assert.equal(value,row.stats['1'][key],`${row.tank}: commander 1 base ${key}`);
 const upper=calculateCommanderSimulation({...request,commanderLevel:90});
 const milliseconds=Math.round(performance.now()-start);
-assert.equal(Object.keys(upper.rows).length,780);
+assert.equal(Object.keys(upper.rows).length,data.rows.length);
 for(const row of data.rows)for(const level of data.levels)for(const value of Object.values(upper.rows[row.id][level].values))assert.ok(Number.isFinite(value));
 
 // An independent construction of one native panel makes default ammo's tech

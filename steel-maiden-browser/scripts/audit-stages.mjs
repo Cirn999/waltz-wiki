@@ -182,9 +182,10 @@ try {
     if (hideProgress) assert.ok(!(await dialog.innerText()).includes("按所选进度"), "Do not describe unrelated campaign progress in income/drop notes");
     assert.ok(await dialog.locator(".stage-enemy").count() > 0);
     assert.match(await dialog.locator(".stage-distance").innerText(), /作战距离.*\d+ → \d+ → \d+/s);
-    assert.match(await dialog.locator(".stage-altitude").innerText(), /作战高度.*\d+ → \d+ → \d+/s);
+    assert.equal(await dialog.locator(".stage-altitude").count(), 0);
+    assert.match(await dialog.locator(".stage-terrain-panel").innerText(), /航空常规弹与航空火箭弹按射程和作战距离判定/);
     assert.equal(await dialog.locator(".stage-distance img").getAttribute("src"), "/art/stages/pvp-012.webp");
-    assert.equal(await dialog.locator(".stage-altitude img").getAttribute("src"), "/art/stages/jl-017.webp");
+
     await dialog.locator(".stage-enemy img").evaluateAll((images) => Promise.all(images.map((image) => image.decode())));
     if (category.id === "campaign") {
       const original = await dialog.locator(".stage-source-note").innerText();
@@ -351,9 +352,9 @@ try {
       await requirements.locator("img").evaluateAll((imgs) => Promise.all(imgs.map((img) => img.decode())));
       const box = await requirements.evaluate((el) => ({ width: el.clientWidth, scroll: el.scrollWidth }));
       assert.ok(box.scroll <= box.width + 1, `Requirements fit ${viewport.width}px`);
-      for (const selector of ['.stage-distance', '.stage-altitude']) {
+      for (const selector of ['.stage-distance']) {
         const range = page.locator(selector);
-        const field = selector === '.stage-distance' ? 'distances' : 'altitudes';
+        const field = 'distances';
         assert.equal(await range.locator('strong').innerText(), `${data.terrains[data.nodes[map.nodes[0]].fieldId][field].join(' → ')} m`);
         const fits = await range.evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
         assert.ok(fits, `${selector} stage values fit ${viewport.width}px`);
@@ -380,8 +381,8 @@ try {
     await terrain.scrollIntoViewIfNeeded();
     await terrain.locator('img').evaluateAll((els) => Promise.all(els.map((el) => el.decode())));
     assert.equal(await terrain.locator('.stage-distance strong').innerText(), '8000 → 5500 → 3000 m');
-    assert.equal(await terrain.locator('.stage-altitude strong').innerText(), '5000 → 4000 → 3000 m');
-    for (const selector of ['.stage-distance', '.stage-altitude']) {
+    assert.equal(await terrain.locator('.stage-altitude').count(), 0);
+    for (const selector of ['.stage-distance']) {
       const fits = await terrain.locator(selector).evaluate((el) => {
         const box = el.getBoundingClientRect();
         const icon = el.querySelector('img').getBoundingClientRect();

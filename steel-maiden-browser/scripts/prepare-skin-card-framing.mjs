@@ -9,7 +9,7 @@ const root = path.resolve(appRoot, "..");
 execFileSync(process.env.PYTHON || "python", ["-X", "utf8", path.join(root, "analysis_apk/tools/inspect_skin_portrait_layout.py")], { cwd: root, stdio: "pipe", windowsHide: true });
 const audit = JSON.parse(await fs.readFile(path.join(root, "analysis_apk/output/skin_portrait_layout.json"), "utf8"));
 const adjustments = JSON.parse(await fs.readFile(path.join(appRoot, "scripts/skin-framing-adjustments.json"), "utf8"));
-const roots = ["patch/_1.18", "package/preinitial", "Resources"].map((base) => path.join(root, base));
+const roots = ["patch/_1.18", "Resources", "package/preinitial"].map((base) => path.join(root, base));
 const rows = {};
 const fallback = [];
 const reviewed = {};

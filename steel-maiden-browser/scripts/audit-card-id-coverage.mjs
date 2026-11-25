@@ -42,6 +42,16 @@ const datasets = new Map([
   ["获取途径", acquisition.cards.map((card) => card.cardId)],
 ]);
 
+for (const [name, file, field] of [
+  ["装备槽解锁", "equipment-slot-unlocks", "cards"],
+  ["亮星", "star-promotions", "cards"],
+  ["表格头像", "table-portraits", "rows"],
+  ["人物名素材", "card-person-labels", "rows"],
+]) {
+  datasets.set(name, Object.keys((await load(`../public/data/${file}.json`))[field]));
+}
+for (const id of canonicalIds) await fs.access(new URL(`../public/data/maiden-quotes/${id}.json`, import.meta.url));
+
 const checks = [];
 for (const [name, rawIds] of datasets) {
   const ids = normalize(rawIds);
@@ -58,7 +68,7 @@ for (const row of maidens.rows) {
   assert.ok(row.magicCostGroup, `${row.id} 缺少魔改费用分组`);
 }
 
-const newCardIds = [9825, 9826, 9827];
+const newCardIds = process.argv.includes("--current") ? [] : [9825, 9826, 9827];
 for (const id of newCardIds) {
   assert.ok(canonicalIds.includes(id), `主目录缺少本次新增卡牌 ${id}`);
   for (const [name, rawIds] of datasets) {

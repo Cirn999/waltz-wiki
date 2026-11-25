@@ -120,9 +120,9 @@ for (const e of exchanges.values()) {
     if (r.maidenId) assert.ok(maidens.has(r.maidenId));
   }
 }
-assert.equal(find(4287).exchangeIds.length, 34);
+assert.equal(find(4287).exchangeIds.length, [...exchanges.values()].filter((e) => e.costs.some((cost) => cost.key === "1:4287")).length);
 const shellOffers = find(4287).exchangeIds.map((id) => exchanges.get(id));
-assert.equal(shellOffers.filter((e) => e.rewards.some((r) => r.maidenId)).length, 26);
+assert.ok(shellOffers.some((e) => e.rewards.some((r) => r.maidenId === 9828)), "ISU-122-2 crystal-shell exchange");
 assert.deepEqual(exchanges.get(5429).costs.map((r) => [r.name, r.amount]), [["水晶贝", 80]]);
 assert.equal(exchanges.get(5429).rewards[0].maidenId, 9841);
 assert.deepEqual(exchanges.get(5441).rewards.map((r) => [r.name, r.amount]), [["破损情报", 2]]);

@@ -152,7 +152,8 @@
     "verify:implementation": "node scripts/verify-implementation.mjs",
     "audit:implementation": "node scripts/audit-implementation-ui.mjs",
     "prepare:base": "python -B -X utf8 ../analysis_apk/tools/build_base_catalog.py",
-    "verify:base": "python -B -X utf8 ../analysis_apk/tools/build_base_catalog.py --check && node scripts/verify-base.mjs"
+    "verify:base": "python -B -X utf8 ../analysis_apk/tools/build_base_catalog.py --check && node scripts/verify-base.mjs",
+    "audit:search-pins": "node scripts/audit-search-pins.mjs"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",

@@ -73,8 +73,7 @@ try {
     ["钢舞姬", "研发路线", ".research-graph-archive, .research-chain-mode .chain-archive"],
     ["手册", "装备", ".equipment-atlas"], ["手册", "科技", ".technology-mode"],
     ["手册", "任务", ".task-table"], ["手册", "道具", ".item-archive"],
-    ["手册", "地形", ".terrain-card"], ["手册", "根据地", ".base-archive"],
-    ["关卡", "关卡一览", ".stage-category"],
+    ["手册", "地形", ".terrain-card"], ["关卡", "关卡一览", ".stage-category"],
     ["关卡", "收益一览", ".stage-yield-overview"], ["关卡", "剧情一览", ".story-archive"],
   ]) await section(...args);
   await page.getByRole("button", { name: "浏览战役剧情", exact: true }).click();

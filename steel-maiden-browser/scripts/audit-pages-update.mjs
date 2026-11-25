@@ -55,7 +55,7 @@ export async function auditPagesUpdate(page, baseUrl, section) {
     await card.locator("img").evaluateAll(async (images) => Promise.all(images.map((image) => image.decode())));
     assert.equal(await card.locator('.terrain-combat-range[data-kind="distance"]').count(), 1);
     await page.getByRole("button", { name: "空钢", exact: true }).click();
-    assert.equal(await card.locator('.terrain-combat-range[data-kind="altitude"]').count(), 1);
+    assert.equal(await card.locator('.terrain-combat-range[data-kind="distance"]').count(), 1);
     await card.locator("img").evaluateAll(async (images) => Promise.all(images.map((image) => image.decode())));
     await page.getByRole("button", { name: "陆钢", exact: true }).click();
   }

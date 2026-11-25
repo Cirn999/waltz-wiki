@@ -42,7 +42,7 @@ try {
     })));
     assert.deepEqual(actual, expected.map((terrain) => ({ ...terrain, effects: terrain.effects.map(({ name, description, image }) => ({ name, description, image })) })));
     assert.equal(await page.locator(".terrain-icons img").count(), expected.length, "Exactly one terrain icon per card, including spores");
-    assert.equal(await page.locator(`.terrain-combat-range[data-kind="${perspective === "air" ? "altitude" : "distance"}"]`).count(), expected.length);
+    assert.equal(await page.locator(`.terrain-combat-range[data-kind="distance"]`).count(), expected.length);
     await page.locator(".terrain-card img").evaluateAll(async (images) => { for (const image of images) image.loading = "eager"; await Promise.all(images.map((image) => image.decode())); });
   };
   await checkCards("ground");
@@ -72,6 +72,7 @@ try {
     assert.equal(await page.locator(".terrain-archive").getAttribute("data-perspective"), perspective);
     await checkCards(perspective);
     if (perspective === "air") {
+      assert.match(await page.locator(".terrain-archive").innerText(), /航空常规弹与航空火箭弹按射程和作战距离判定/);
       await search.fill("草地丘陵");
       assert.equal(await cards.count(), 1);
       assert.deepEqual(await cards.locator(".terrain-effect-list h4").allTextContents(), ["干燥", "静电", "风阻"]);
@@ -124,5 +125,5 @@ try {
   await retryPage.getByRole("button", { name: "重试加载", exact: true }).click();
   await retryPage.locator(".terrain-card").first().waitFor();
   assert.equal(await retryPage.locator(".terrain-card").count(), expected.length);
-  console.log(JSON.stringify({ groundCards: expected.length, airCards: 37, oneSporeIcon: true, switchEffectsAndRanges: true, rangesRightOfName: true, completeDataAndImages: true, search: true, responsive: true, zoom125: true, navigation: true, sharedCatalog: true, retry: true, errors }, null, 2));
+  console.log(JSON.stringify({ groundCards: expected.length, airCards: handbookTerrains(catalog.terrains, "air").length, oneSporeIcon: true, switchEffectsAndRanges: true, rangesRightOfName: true, completeDataAndImages: true, search: true, responsive: true, zoom125: true, navigation: true, sharedCatalog: true, retry: true, errors }, null, 2));
 } finally { await browser.close(); }

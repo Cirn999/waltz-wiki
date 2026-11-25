@@ -1,5 +1,7 @@
 import type { Terrain } from "./stageTypes";
 
+export const aviationRangeNotice = "航空常规弹与航空火箭弹按射程和作战距离判定，电波、湍流等空钢地形效果仍然生效。";
+
 export type TerrainPerspective = "ground" | "air";
 export type HandbookTerrain = {
   ids: number[];
@@ -14,8 +16,8 @@ export function handbookTerrains(terrains: Record<string, Terrain>, perspective:
   const groups = new Map<string, HandbookTerrain>();
   for (const terrain of Object.values(terrains).sort((a, b) => a.id - b.id)) {
     const effects = perspective === "air" ? terrain.airEffects : terrain.effects;
-    const range = perspective === "air" ? terrain.altitudes : terrain.distances;
-    const rangeIcon = perspective === "air" ? terrain.altitudeIcon : terrain.distanceIcon;
+    const range = terrain.distances;
+    const rangeIcon = terrain.distanceIcon;
     // Merge only identical effects and ranges for the selected perspective.
     // Use one representative icon, including the duplicate spore fields.
     const key = JSON.stringify([terrain.name, effects.map(({ name, description, image }) => [name, description, image]), range, rangeIcon]);

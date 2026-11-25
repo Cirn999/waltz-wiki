@@ -602,6 +602,16 @@ def main() -> None:
     }
     equipment_label_by_tag = build_tag_label_map(styles, strings, "EQU")
     function_label_by_tag = build_tag_label_map(styles, strings, "INDEX_FUNCTION")
+    resistance_codes = {}
+    for style in styles:
+        for item in style["items"]:
+            if item["mode_code"] != "INDEX_FUNCTION":
+                continue
+            labels = [first_text(strings, entry["value"]) for entry in item["number_entries"]
+                      if entry["entry_id"] == 5]
+            icons = [entry["value"] for entry in item["string_entries"] if entry["entry_id"] == 1]
+            if len(labels) == len(icons) == 1 and labels[0] and icons[0]:
+                resistance_codes.setdefault(normalized_label(labels[0]), icons[0])
     ammo_rank_by_tag = build_ammo_rank_map(styles, strings)
     craft_rank_by_tag = CRAFT_TECH_RANK_BY_TAG
     ammo_effect_by_tag = build_ammo_effect_map(styles, strings)
@@ -1031,6 +1041,7 @@ def main() -> None:
                 },
                 "rows": rows,
                 "talent_rows": talent_rows,
+                "resistance_icon_codes": resistance_codes,
             },
             ensure_ascii=False,
             indent=2,

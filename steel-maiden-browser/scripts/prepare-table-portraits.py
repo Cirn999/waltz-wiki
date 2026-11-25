@@ -45,7 +45,7 @@ def prepare(rows_path: Path, app: Path, skins_only=False):
     arranged = {r["arranged_style_id"]: r for r in parse_arranged_styles(config_path("ArrangedStyleInfo.dat"))}
     models = {r["role_model_id"]: r for r in json.loads((ROOT / "analysis_apk/output/role_models.json").read_text(encoding="utf-8"))}
     races = race_styles()
-    ui_roots = [ROOT / "patch/_1.18/ui", ROOT / "package/preinitial/ui", ROOT / "Resources/ui", ROOT / "analysis_apk/apk_ui_assets/assets/Resources/ui", ROOT / "analysis_apk/apk_ui_heads"]
+    ui_roots = [ROOT / "patch/_1.18/ui", ROOT / "Resources/ui", ROOT / "package/preinitial/ui", ROOT / "analysis_apk/apk_ui_assets/assets/Resources/ui", ROOT / "analysis_apk/apk_ui_heads"]
     destination = app / "public/art/table-portraits"
     destination.mkdir(parents=True, exist_ok=True)
     exported = {}

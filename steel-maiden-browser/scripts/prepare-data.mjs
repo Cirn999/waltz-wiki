@@ -47,25 +47,28 @@ const unitAppearancesPath = path.join(projectRoot, "analysis_apk", "output", "un
 const magicOrdnancePath = path.join(projectRoot, "analysis_apk", "output", "magic_ordnance", "magic_ordnance_catalog.json");
 const magicProgressionPath = path.join(projectRoot, "analysis_apk", "output", "magic_ordnance", "magic_progression_catalog.json");
 const huntRosterPath = path.join(projectRoot, "analysis_apk", "output", "hunt_special_lineups", "狩猎任务特殊阵容_游戏判定.json");
-const uiStylePath = path.join(projectRoot, "patch", "_1.18", "config", "UIStyle.dat");
+const patchUiStyle = path.join(projectRoot, "patch", "_1.18", "config", "UIStyle.dat");
+const uiStylePath = await exists(patchUiStyle) ? patchUiStyle : path.join(projectRoot, "Resources", "config", "UIStyle.dat");
 const uiRoots = [
   path.join(projectRoot, "patch", "_1.18", "ui"),
+  path.join(projectRoot, "Resources", "ui"),
   path.join(projectRoot, "analysis_apk", "apk_ui_assets", "assets", "Resources", "ui"),
   path.join(projectRoot, "analysis_apk", "apk_ui_heads"),
 ];
 const modelRoots = [
   path.join(projectRoot, "patch", "_1.18", "modelConfig"),
-  path.join(projectRoot, "package", "preinitial", "modelConfig"),
   path.join(projectRoot, "Resources", "modelConfig"),
+  path.join(projectRoot, "package", "preinitial", "modelConfig"),
 ];
 const artRoots = [
   path.join(projectRoot, "patch", "_1.18", "char"),
+  path.join(projectRoot, "Resources", "char"),
   path.join(projectRoot, "package", "preinitial", "char"),
 ];
 const liveRoots = [
   path.join(projectRoot, "patch", "_1.18", "live"),
-  path.join(projectRoot, "package", "preinitial", "live"),
   path.join(projectRoot, "Resources", "live"),
+  path.join(projectRoot, "package", "preinitial", "live"),
 ];
 
 const statLabels = {
@@ -739,7 +742,8 @@ const slotIcons = Object.fromEntries(await Promise.all(Object.entries(slotIconCo
   label,
   await exportUiAsset(code, outputSlotDir, "slots"),
 ])));
-const resistanceIcons = Object.fromEntries(await Promise.all(Object.entries(resistanceIconCodes).map(async ([label, code]) => [
+const resistanceCodes = { ...source.resistance_icon_codes, ...resistanceIconCodes };
+const resistanceIcons = Object.fromEntries(await Promise.all(Object.entries(resistanceCodes).map(async ([label, code]) => [
   label,
   await exportUiAsset(code, outputResistanceDir, "resistances"),
 ])));

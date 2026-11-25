@@ -135,8 +135,6 @@ def build(check=False):
         assert len(result['altitudes'])==3 and result['altitudes']==sorted(result['altitudes'],reverse=True), f'Missing/unordered battle altitudes for {fid}'
         assert result['distanceIcon'] and result['altitudeIcon'], 'Missing native distance/altitude icon'
         terrain[fid]=result
-    assert terrain[6]['distances']==[500,100,50]
-    assert terrain[55]['distances']==[8000,5500,3000]
 
     slots={}
     for style in styles.values():

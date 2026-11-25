@@ -355,7 +355,7 @@ class NativeOracle:
     def function(self, f, source, inputs=None):
         p = self.alloc(32, self.function_blob(f))
         iv = self.vector([struct.pack('<H2xi', k, v) for k, v in (inputs or {}).items()])
-        return self.call(0x849b98, p, source, iv)
+        return self.call(self.symbols["_Z24computeAtrributeFromRuleRKN6Config17AttributeFunctionEiRKNSt6__ndk16vectorINS_24AttributeGrowthInputPairENS3_9allocatorIS5_EEEE"], p, source, iv)
 
     def effect(self, effect, level, presets, properties, traits, attributes):
         self.properties = properties
@@ -366,7 +366,7 @@ class NativeOracle:
         self.vector([struct.pack('<I', k) for k in adjust['group_a_ids']], adjustment)
         self.vector([struct.pack('<I', k) for k in adjust['group_b_ids']], adjustment + 24)
         self.write(adjustment + 48, 'I', adjust['value'])
-        intensity = self.call(0x709420, 0, switch, adjustment, level)
+        intensity = self.call(self.symbols["_ZN8Unit_Set24computeAdjustedIntensityERK25PropertyTraitEffectSwitchRK26FacultyIntensityAdjustRulei"], 0, switch, adjustment, level)
         pv = []
         for row in presets:
             p = self.alloc(32, struct.pack('<B', row['category_id']))
@@ -383,11 +383,11 @@ class NativeOracle:
         config = self.vector(ac)
         config_list = self.vector([struct.pack('<Q', config)])
         output = self.alloc(24)
-        self.call(0x70abfc, 0, preset_vector, config_list, intensity, output, switch, 0)
+        self.call(self.symbols["_ZN8Unit_Set18storeAttributePairERKNSt6__ndk16vectorIN6Config21CapsulePresetCategoryENS0_9allocatorIS3_EEEERKNS1_IPKNS2_25FacultyAdjustEffectConfigENS4_ISB_EEEEiRNS1_INS2_23UnitAttributeRuleConfigENS4_ISG_EEEEPK25PropertyTraitEffectSwitchPKNS0_3mapIjiNS0_4lessIjEENS4_INS0_4pairIKjiEEEEEE"], 0, preset_vector, config_list, intensity, output, switch, 0)
         total = {id: 0 for id in attributes}
         for rule in self.elements(output, 32):
             for id in attributes:
-                total[id] += self.call(0x713864, 0, rule, id)
+                total[id] += self.call(self.symbols["_ZN8Unit_Set24computeAttributeFromRuleERKN6Config23UnitAttributeRuleConfigEi"], 0, rule, id)
         return total
 
     def category(self, limit, level, trend, presets, properties, traits, attributes):
@@ -402,17 +402,17 @@ class NativeOracle:
         preset_vector = self.vector(pv)
         status = self.alloc(12, struct.pack('<BBHiI', 1, 0, trend, level, 0))
         limit_ptr = self.limit_ptr(limit)
-        return {id: self.call(0x714a18, 0, preset_vector, limit_ptr, id, status, switch) for id in attributes}
+        return {id: self.call(self.symbols["_ZN8Unit_Set25getCardFacultyLvAttributeERKNSt6__ndk16vectorIN6Config21CapsulePresetCategoryENS0_9allocatorIS3_EEEERKNS2_18FacultyLimitConfigEhRKN5Proto19FacultyCategoryPairEPK25PropertyTraitEffectSwitch"], 0, preset_vector, limit_ptr, id, status, switch) for id in attributes}
 
     def initial_level(self, card, category):
-        return self.call(0x70917c, 0, card, category, 0, 0)
+        return self.call(self.symbols["_ZN8Unit_Set27getFacultyExcpetLevelForExpEjhxi"], 0, card, category, 0, 0)
 
     def panel(self, card, phase, state, properties, attributes):
         self.properties = {int(k): v for k, v in properties.items()}
         carry = self.alloc(40)
         self.write(carry + 8, 'IB', card, phase)
         self.vector([struct.pack('<BBHiI', int(k), 0, v['trend'], v['level'], 0) for k, v in state.items()], carry + 16)
-        return {id: self.call(0x712f74, 0, carry, id, 1) for id in attributes}
+        return {id: self.call(self.symbols["_ZN8Unit_Set29getCardCarryStatusLvAttributeERKN5Proto18CapsuleCarryStatusEib"], 0, carry, id, 1) for id in attributes}
 
     def component(self, card, phase, state, properties, category, attributes):
         """Native trait collection + one native faculty, for exhaustive catalog tests."""
@@ -423,8 +423,8 @@ class NativeOracle:
         for id, status in state.items():
             p = self.alloc(12, struct.pack('<BBHiI', int(id), 0, status['trend'], status['level'], 0))
             statuses[int(id)] = p
-            self.call(0x70c378, 0, phase_type, p, switch)
-        return {id: self.call(0x714d20, 0, phase_type, id, statuses[category], switch) for id in attributes}
+            self.call(self.symbols["_ZN8Unit_Set14storeTraitPairERKN5Proto16CapsulePhaseTypeERKNS0_19FacultyCategoryPairERNSt6__ndk16vectorIN6Config16TraitFacultyPairENS7_9allocatorISA_EEEE"], 0, phase_type, p, switch)
+        return {id: self.call(self.symbols["_ZN8Unit_Set25getCardFacultyLvAttributeERKN5Proto16CapsulePhaseTypeEhRKNS0_19FacultyCategoryPairEPK25PropertyTraitEffectSwitch"], 0, phase_type, id, statuses[category], switch) for id in attributes}
 
 
 if __name__ == '__main__':

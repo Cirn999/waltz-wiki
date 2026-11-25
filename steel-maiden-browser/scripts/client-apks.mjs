@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 export function clientApkPath(root) {
+  const selected = process.env.STEEL_ARCHIVE_APK;
+  if (selected) return path.resolve(selected);
   const directory = path.join(root, "apks");
   const dated = fs.existsSync(directory) ? fs.readdirSync(directory)
     .filter((name) => /^钢铁华尔兹_\d{6}\.apk$/.test(name)).sort().reverse()

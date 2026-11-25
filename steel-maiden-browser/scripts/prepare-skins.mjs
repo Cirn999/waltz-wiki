@@ -7,7 +7,7 @@ import { renderLive2dBatch } from "./render-live2d.mjs";
 
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const root = path.resolve(appRoot, "..");
-const bases = ["patch/_1.18", "package/preinitial", "Resources"];
+const bases = ["patch/_1.18", "Resources", "package/preinitial"];
 const exists = async (file) => { try { await fs.access(file); return true; } catch { return false; } };
 
 // Same RMC selection precedence as prepare-data: an explicitly referenced

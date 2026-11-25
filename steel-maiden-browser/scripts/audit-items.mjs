@@ -8,6 +8,9 @@ const browser = await chromium.launch({ headless:true, executablePath });
 const page = await browser.newPage({ viewport:{width:1440,height:1000} });
 const errors=[]; page.on("pageerror",(e)=>errors.push(e.message));
 const catalog = JSON.parse(await fs.readFile(new URL("../public/data/item-catalog.json", import.meta.url), "utf8"));
+const shellItem = catalog.items.find((item) => item.id === 4287);
+const shellExchanges = catalog.exchanges.filter((exchange) => shellItem.exchangeIds.includes(exchange.id));
+const shellMaidenRewards = shellExchanges.flatMap((exchange) => exchange.rewards).filter((reward) => reward.maidenId);
 try {
   await page.goto(process.argv[2] || "http://127.0.0.1:56501", {waitUntil:"networkidle"});
   await page.getByRole("button",{name:"手册",exact:true}).click();
@@ -33,8 +36,8 @@ try {
   await exchangeButton.click();
   const dialog = page.getByRole("dialog", {name:"水晶贝 · 兑换去向"});
   await dialog.waitFor();
-  assert.equal(await dialog.locator(".item-exchange-offer").count(),34);
-  assert.equal(await dialog.locator(".table-game-avatar").count(),26);
+  assert.equal(await dialog.locator(".item-exchange-offer").count(),shellItem.exchangeIds.length);
+  assert.equal(await dialog.locator(".table-game-avatar").count(),shellMaidenRewards.length);
   assert.match(await dialog.locator('[data-exchange-id="5429"] .item-exchange-costs').innerText(),/水晶贝.*×80/s);
   assert.equal(await page.evaluate(() => document.body.style.overflow),"hidden");
   const exSearch = dialog.getByRole("searchbox",{name:"搜索兑换内容"});

@@ -18,8 +18,8 @@ for (const [perspective, entries] of [["ground", rows], ["air", airRows]]) {
       assert.equal(row.name, source.name);
       assert.ok(!row.name.includes("·"), "Use native terrain name order without separators");
       assert.deepEqual(row.effects, perspective === "air" ? source.airEffects : source.effects);
-      assert.deepEqual(row.range, perspective === "air" ? source.altitudes : source.distances);
-      assert.equal(row.rangeIcon, perspective === "air" ? source.altitudeIcon : source.distanceIcon);
+      assert.deepEqual(row.range, source.distances);
+      assert.equal(row.rangeIcon, source.distanceIcon);
     }
     assert.equal(row.image, catalog.terrains[row.ids[0]].image, "Exactly one representative terrain image");
     for (const image of [row.image, row.rangeIcon, ...row.effects.map((effect) => effect.image)]) {

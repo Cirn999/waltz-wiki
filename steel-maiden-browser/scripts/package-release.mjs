@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const appRoot = resolve(scriptDir, "..");
 const projectRoot = resolve(appRoot, "..");
-const releaseRoot = join(projectRoot, "release");
+const releaseRoot = process.env.ARCHIVE_RELEASE_ROOT || join(projectRoot, "release");
 const clientRoot = join(appRoot, "dist", "client");
 const releaseName = (process.argv[2] || "钢舞姬战术档案库_发布版").replace(/^["']|["']$/g, "");
 const targetRoot = join(releaseRoot, releaseName);
@@ -17,11 +17,9 @@ const compiledLauncher = join(appRoot, "launcher", "launcher-new.exe");
 if (!existsSync(clientRoot)) throw new Error(`缺少构建产物：${clientRoot}`);
 if (existsSync(targetRoot) || existsSync(zipPath)) throw new Error(`发布目标已存在，请换一个版本名：${releaseName}`);
 
-const launchers = readdirSync(projectRoot).filter((name) => name.toLowerCase().endsWith(".exe"));
-if (!existsSync(compiledLauncher) && launchers.length !== 1) throw new Error(`项目根目录应当恰好有一个启动器，当前找到：${launchers.join("、") || "无"}`);
 // Package the freshly compiled launcher directly: a running development copy
 // can be locked by Windows and need not be replaced to produce a release.
-const launcherSource = existsSync(compiledLauncher) ? compiledLauncher : join(projectRoot, launchers[0]);
+const launcherSource = existsSync(compiledLauncher) ? compiledLauncher : join(projectRoot, "点我启动.exe");
 
 mkdirSync(releaseRoot, { recursive: true });
 mkdirSync(targetRoot);

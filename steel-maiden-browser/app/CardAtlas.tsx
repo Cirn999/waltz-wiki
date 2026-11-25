@@ -77,9 +77,9 @@ const CardFace = memo(function CardFace({ maiden, skin, onOpen }: { maiden: Atla
   </button>;
 });
 
-export default function CardAtlas({ rows, allRows, teamWorkspace, onTeamAction, mode, skinMode, limit, selectedTalents, onOpen, onLoadMore, onResetFilters, hasFilters }: {
-  rows: AtlasMaiden[]; mode: CardAtlasMode; skinMode: CardAtlasSkinMode; limit: number; onOpen: (id: number) => void;
-  onLoadMore: () => void; onResetFilters: () => void; hasFilters: boolean; selectedTalents: readonly string[];
+export default function CardAtlas({ rows, pinnedIds, allRows, teamWorkspace, onTeamAction, mode, skinMode, limit, selectedTalents, onOpen, onLoadMore, onResetFilters, hasFilters }: {
+  rows: AtlasMaiden[]; pinnedIds: number[]; mode: CardAtlasMode; skinMode: CardAtlasSkinMode; limit: number; onOpen: (id: number) => void;
+  onLoadMore: (displayed: number) => void; onResetFilters: () => void; hasFilters: boolean; selectedTalents: readonly string[];
   allRows: AtlasMaiden[]; teamWorkspace: AtlasTeamWorkspace; onTeamAction: (action: AtlasTeamAction) => void;
 }) {
   const team = activeAtlasTeam(teamWorkspace);
@@ -93,9 +93,15 @@ export default function CardAtlas({ rows, allRows, teamWorkspace, onTeamAction, 
   // Only applied talent filters affect avatars; keep vertical cards in ID order.
   // If the chosen talent is removed, immediately fall back to the first active one.
   const talentSortName = mode === "avatars" ? (selectedTalents.includes(preferredTalentSort) ? preferredTalentSort : selectedTalents[0] ?? "") : "";
-  const ordered = useMemo(() => talentSortName
-    ? [...rows].sort((left, right) => compareTalentLevels(left, right, talentSortName, true))
-    : orderedAtlasRows(rows), [rows, talentSortName]);
+  const pinnedIdSet = useMemo(() => new Set(pinnedIds), [pinnedIds]);
+  const ordered = useMemo(() => {
+    const result = talentSortName
+      ? [...rows].sort((left, right) => compareTalentLevels(left, right, talentSortName, true))
+      : orderedAtlasRows(rows);
+    const pinOrder = new Map(pinnedIds.map((id, index) => [id, index]));
+    return result.sort((left, right) =>
+      (pinOrder.get(left.id) ?? pinnedIds.length) - (pinOrder.get(right.id) ?? pinnedIds.length));
+  }, [rows, talentSortName, pinnedIds]);
   const [skinsById, setSkinsById] = useState<Record<string, MaidenSkin[]> | null>(null);
   const [skinError, setSkinError] = useState(false);
   const [skinRetry, setSkinRetry] = useState(0);
@@ -105,6 +111,7 @@ export default function CardAtlas({ rows, allRows, teamWorkspace, onTeamAction, 
   });
   const [menu, setMenu] = useState<CardSkinMenuTarget | null>(null);
   const entries = useMemo(() => atlasSkinEntries(ordered, skinMode, skinsById ?? {}, selections), [ordered, skinMode, skinsById, selections]);
+  const displayedLimit = Math.max(limit, entries.filter((entry) => pinnedIdSet.has(entry.maiden.id)).length);
   const separate = skinMode === "separate";
   useEffect(() => {
     let active = true;
@@ -147,7 +154,7 @@ export default function CardAtlas({ rows, allRows, teamWorkspace, onTeamAction, 
     <div className="atlas-results">
     {entries.length ? <>
       <ul className={`atlas-album ${mode === "avatars" ? "atlas-album-avatars" : "atlas-album-cards"}`}>
-        {(mode === "avatars" ? entries : entries.slice(0, limit)).map(({ key, maiden, skin }) => {
+        {(mode === "avatars" ? entries : entries.slice(0, displayedLimit)).map(({ key, maiden, skin }) => {
           return <li className="atlas-entry" data-maiden-id={maiden.id} data-skin-id={skin?.id ?? 0} key={key}
             title={separate ? `${maiden.tank} · ${skin?.name ?? "默认立绘"}` : skinsById?.[maiden.id]?.length ? `当前：${skin?.name ?? "默认立绘"} · 右键切换皮肤` : undefined}
             onContextMenu={(event) => openMenu(event, maiden)} onKeyDown={(event) => { if (event.key === "ContextMenu" || event.shiftKey && event.key === "F10") openMenu(event, maiden); }}>
@@ -167,7 +174,7 @@ export default function CardAtlas({ rows, allRows, teamWorkspace, onTeamAction, 
           </li>;
         })}
       </ul>
-      {mode === "cards" && limit < entries.length && <button type="button" className="load-more" onClick={onLoadMore}>继续载入 <span>{Math.min(48, entries.length - limit)} 张</span></button>}
+      {mode === "cards" && displayedLimit < entries.length && <button type="button" className="load-more" onClick={() => onLoadMore(displayedLimit)}>继续载入 <span>{Math.min(48, entries.length - displayedLimit)} 张</span></button>}
     </> : <div className="empty-state"><strong>没有符合条件的钢舞姬</strong><p>试试减少筛选条件，或换一个关键词。</p><button type="button" onClick={onResetFilters}>重置筛选</button></div>}
     </div></div>
     {!separate && menu && <CardSkinMenu target={menu} skins={menuSkins} selectedId={selectedAtlasSkin(menuSkins, selections[menu.id])?.id ?? 0}

@@ -58,7 +58,7 @@ try {
   }
   await reset();
   await page.getByRole("checkbox", { name: /显示已隐藏任务/ }).check();
-  assert.equal(await count(), 454);
+  assert.equal(await count(), data.tasks.length);
   for (const c of data.categories) {
     await page.getByRole("group", { name: "任务分类" }).getByRole("button", { name: new RegExp(`^${c.name}`) }).click();
     assert.equal(await count(), c.count);

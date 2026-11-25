@@ -13,12 +13,13 @@ from PIL import Image
 from export_ui_images import RECT_PATTERN, sprite_image
 from inspect_ui_attribute_icons import parse_ui_styles
 from client_archives import base_apk
+from decode_configs import config_path
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def main() -> None:
-    styles = {row["code"]: row for row in parse_ui_styles(ROOT / "patch/_1.18/config/UIStyle.dat")}
+    styles = {row["code"]: row for row in parse_ui_styles(config_path("UIStyle.dat"))}
     output = ROOT / "steel-maiden-browser/public/art/assessments"
     output.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(base_apk(ROOT)) as apk:
@@ -27,9 +28,13 @@ def main() -> None:
             style = styles[code]
             atlas_name = style["atlas"]
             patch = ROOT / "patch/_1.18/ui"
-            if (patch / f"{atlas_name}.plist").exists() and (patch / f"{atlas_name}.pn_").exists():
-                metadata = plistlib.loads((patch / f"{atlas_name}.plist").read_bytes())
-                raw = (patch / f"{atlas_name}.pn_").read_bytes()
+            resources = ROOT / "Resources/ui"
+            atlas = next((folder for folder in (patch, resources)
+                          if (folder / f"{atlas_name}.plist").is_file()
+                          and (folder / f"{atlas_name}.pn_").is_file()), None)
+            if atlas is not None:
+                metadata = plistlib.loads((atlas / f"{atlas_name}.plist").read_bytes())
+                raw = (atlas / f"{atlas_name}.pn_").read_bytes()
             else:
                 prefix = "assets/Resources/ui/"
                 metadata = plistlib.loads(apk.read(f"{prefix}{atlas_name}.plist"))
