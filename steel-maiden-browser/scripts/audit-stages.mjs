@@ -183,7 +183,7 @@ try {
     assert.ok(await dialog.locator(".stage-enemy").count() > 0);
     assert.match(await dialog.locator(".stage-distance").innerText(), /作战距离.*\d+ → \d+ → \d+/s);
     assert.equal(await dialog.locator(".stage-altitude").count(), 0);
-    assert.match(await dialog.locator(".stage-terrain-panel").innerText(), /航空常规弹与航空火箭弹按射程和作战距离判定/);
+    assert.doesNotMatch(await dialog.locator(".stage-terrain-panel").innerText(), /航空常规弹与航空火箭弹/);
     assert.equal(await dialog.locator(".stage-distance img").getAttribute("src"), "/art/stages/pvp-012.webp");
 
     await dialog.locator(".stage-enemy img").evaluateAll((images) => Promise.all(images.map((image) => image.decode())));

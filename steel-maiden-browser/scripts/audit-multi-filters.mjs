@@ -35,7 +35,7 @@ const reset = async () => {
 };
 const expectedLabels = ["车种（或）", "国籍（或）", "稀有度（或）", "图纸（或）", "弹种（且）", "引擎抗性（且）", "车体抗性（且）", "才艺（且）", "狩猎任务（单选）"];
 const assertFilterCoverage = async (context) => {
-  const labels = await page.locator(".filter-sheet .rank-filter-row > strong").allTextContents();
+  const labels = await page.locator(".filter-sheet .rank-filter-row > strong").evaluateAll((entries) => entries.map((entry) => entry.firstElementChild?.textContent ?? entry.textContent));
   for (const expected of expectedLabels) if (!labels.includes(expected)) throw new Error(`${context} missing ${expected}`);
   if (await page.locator('.filter-sheet button[aria-label="魔改费用筛选"]').count() !== 1) throw new Error(`${context} missing 魔改费用`);
   return labels;

@@ -60,6 +60,13 @@ try {
   await page.locator(".atlas-entry").first().waitFor();
   await checkIds(implemented.map((row) => row.id));
 
+  await input.fill("131");
+  await page.getByRole("option", { name: "WZ-131", exact: true }).waitFor();
+  assert.deepEqual(await page.locator(".archive-search-suggestions [data-maiden-id]").evaluateAll((options) => options.map((option) => option.textContent)), ["WZ-131"], "Numeric input must not match internal IDs");
+  const personRow = rows.find((row) => row.id === 6131);
+  await input.fill(personRow.person);
+  await page.locator('.archive-search-suggestions [data-maiden-id="6131"]').waitFor();
+
   await input.fill("122");
   for (const row of [su, isu, triple]) {
     const option = page.getByRole("option", { name: row.tank, exact: true });

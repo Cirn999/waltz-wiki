@@ -27,5 +27,6 @@ py("build_stage_catalog.py");
 js("prepare-stories.mjs");
 py("build_task_catalog.py");
 py("build_item_catalog.py");
+js("prepare-research-resources.mjs");
 py("build_base_catalog.py");
 js("audit-card-id-coverage.mjs", "--current");

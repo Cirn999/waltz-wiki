@@ -1,0 +1,18 @@
+.rank-filter-row .nation-other-trigger { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 5px 10px; }
+.rank-filter-row .nation-other-trigger > i { display: inline; width: auto; height: auto; background: none; color: inherit; font-size: 18px; }
+.nation-other-trigger b { min-width: 17px; padding: 2px 4px; border-radius: 5px; background: #c8f64b; color: #243c20; text-align: center; font-size: 9px; }
+.nation-filter-backdrop { position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; padding: 16px; background: #07150bb8; backdrop-filter: blur(4px); }
+.nation-filter-dialog { display: flex; flex-direction: column; width: min(620px, 100%); max-height: calc(100dvh - 32px); overflow: hidden; border: 1px solid #cbd8c8; border-radius: 16px; background: #f3f7ee; box-shadow: 0 24px 80px #07180b70; color: #233a2a; }
+.nation-filter-dialog > header { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #d8e2d4; }
+.nation-filter-dialog h3 { margin: 0; font-size: 17px; }
+.nation-filter-dialog header button { width: 32px; height: 32px; border: 1px solid #d0decb; border-radius: 7px; background: #fff; color: #254131; font-size: 23px; cursor: pointer; }
+.nation-options { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; padding: 16px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.nation-options button { display: flex; align-items: center; gap: 6px; min-width: 0; min-height: 48px; padding: 6px 8px; border: 1px solid #ceddca; border-radius: 9px; background: #fff; color: #29462f; font-size: 11px; font-weight: 750; text-align: left; cursor: pointer; }
+.nation-options img { flex: none; width: 30px; height: 30px; object-fit: contain; }
+.nation-options button.active { border-color: #456b2b; background: #e0f4af; box-shadow: inset 0 0 0 1px #91b847; }
+.nation-filter-dialog > footer { display: grid; flex: none; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 8px; width: auto; min-height: 60px; margin: 0; padding: 12px 16px; border-top: 1px solid #d8e2d4; background: #eaf0e2; }
+.nation-filter-dialog footer span { color: #6e806d; font-size: 11px; }
+.nation-filter-dialog footer button { min-height: 34px; padding: 4px 14px; border: 1px solid #c7d7c0; border-radius: 8px; background: #fff; color: #2b4431; font-size: 12px; cursor: pointer; }
+.nation-filter-dialog footer .nation-confirm { border-color: #b0d249; background: #cef75e; font-weight: 700; }
+.nation-filter-dialog button:focus-visible { outline: 2px solid #769b2f; outline-offset: 2px; }
+@media (max-width: 650px) { .nation-options { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px; padding: 12px; } }

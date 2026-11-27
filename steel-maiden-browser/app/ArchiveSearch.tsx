@@ -24,7 +24,7 @@ export default function ArchiveSearch({ value, onChange, onSearch, maidens, pinn
   const candidates = useMemo(() => {
     const needle = value.trim().toLowerCase();
     if (!needle) return [];
-    return maidens.filter((row) => [row.tank, row.person, String(row.id)].some((text) => text.toLowerCase().includes(needle)));
+    return maidens.filter((row) => [row.tank, row.person].some((text) => text.toLowerCase().includes(needle)));
   }, [maidens, value]);
   const pinned = useMemo(() => {
     const byId = new Map(maidens.map((row) => [row.id, row]));

@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 const baseUrl = process.argv[2] || "http://127.0.0.1:3000";
 const catalog = JSON.parse(await fs.readFile(new URL("../public/data/maidens.json", import.meta.url), "utf8"));
 const categories = ["engineOptions", "bodyOptions", "armorOptions"];
-const maiden = catalog.rows.find((row) => categories.every((key) => [1, 2, 3].every((rank) => row[key].some((option) => option.rank === rank))));
+const maiden = catalog.rows.find((row) => row.implemented && categories.every((key) => [1, 2, 3].every((rank) => row[key].some((option) => option.rank === rank))));
 if (!maiden) throw new Error("No maiden has first-, second-, and third-generation engine, body, and armor crafts");
 
 const playwrightRoot = path.join(process.env.LOCALAPPDATA ?? "", "ms-playwright");

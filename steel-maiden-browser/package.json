@@ -153,7 +153,14 @@
     "audit:implementation": "node scripts/audit-implementation-ui.mjs",
     "prepare:base": "python -B -X utf8 ../analysis_apk/tools/build_base_catalog.py",
     "verify:base": "python -B -X utf8 ../analysis_apk/tools/build_base_catalog.py --check && node scripts/verify-base.mjs",
-    "audit:search-pins": "node scripts/audit-search-pins.mjs"
+    "audit:search-pins": "node scripts/audit-search-pins.mjs",
+    "prepare:research-resources": "node scripts/prepare-research-resources.mjs",
+    "verify:research-resources": "node scripts/prepare-research-resources.mjs --check",
+    "audit:research-resources": "node scripts/audit-research-resources.mjs",
+    "prepare:craft-metadata": "node scripts/prepare-craft-metadata.mjs",
+    "verify:craft-metadata": "node scripts/prepare-craft-metadata.mjs --check",
+    "audit:detail-craft-traits": "node scripts/audit-detail-craft-traits.mjs",
+    "audit:filter-layout": "node scripts/audit-filter-layout.mjs"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",

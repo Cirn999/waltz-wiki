@@ -1,14 +1,20 @@
 .resistance-filter-group { grid-column: 1 / -1; min-width: 0; }
-.resistance-match-setting { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 0 11px 10px 87px; }
-.resistance-match-setting button { display: inline-flex; align-items: center; gap: 7px; padding: 4px 0; color: #405448; border: 0; border-radius: 5px; background: none; font-size: 10px; font-weight: 750; text-align: left; }
-.resistance-match-setting button > i { position: relative; flex: 0 0 auto; width: 28px; height: 16px; border: 1px solid #a4b29e; border-radius: 10px; background: #d8e0d3; }
-.resistance-match-setting button > i::after { position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #38512b33; content: ""; transition: transform .15s; }
+.resistance-filter-group .rank-filter-row { grid-template-columns: 132px minmax(0,1fr); min-height: 70px; }
+.resistance-filter-group .rank-filter-row > strong { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; min-width: 0; }
+.resistance-domain-control { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid #bdcbb7; border-radius: 7px; background: #e0e7d9; }
+.resistance-domain-control button { display: inline-flex; min-width: 42px; min-height: 25px; justify-content: center; padding: 3px 7px; border: 0; border-radius: 5px; background: transparent; color: #64765c; font-size: 10px; }
+.resistance-domain-control button[aria-pressed="true"] { color: #f0f7eb; background: #294d35; }
+.resistance-match-setting { display: block; }
+.resistance-match-setting button { display: inline-flex; min-width: 0; min-height: 27px; align-items: center; gap: 5px; padding: 3px 0; color: #405448; border: 0; border-radius: 5px; background: none; font-size: 9px; font-weight: 750; white-space: nowrap; text-align: left; }
+.resistance-match-setting button > i { position: relative; flex: 0 0 auto; width: 24px; height: 14px; border: 1px solid #a4b29e; border-radius: 10px; background: #d8e0d3; }
+.resistance-match-setting button > i::after { position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #38512b33; content: ""; transition: transform .15s; }
 .resistance-match-setting button[aria-checked="true"] { color: #286239; }
 .resistance-match-setting button[aria-checked="true"] > i { border-color: #72922b; background: var(--acid); }
-.resistance-match-setting button[aria-checked="true"] > i::after { transform: translateX(12px); background: #284128; }
-.resistance-match-setting button:focus-visible { outline: 2px solid #608c30; outline-offset: 3px; }
-.resistance-match-setting small { color: #6c7e6c; font-size: 9px; line-height: 1.5; }
+.resistance-match-setting button[aria-checked="true"] > i::after { transform: translateX(10px); background: #284128; }
+.resistance-domain-control button:focus-visible, .resistance-match-setting button:focus-visible { outline: 2px solid #608c30; outline-offset: 3px; }
 @media (max-width: 700px) {
-  .resistance-match-setting { padding-left: 11px; }
-  .resistance-match-setting button { min-height: 32px; }
+  .resistance-filter-group .rank-filter-row { grid-template-columns: 112px minmax(0,1fr); gap: 8px; }
+  .resistance-filter-group .rank-filter-row > strong { align-self: start; padding-top: 5px; }
+  .resistance-domain-control button { min-height: 30px; }
+  .resistance-match-setting button { min-height: 32px; gap: 4px; font-size: 8px; }
 }

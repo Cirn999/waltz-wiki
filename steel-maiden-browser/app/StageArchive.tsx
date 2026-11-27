@@ -6,7 +6,6 @@ import type { IncomeCatalog, IncomeResult, IncomeSettings, ScoreRange } from "./
 import type { EntryRequirement, Reward, StageCatalog, StageMap, StageNode } from "./stageTypes";
 import StageYieldOverview from "./StageYieldOverview";
 import { loadStageCatalog } from "./stageCatalogData";
-import { aviationRangeNotice } from "./terrainHandbook";
 import "./stages.css";
 
 function IncomeControls({ catalog, settings, onChange, saved, showProgress = true }: { catalog: IncomeCatalog; settings: IncomeSettings; onChange: (value: IncomeSettings) => void; saved: boolean; showProgress?: boolean }) {
@@ -193,7 +192,6 @@ function MapDetail({ map, catalog, onClose, settings, onSettingsChange, saved, n
 
             </div>
           </div>
-          <p>{aviationRangeNotice}</p>
           <h5>地形效果 / Debuff</h5>
           <div className="stage-effects">{terrain.effects.map((effect, i) => <div key={`${effect.name}-${i}`}><b><img src={effect.image} alt="" />{effect.name}</b><p>{effect.description}</p></div>)}</div>
         </section>

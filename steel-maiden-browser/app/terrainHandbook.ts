@@ -1,7 +1,5 @@
 import type { Terrain } from "./stageTypes";
 
-export const aviationRangeNotice = "航空常规弹与航空火箭弹按射程和作战距离判定，电波、湍流等空钢地形效果仍然生效。";
-
 export type TerrainPerspective = "ground" | "air";
 export type HandbookTerrain = {
   ids: number[];

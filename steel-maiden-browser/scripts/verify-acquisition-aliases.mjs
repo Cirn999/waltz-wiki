@@ -54,4 +54,11 @@ assert.equal(byId.get(6242).acquisition.length, 4);
 assert.ok(byId.get(7007).acquisition.some((row) => row.label === "博物馆"));
 assert.ok(byId.get(7007).acquisition.some((row) => row.label === "再制商店"), "Distinct event/shop rules remain, even with identical material prices");
 assert.ok(data.rows.some((row) => row.acquisition.some((route) => route.label === "兑换处" && route.details.includes("彼得洛夫特许证 ×8"))), "Unrelated exchange preserved");
+for (const maiden of data.rows.filter((row) => row.acquisition.some((route) => route.label === "特勤局精英"))) {
+  assert.ok(!maiden.acquisition.some((route) => route.label === "兑换处" && route.details.some((detail) => detail.includes("特勤局胸徽"))), `${maiden.tank}: Agency Elite badge route must appear once`);
+}
+const isu1222 = data.rows.find((row) => row.tank === "ISU-122-2");
+assert.ok(isu1222);
+assert.ok(!isu1222.acquisition.some((route) => route.details.some((detail) => /喂食|低概率/.test(detail))));
+assert.ok(isu1222.acquisition.some((route) => route.kind === "exchange" && route.details.some((detail) => detail.includes("水晶贝"))));
 console.log(JSON.stringify({ checked: data.rows.length, deduplicated: changed.length, ids: changed, distinctOffersPreserved: true }));

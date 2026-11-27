@@ -72,7 +72,7 @@ try {
     assert.equal(await page.locator(".terrain-archive").getAttribute("data-perspective"), perspective);
     await checkCards(perspective);
     if (perspective === "air") {
-      assert.match(await page.locator(".terrain-archive").innerText(), /航空常规弹与航空火箭弹按射程和作战距离判定/);
+      assert.doesNotMatch(await page.locator(".terrain-archive").innerText(), /航空常规弹与航空火箭弹/);
       await search.fill("草地丘陵");
       assert.equal(await cards.count(), 1);
       assert.deepEqual(await cards.locator(".terrain-effect-list h4").allTextContents(), ["干燥", "静电", "风阻"]);

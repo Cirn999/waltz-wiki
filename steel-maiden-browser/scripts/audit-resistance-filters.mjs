@@ -15,7 +15,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 page.setDefaultTimeout(20000);
 const errors = [];
 page.on("pageerror", (error) => errors.push(error.message));
-const modeName = "允许跨引擎／车体匹配抗性";
+const modeName = "允许跨装备匹配";
 const ids = (rows) => rows.map((r) => r.id).sort((a, b) => a - b);
 const expected = (field, names, mixed = false) => implemented.filter((row) => {
   const profiles = row[field].map((option) => new Set(option.resistance));

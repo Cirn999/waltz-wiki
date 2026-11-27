@@ -8,6 +8,7 @@ import { prepareRestoredGameIcons } from "./restored-game-icons.mjs";
 import { createHuntTraitsIndex } from "./hunt-traits.mjs";
 import { prepareTablePortraits } from "./prepare-table-portraits.mjs";
 import { deduplicateAcquisitionShops } from "./acquisition-shop-aliases.mjs";
+import { createCraftMetadata } from "./craft-metadata.mjs";
 
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const prepareScriptPath = fileURLToPath(import.meta.url);
@@ -17,7 +18,6 @@ const outputDataPath = path.join(appRoot, "public", "data", "maidens.json");
 const growthCurvesSourcePath = path.join(projectRoot, "analysis_apk", "output", "growth_curves", "growth_curves.json");
 const growthCurvesOutputPath = path.join(appRoot, "public", "data", "growth-curves.json");
 const acquisitionSourcePath = path.join(projectRoot, "analysis_apk", "output", "acquisition_analysis_v2_outfits", "acquisition_paths_preliminary.json");
-const acquisitionOverridePath = path.join(appRoot, "scripts", "overrides", "acquisition-routes.json");
 const researchTreePath = path.join(appRoot, "public", "data", "research-tree.json");
 const equipmentCatalogSourcePath = path.join(projectRoot, "analysis_apk", "output", "equipment_catalog", "equipment_catalog.json");
 const equipmentCatalogOutputPath = path.join(appRoot, "public", "data", "equipment-catalog.json");
@@ -366,7 +366,7 @@ function normalizeShopName(value) {
   return String(value ?? "").replace(/\s+/g, "").trim();
 }
 
-function acquisitionRoutesFor(cardId, tank, acquisitionById, researchTargetIds, acquisitionOverrides) {
+function acquisitionRoutesFor(cardId, tank, acquisitionById, researchTargetIds) {
   const sourceCard = acquisitionById.get(Number(cardId)) ?? { routes: {} };
   const grouped = new Map();
   const addRoute = (kind, label, details = []) => {
@@ -378,10 +378,6 @@ function acquisitionRoutesFor(cardId, tank, acquisitionById, researchTargetIds, 
   };
 
   if (researchTargetIds.has(Number(cardId))) addRoute("research", "研发");
-  for (const route of acquisitionOverrides.get(Number(cardId)) ?? []) {
-    addRoute(String(route.kind ?? "source"), String(route.label ?? "公告确认"), route.details ?? []);
-  }
-
   const nativeChapterDetails = uniqueText((sourceCard.routes?.getway ?? [])
     .filter((row) => row.mode === "LOOT" && row.chapterCode)
     .map((row) => `${row.chapterCode} ${row.chapterName || "关卡"}`));
@@ -412,6 +408,7 @@ function acquisitionRoutesFor(cardId, tank, acquisitionById, researchTargetIds, 
   const giftShops = new Set(["特遣部队", "特别优惠", "限量特卖", "戊戌贺礼"]);
 
   const shopRows = deduplicateAcquisitionShops(sourceCard.routes?.shop ?? []);
+  const hasAgencyEliteRoute = shopRows.some((row) => normalizeShopName(row.shopName) === "特勤局精英");
   const hasCurrentMercenaryRoute = shopRows.some((row) =>
     ["佣兵基地", "招募站"].includes(normalizeShopName(row.shopName))
     && !(row.campaignLabels ?? []).length
@@ -445,15 +442,14 @@ function acquisitionRoutesFor(cardId, tank, acquisitionById, researchTargetIds, 
       continue;
     }
     if (shop === "兑换处") {
+      // The badge exchange is the same route as the named Agency Elite menu.
+      if (hasAgencyEliteRoute && costs.length && costs.every((cost) =>
+        Number(cost.fundId) === 4319 || cost.name === "特勤局胸徽")) continue;
       addRoute("exchange", "兑换处", costPlanDetails);
       continue;
     }
     if (shop === "特战招募" || shop === "特勤局精英") {
       addRoute("source", shop, [`限时活动 → 资材特卖 → ${shop}`, ...(row.hasGenericExchangeAlias ? costPlanDetails : [])]);
-      continue;
-    }
-    if (costNames.some((name) => name.includes("水晶贝"))) {
-      addRoute("exchange", "掌中饕餮", costDetails.map((detail) => `${detail}兑换`));
       continue;
     }
     if (costNames.some((name) => name.includes("冰晶涂层") || name.includes("水晶涂层"))) {
@@ -466,8 +462,7 @@ function acquisitionRoutesFor(cardId, tank, acquisitionById, researchTargetIds, 
       || /(特供精英|特种精英|礼包|限定)/.test(commodity);
     if (isGift) {
       let purchasePath;
-      if (tank === "261-2工程") purchasePath = `限时活动 → 夏季限定 → ${commodity || tank}`;
-      else if (shop === "特遣部队") purchasePath = `限时活动 → 资材特卖 → 特遣部队 → ${commodity || tank}`;
+      if (shop === "特遣部队") purchasePath = `限时活动 → 资材特卖 → 特遣部队 → ${commodity || tank}`;
       else if (shop === "限量特卖") purchasePath = `限时活动 → 资材特卖 → 限量特卖 → ${commodity || tank}`;
       else if (shop === "戊戌贺礼") purchasePath = `限时活动 → 戊戌贺礼 → ${commodity || tank}`;
       else if (campaigns.some((label) => label.includes("礼包"))) purchasePath = `限时活动 → ${campaigns.find((label) => label.includes("礼包"))} → ${commodity || tank}`;
@@ -528,12 +523,11 @@ if (process.argv.includes("--acquisition-only")) {
   const dataset = JSON.parse(await fs.readFile(outputDataPath, "utf8"));
   const acquisition = JSON.parse(await fs.readFile(acquisitionSourcePath, "utf8"));
   const acquisitionById = new Map(acquisition.cards.map((card) => [Number(card.cardId), card]));
-  const overrides = new Map(Object.entries(JSON.parse(await fs.readFile(acquisitionOverridePath, "utf8"))).map(([id, routes]) => [Number(id), routes]));
   const research = JSON.parse(await fs.readFile(researchTreePath, "utf8"));
   const targets = new Set(research.recipes.map((recipe) => Number(recipe.targetId)));
   const changed = [];
   for (const row of dataset.rows) {
-    const routes = acquisitionRoutesFor(row.id, row.tank, acquisitionById, targets, overrides);
+    const routes = acquisitionRoutesFor(row.id, row.tank, acquisitionById, targets);
     if (JSON.stringify(routes) !== JSON.stringify(row.acquisition)) changed.push({ id: row.id, tank: row.tank, before: row.acquisition.length, after: routes.length });
     row.acquisition = routes;
   }
@@ -549,8 +543,6 @@ const implementationRoster = JSON.parse(await fs.readFile(path.join(appRoot, "pu
 const implementationById = new Map(implementationRoster.rows.map((row) => [row.id, row]));
 const acquisitionSource = JSON.parse(await fs.readFile(acquisitionSourcePath, "utf8"));
 const acquisitionById = new Map(acquisitionSource.cards.map((card) => [Number(card.cardId), card]));
-const acquisitionOverrides = new Map(Object.entries(JSON.parse(await fs.readFile(acquisitionOverridePath, "utf8")))
-  .map(([cardId, routes]) => [Number(cardId), routes]));
 const researchTree = JSON.parse(await fs.readFile(researchTreePath, "utf8"));
 const researchTargetIds = new Set(researchTree.recipes.map((recipe) => Number(recipe.targetId)));
 const roleModels = JSON.parse(await fs.readFile(roleModelsPath, "utf8"));
@@ -830,11 +822,12 @@ await fs.writeFile(equipmentCatalogOutputPath, JSON.stringify(equipmentCatalog))
 
 await prepareTechnologyCatalog();
 
+const enrichCraftMetadata = createCraftMetadata(technologyCatalogSource);
 function addResistanceIcons(options) {
-  return options.map((option) => ({
+  return enrichCraftMetadata(options.map((option) => ({
     ...option,
     resistanceDetails: option.resistance.map((name) => ({ name, image: resistanceIcons[name] ?? "" })),
-  }));
+  })));
 }
 
 let artCount = 0;
@@ -1044,7 +1037,7 @@ for (const row of source.rows) {
     appearanceId: row["外观ID"],
     image,
     headImage,
-    acquisition: acquisitionRoutesFor(id, row["坦克/载具名称"], acquisitionById, researchTargetIds, acquisitionOverrides),
+    acquisition: acquisitionRoutesFor(id, row["坦克/载具名称"], acquisitionById, researchTargetIds),
     magicOrdnance,
     magicSelectors,
     stats,

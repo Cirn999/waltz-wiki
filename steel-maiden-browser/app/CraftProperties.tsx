@@ -29,9 +29,9 @@ export default function CraftProperties({ item, ammunition = false, simulator = 
       {effects.length ? effects.map((effect, index) => {
         const description = (effect.description || traits.find((trait) => trait.name === effect.name)?.description || "").trim();
         const content = <>{effect.image ? <img src={effect.image} alt="" loading="lazy" /> : <i aria-hidden="true">◆</i>}<b>{effect.name}</b></>;
-        return simulator
-          ? <CraftTraitTooltip key={`${effect.name}-${index}`} name={effect.name} description={description}>{content}</CraftTraitTooltip>
-          : <span key={`${effect.name}-${index}`} className={!ammunition ? "game-icon-chip game-icon-resistance" : undefined} title={description || effect.name}>{content}</span>;
+        return <CraftTraitTooltip key={`${effect.name}-${index}`} name={effect.name}
+          description={description || (!simulator && !ammunition ? "当前客户端未提供该特性的释义。" : "")}
+          className={!simulator && !ammunition ? "game-icon-chip game-icon-resistance" : undefined}>{content}</CraftTraitTooltip>;
       }) : <span className="ammo-no-effect">{ammunition ? "无额外特效" : "无额外特性"}</span>}
     </span>
     <span className={simulator ? "sim-craft-stats" : `ammo-stats${ammunition ? "" : " craft-card-stats"}`}>

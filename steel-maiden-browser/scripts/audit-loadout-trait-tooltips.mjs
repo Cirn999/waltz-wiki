@@ -53,10 +53,13 @@ try {
   await page.locator(`tbody tr[data-maiden-id="${maiden.id}"] .table-avatar`).click();
   await page.locator(".detail-modal .detail-actions button", { hasText: "配装模拟" }).click();
   const sim = page.locator(".sim-shell");
+  await sim.locator("img").evaluateAll((images) => { for (const image of images) image.loading = "eager"; return Promise.all(images.map((image) => image.decode())); });
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   const tooltip = page.getByRole("tooltip");
   const showAndCheck = async (target, fixture) => {
     await target.hover();
     await tooltip.waitFor({ state: "visible" });
+    await page.waitForFunction((name) => document.querySelector('[role="tooltip"] strong')?.textContent === name, fixture.name);
     assert.equal(await tooltip.locator("strong").innerText(), fixture.name);
     assert.equal(await tooltip.locator("p").innerText(), fixture.description);
     assert.ok(await tooltip.evaluate((element) => {

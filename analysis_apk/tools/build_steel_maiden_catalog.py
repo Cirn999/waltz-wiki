@@ -109,7 +109,7 @@ NATION_TAG_CHINESE = {
     856: "巴西",
     857: "以色列",
     858: "捷克斯洛伐克/捷克",
-    859: "罗马尼亚",
+    859: "古巴",
     880: "伊拉克",
     881: "泰国",
     882: "波兰",
@@ -254,28 +254,12 @@ def entry_string(item: dict[str, Any], entry_id: int) -> str:
     )
 
 
-# Client BANKUAI technology tiers shared by engine/body/armor crafts.  The
-# corresponding phase tags are read by the same craft-selection UI.
-CRAFT_TECH_RANK_BY_TAG = {
-    116049: {"阶段序号": 1, "阶段": "一期"},
-    116050: {"阶段序号": 2, "阶段": "二期"},
-    116051: {"阶段序号": 3, "阶段": "三期"},
-    116031: {"阶段序号": 1, "阶段": "一期"},
-    116032: {"阶段序号": 2, "阶段": "二期"},
-    116033: {"阶段序号": 3, "阶段": "三期"},
-    116037: {"阶段序号": 1, "阶段": "一期"},
-    116038: {"阶段序号": 2, "阶段": "二期"},
-    116039: {"阶段序号": 3, "阶段": "三期"},
-    116040: {"阶段序号": 1, "阶段": "一期"},
-    116041: {"阶段序号": 2, "阶段": "二期"},
-    116042: {"阶段序号": 3, "阶段": "三期"},
-    116043: {"阶段序号": 1, "阶段": "一期"},
-    116044: {"阶段序号": 2, "阶段": "二期"},
-    116045: {"阶段序号": 3, "阶段": "三期"},
-    116046: {"阶段序号": 1, "阶段": "一期"},
-    116047: {"阶段序号": 2, "阶段": "二期"},
-    116048: {"阶段序号": 3, "阶段": "三期"},
-}
+def build_craft_rank_map(styles, strings):
+    """Read craft generations from the client's current technology selection groups."""
+    labels = {1: "一期", 2: "二期", 3: "三期"}
+    return {tag: {"阶段序号": info["阶段序号"], "阶段": labels[info["阶段序号"]]}
+            for tag, info in build_ammo_rank_map(styles, strings).items()
+            if info["阶段序号"] in labels}
 
 
 def build_ammo_rank_map(
@@ -613,7 +597,7 @@ def main() -> None:
             if len(labels) == len(icons) == 1 and labels[0] and icons[0]:
                 resistance_codes.setdefault(normalized_label(labels[0]), icons[0])
     ammo_rank_by_tag = build_ammo_rank_map(styles, strings)
-    craft_rank_by_tag = CRAFT_TECH_RANK_BY_TAG
+    craft_rank_by_tag = build_craft_rank_map(styles, strings)
     ammo_effect_by_tag = build_ammo_effect_map(styles, strings)
     ammo_capsule_by_tag: dict[int, int] = {}
     for capsule in capsule_types:

@@ -18,6 +18,7 @@ import CraftProperties from "./CraftProperties";
 import AmmoEfficiency from "./AmmoEfficiency";
 import type { AmmoEfficiencyValues } from "./ammoEfficiencyData";
 import MagicCostFilter from "./MagicCostFilter";
+import NationFilter from "./NationFilter";
 import AttributeCharts from "./AttributeCharts";
 import StageArchive from "./StageArchive";
 import TaskArchive from "./TaskArchive";
@@ -44,7 +45,7 @@ import { technologyPathPoints, technologyPrerequisites } from "./technologyPaths
 type StatKey = "durability" | "power" | "piercing" | "accuracy" | "armor" | "evasion" | "stealth" | "recon" | "economy" | "potential";
 type StatSet = Record<StatKey, number | null>;
 type Grade = { grade: string; value: number | null };
-type NamedIcon = { name: string; image: string };
+type NamedIcon = { name: string; image: string; description?: string };
 type CraftOption = { id: number; name: string; resistance: string[]; resistanceDetails: NamedIcon[]; rank: number; rankLabel: string; image: string; stats: AmmoStat[] };
 type AmmoEffect = { name: string; description: string; kind: string; image: string };
 type AmmoStat = { key: string; value: number; effectType: number };
@@ -124,10 +125,11 @@ type Dataset = {
 };
 type ResearchRequirement = { cardId: number; obtained: boolean; generation: number | null; level: number | null; tank: string; person: string; stage: string; headImage: string };
 type ResearchResource = { fundId: number; name: string; amount: number; category: "silver" | "blueprint" | "equipment" | "material"; categoryName: string; icon: string; equipmentRank: number | null; equipmentGrade: string };
+type ResearchResourceAsset = { image: string; slotIcon?: string; level?: number; advanced?: boolean };
 type ResearchResourcePlan = { id: string; commanderLevel: number | null; resources: ResearchResource[]; ruleIds: number[]; hasPermanentVariant: boolean; hasLimitedVariant: boolean };
 type ResearchRecipe = { id: string; targetId: number; target: Pick<Maiden, "tank" | "person" | "stage" | "className" | "nation" | "headImage">; requirements: ResearchRequirement[]; resourcePlans: ResearchResourcePlan[]; ruleIds: number[]; hasPermanentVariant: boolean; hasLimitedVariant: boolean };
 type ResearchNode = { id: number; tank: string; person: string; nation: string; className: string; stage: string; rarity: string; headImage: string; upstreamRecipeIds: string[]; downstream: { recipeId: string; targetId: number }[] };
-type ResearchDataset = { meta: { source: string; recipeSemantics: string; resourcePlanSemantics: string; rawRuleCount: number; recipeCount: number; resourcePlanCount: number; resourceItemCount: number; nodeCount: number; targetCount: number; edgeCount: number; prerequisiteCountDistribution: Record<string, number> }; nodes: ResearchNode[]; recipes: ResearchRecipe[] };
+type ResearchDataset = { resourceAssets: Record<string, ResearchResourceAsset>; meta: { source: string; recipeSemantics: string; resourcePlanSemantics: string; rawRuleCount: number; recipeCount: number; resourcePlanCount: number; resourceItemCount: number; nodeCount: number; targetCount: number; edgeCount: number; prerequisiteCountDistribution: Record<string, number> }; nodes: ResearchNode[]; recipes: ResearchRecipe[] };
 type EquipmentMaterial = { fundId: number; name: string; amount: number; equipment: boolean; level: number | null; icon: string };
 type EquipmentEffect = { skillId: number; templateId: number; value: number; name: string; description: string; text: string };
 type EquipmentHiddenStats = { fireproof: number; homogeneity: number; coverage: number };
@@ -145,13 +147,14 @@ type TechnologyDataset = { source: Record<string, string>; categories: { name: s
 type ColonizationKey = "durability" | "evasion" | "accuracy" | "armor" | "piercing" | "power";
 type ColonizationBonuses = Record<ColonizationKey, number[]>;
 type ColonizationDataset = { source: Record<string, string>; semantics: string; maxLevel: number; rows: Record<string, ColonizationBonuses> };
-type Filters = { nation: string[]; className: string[]; rarity: string[]; stage: string[]; magicCost: string[]; ammo: string[]; engineResistance: string[]; bodyResistance: string[]; talents: string[]; huntTraits: string; includeUnimplemented: boolean; allowCrossCraftResistance: boolean };
-type MultiFilterKey = Exclude<keyof Filters, "huntTraits" | "includeUnimplemented" | "allowCrossCraftResistance">;
+type ResistanceDomain = "ground" | "air";
+type Filters = { resistanceDomain: ResistanceDomain; nation: string[]; className: string[]; rarity: string[]; stage: string[]; magicCost: string[]; ammo: string[]; engineResistance: string[]; bodyResistance: string[]; talents: string[]; huntTraits: string; includeUnimplemented: boolean; allowCrossCraftResistance: boolean };
+type MultiFilterKey = Exclude<keyof Filters, "huntTraits" | "includeUnimplemented" | "allowCrossCraftResistance" | "resistanceDomain">;
 type VisibleStatKey = Exclude<StatKey, "economy" | "potential">;
 type SortKey = VisibleStatKey | "id" | "tank" | "person" | "className" | "nation" | "rarity" | "stage" | "ammo" | "slots" | "engineResistance" | "bodyResistance" | "fireproof" | "homogeneity" | "coverage" | "talents";
 type RankResult = { rank: number; total: number } | null;
-type RankFilters = { classNames: string[]; nations: string[]; rarities: string[]; stages: string[]; magicCost: string[]; ammunition: string[]; engineResistances: string[]; bodyResistances: string[]; talents: string[]; huntTraits: string; includeUnimplemented: boolean; allowCrossCraftResistance: boolean };
-type RankFilterKey = Exclude<keyof RankFilters, "huntTraits" | "includeUnimplemented" | "allowCrossCraftResistance">;
+type RankFilters = { resistanceDomain: ResistanceDomain; classNames: string[]; nations: string[]; rarities: string[]; stages: string[]; magicCost: string[]; ammunition: string[]; engineResistances: string[]; bodyResistances: string[]; talents: string[]; huntTraits: string; includeUnimplemented: boolean; allowCrossCraftResistance: boolean };
+type RankFilterKey = Exclude<keyof RankFilters, "huntTraits" | "includeUnimplemented" | "allowCrossCraftResistance" | "resistanceDomain">;
 type RankFilterOption = { name: string; label?: string; image?: string; hideLabel?: boolean };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -183,7 +186,9 @@ function isMaidenDataset(value: unknown): value is Dataset {
   });
 }
 function isResearchDataset(value: unknown): value is ResearchDataset {
-  return isRecord(value) && isRecord(value.meta) && Array.isArray(value.nodes) && Array.isArray(value.recipes)
+  return isRecord(value) && isRecord(value.meta) && isRecord(value.resourceAssets)
+    && Object.values(value.resourceAssets).every((asset) => isRecord(asset) && typeof asset.image === "string")
+    && Array.isArray(value.nodes) && Array.isArray(value.recipes)
     && value.nodes.every((node) => isRecord(node) && typeof node.id === "number" && typeof node.tank === "string" && isStringArray(node.upstreamRecipeIds)
       && Array.isArray(node.downstream) && node.downstream.every((edge: unknown) => isRecord(edge) && typeof edge.recipeId === "string" && typeof edge.targetId === "number"))
     && value.recipes.every((recipe) => isRecord(recipe) && typeof recipe.id === "string" && typeof recipe.targetId === "number" && isRecord(recipe.target)
@@ -233,8 +238,8 @@ const statMeta: { key: VisibleStatKey; label: string; short: string }[] = [
   { key: "stealth", label: "隐蔽", short: "隐" },
   { key: "recon", label: "侦查", short: "侦" },
 ];
-const emptyFilters: Filters = { nation: [], className: [], rarity: [], stage: [], magicCost: [], ammo: [], engineResistance: [], bodyResistance: [], talents: [], huntTraits: "", includeUnimplemented: false, allowCrossCraftResistance: false };
-const emptyRankFilters: RankFilters = { classNames: [], nations: [], rarities: [], stages: [], magicCost: [], ammunition: [], engineResistances: [], bodyResistances: [], talents: [], huntTraits: "", includeUnimplemented: false, allowCrossCraftResistance: false };
+const emptyFilters: Filters = { resistanceDomain: "ground", nation: [], className: [], rarity: [], stage: [], magicCost: [], ammo: [], engineResistance: [], bodyResistance: [], talents: [], huntTraits: "", includeUnimplemented: false, allowCrossCraftResistance: false };
+const emptyRankFilters: RankFilters = { resistanceDomain: "ground", classNames: [], nations: [], rarities: [], stages: [], magicCost: [], ammunition: [], engineResistances: [], bodyResistances: [], talents: [], huntTraits: "", includeUnimplemented: false, allowCrossCraftResistance: false };
 
 type TableColumnKey = Exclude<SortKey, "person" | "className" | "rarity" | "stage">;
 type TableColumnDefinition = { key: TableColumnKey; label: string };
@@ -313,10 +318,10 @@ function searchable(row: Maiden) {
 }
 
 function activeMainFilterCount(filters: Filters) {
-  return Object.entries(filters).reduce((sum, [key, value]) => sum + (key === "allowCrossCraftResistance" ? 0 : Array.isArray(value) ? value.length : value ? 1 : 0), 0);
+  return Object.entries(filters).reduce((sum, [key, value]) => sum + (key === "allowCrossCraftResistance" || key === "resistanceDomain" ? 0 : Array.isArray(value) ? value.length : value ? 1 : 0), 0);
 }
 function activeRankFilterCount(filters: RankFilters) {
-  return Object.entries(filters).reduce((sum, [key, value]) => sum + (key === "allowCrossCraftResistance" ? 0 : Array.isArray(value) ? value.length : value ? 1 : 0), 0);
+  return Object.entries(filters).reduce((sum, [key, value]) => sum + (key === "allowCrossCraftResistance" || key === "resistanceDomain" ? 0 : Array.isArray(value) ? value.length : value ? 1 : 0), 0);
 }
 function sortValue(row: Maiden, key: Exclude<SortKey, "talents">, level: number): string | number {
   if (isDisplayedStatKey(key)) return row.stats[String(level)]?.[key] ?? -Infinity;
@@ -686,12 +691,13 @@ function ConfigurableMaidenTable({ rows, minimums, setMinimums, level, sortKey, 
   </div>;
 }
 
-function GroupedMaidenFilters<Key extends string>({ rows, selected, onToggle, maidens, magicCost, onMagicCostChange, includeUnimplemented, allowCrossCraftResistance, onCrossCraftResistanceChange }: {
+function GroupedMaidenFilters<Key extends string>({ rows, selected, onToggle, maidens, magicCost, onMagicCostChange, includeUnimplemented, allowCrossCraftResistance, onCrossCraftResistanceChange, resistanceDomain, onResistanceDomainChange }: {
   rows: { key: Key; label: string; options: RankFilterOption[] }[];
   selected: (key: Key) => string[]; onToggle: (key: Key, value: string) => void;
   maidens: Maiden[]; magicCost: string[]; onMagicCostChange: (values: string[]) => void;
   includeUnimplemented: boolean;
   allowCrossCraftResistance: boolean; onCrossCraftResistanceChange: (value: boolean) => void;
+  resistanceDomain: ResistanceDomain; onResistanceDomainChange: (value: ResistanceDomain) => void;
 }) {
   const costMeta = useMemo(() => {
     const counts: Record<string, number> = {}, stageIcons: Record<string, string> = {};
@@ -702,14 +708,40 @@ function GroupedMaidenFilters<Key extends string>({ rows, selected, onToggle, ma
     }
     return { counts, stageIcons };
   }, [maidens, includeUnimplemented]);
+  const resistanceNames = useMemo(() => {
+    const names = {
+      ground: { engine: new Set<string>(), body: new Set<string>() },
+      air: { engine: new Set<string>(), body: new Set<string>() },
+    };
+    for (const maiden of maidens) {
+      const group = names[maiden.classId >= 7 ? "air" : "ground"];
+      for (const option of maiden.engineOptions) for (const name of option.resistance) group.engine.add(name);
+      for (const option of maiden.bodyOptions) for (const name of option.resistance) group.body.add(name);
+    }
+    return names;
+  }, [maidens]);
   const stage = rows.find((row) => row.key === "stage" || row.key === "stages");
+  const engine = rows.find((row) => row.key === "engineResistance" || row.key === "engineResistances");
+  const body = rows.find((row) => row.key === "bodyResistance" || row.key === "bodyResistances");
+  const changeDomain = (domain: ResistanceDomain) => {
+    if (domain === resistanceDomain) return;
+    for (const [row, names] of [[engine, resistanceNames[domain].engine], [body, resistanceNames[domain].body]] as const) {
+      if (row) for (const name of selected(row.key)) if (!names.has(name)) onToggle(row.key, name);
+    }
+    onResistanceDomainChange(domain);
+  };
+  const domainControl = <span className="resistance-domain-control" role="group" aria-label="抗性适用类型">
+    <button type="button" aria-pressed={resistanceDomain === "ground"} onClick={() => changeDomain("ground")}>陆钢</button>
+    <button type="button" aria-pressed={resistanceDomain === "air"} onClick={() => changeDomain("air")}>空钢</button>
+  </span>;
+  const matchControl = <span className="resistance-match-setting"><button type="button" role="switch" aria-checked={allowCrossCraftResistance} title="允许同类抗性由不同引擎或不同车体合并满足" onClick={() => onCrossCraftResistanceChange(!allowCrossCraftResistance)}><i aria-hidden="true" /><span>允许跨装备匹配</span></button></span>;
   const renderRow = (row: (typeof rows)[number], compact?: "rarity" | "stage") => <MultiFilterRow key={row.key} label={row.label} options={row.options} selected={selected(row.key)} onToggle={(value) => onToggle(row.key, value)} compact={compact} />;
-  return <>{rows.map((row) => row === stage ? null : row.key === "rarity" || row.key === "rarities" ? <div className="filter-grade-row" key={row.key}>
+  return <>{rows.map((row) => row === stage || row === body ? null : row === engine ? <div className="resistance-filter-group" key={row.key}>
+    <MultiFilterRow label={row.label} options={row.options.filter((option) => resistanceNames[resistanceDomain].engine.has(option.name))} selected={selected(row.key)} onToggle={(value) => onToggle(row.key, value)} headingControls={domainControl} />
+    {body && <MultiFilterRow label={body.label} options={body.options.filter((option) => resistanceNames[resistanceDomain].body.has(option.name))} selected={selected(body.key)} onToggle={(value) => onToggle(body.key, value)} headingControls={matchControl} />}
+  </div> : row.key === "nation" || row.key === "nations" ? <NationFilter key={row.key} label={row.label} options={row.options} selected={selected(row.key)} onToggle={(value) => onToggle(row.key, value)} /> : row.key === "rarity" || row.key === "rarities" ? <div className="filter-grade-row" key={row.key}>
     {renderRow(row, "rarity")}{stage && renderRow(stage, "stage")}
     <MagicCostFilter selected={magicCost} onChange={onMagicCostChange} counts={costMeta.counts} stageIcons={costMeta.stageIcons} />
-  </div> : row.key === "bodyResistance" || row.key === "bodyResistances" ? <div className="resistance-filter-group" key={row.key}>
-    {renderRow(row)}
-    <div className="resistance-match-setting"><button type="button" role="switch" aria-checked={allowCrossCraftResistance} onClick={() => onCrossCraftResistanceChange(!allowCrossCraftResistance)}><i aria-hidden="true" /><span>允许跨引擎／车体匹配抗性</span></button><small>{allowCrossCraftResistance ? "同类抗性可由不同引擎或不同车体合并满足" : "所选引擎抗性须由同一引擎满足，所选车体抗性须由同一车体满足"}</small></div>
   </div> : renderRow(row))}</>;
 }
 
@@ -731,8 +763,8 @@ function SingleChoiceFilterRow({ label, options, selected, onSelect }: { label: 
   return <div className="rank-filter-row"><strong>{label}</strong><div>{options.map((option) => { const display = option.label ?? option.name; return <button key={option.name} title={display} aria-label={display} className={`${selected === option.name ? "active" : ""}${option.hideLabel ? " icon-only" : ""}`} aria-pressed={selected === option.name} onClick={() => onSelect(selected === option.name ? "" : option.name)}>{option.image ? <img src={option.image} alt="" loading="lazy" /> : <i>{display.slice(0, 1)}</i>}{!option.hideLabel && <span>{display}</span>}</button>; })}</div></div>;
 }
 
-function MultiFilterRow({ label, options, selected, onToggle, compact }: { label: string; options: RankFilterOption[]; selected: string[]; onToggle: (value: string) => void; compact?: "rarity" | "stage" }) {
-  return <div className={`rank-filter-row${compact ? ` filter-row-compact filter-row-${compact}` : ""}`}><strong>{label}</strong><div>{options.map((option) => { const display = option.label ?? option.name; return <button key={option.name} title={display} aria-label={display} className={`${selected.includes(option.name) ? "active" : ""}${option.hideLabel ? " icon-only" : ""}`} aria-pressed={selected.includes(option.name)} onClick={() => onToggle(option.name)}>{option.image ? <img src={option.image} alt="" loading="lazy" /> : <i>{display.slice(0, 1)}</i>}{!option.hideLabel && <span>{display}</span>}</button>; })}</div></div>;
+function MultiFilterRow({ label, options, selected, onToggle, compact, headingControls }: { label: string; options: RankFilterOption[]; selected: string[]; onToggle: (value: string) => void; compact?: "rarity" | "stage"; headingControls?: ReactNode }) {
+  return <div className={`rank-filter-row${compact ? ` filter-row-compact filter-row-${compact}` : ""}`}><strong><span>{label}</span>{headingControls}</strong><div>{options.map((option) => { const display = option.label ?? option.name; return <button key={option.name} title={display} aria-label={display} className={`${selected.includes(option.name) ? "active" : ""}${option.hideLabel ? " icon-only" : ""}`} aria-pressed={selected.includes(option.name)} onClick={() => onToggle(option.name)}>{option.image ? <img src={option.image} alt="" loading="lazy" /> : <i>{display.slice(0, 1)}</i>}{!option.hideLabel && <span>{display}</span>}</button>; })}</div></div>;
 }
 
 function CardFilterDialog({ title, description, onClose, onReset, onConfirm, children }: { title: string; description: string; onClose: () => void; onReset: () => void; onConfirm: () => void; children: ReactNode }) {
@@ -761,7 +793,7 @@ function AttributeChartWorkspace({ dataset, initialFilters, initialQuery, level,
   const [draft, setDraft] = useState(initialFilters);
   const [filterOpen, setFilterOpen] = useState(false);
   const candidates = useMemo(() => filterRankRows(dataset.rows, {
-    classNames: filters.className, nations: filters.nation, rarities: filters.rarity, stages: filters.stage,
+    resistanceDomain: filters.resistanceDomain, classNames: filters.className, nations: filters.nation, rarities: filters.rarity, stages: filters.stage,
     magicCost: filters.magicCost, ammunition: filters.ammo, engineResistances: filters.engineResistance,
     bodyResistances: filters.bodyResistance, talents: filters.talents, huntTraits: filters.huntTraits, includeUnimplemented: filters.includeUnimplemented,
     allowCrossCraftResistance: filters.allowCrossCraftResistance,
@@ -770,7 +802,7 @@ function AttributeChartWorkspace({ dataset, initialFilters, initialQuery, level,
   return <>
     <AttributeCharts allMaidens={dataset.rows} candidates={candidates} initialQuery={initialQuery} initialLevel={level} initialKind={kind} icons={dataset.attributeIcons} filterCount={activeMainFilterCount(filters)} filterOpen={filterOpen} onOpenFilters={() => { setDraft(filters); setFilterOpen(true); }} onClose={onClose} calculationLabel={calculationLabel} />
     {filterOpen && <CardFilterDialog title="图表车辆筛选" description="仅调整左侧可选车辆；不会清空已选车辆，也不会改变背景属性表的筛选。" onClose={() => setFilterOpen(false)} onReset={() => setDraft({ ...emptyFilters })} onConfirm={() => { setFilters(draft); setFilterOpen(false); }}><div className="rank-filter-board main-filter-board">
-      <GroupedMaidenFilters rows={filterRows} selected={(key) => draft[key]} onToggle={toggle} includeUnimplemented={draft.includeUnimplemented} maidens={dataset.rows} magicCost={draft.magicCost} onMagicCostChange={(magicCost) => setDraft((current) => ({ ...current, magicCost }))} allowCrossCraftResistance={draft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
+      <GroupedMaidenFilters rows={filterRows} selected={(key) => draft[key]} onToggle={toggle} includeUnimplemented={draft.includeUnimplemented} maidens={dataset.rows} magicCost={draft.magicCost} onMagicCostChange={(magicCost) => setDraft((current) => ({ ...current, magicCost }))} resistanceDomain={draft.resistanceDomain} onResistanceDomainChange={(resistanceDomain) => setDraft((current) => ({ ...current, resistanceDomain }))} allowCrossCraftResistance={draft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
       <MultiFilterRow label="才艺（且）" options={[...new Map(dataset.rows.flatMap((row) => row.talents.map((talent) => [talent.name, { name: talent.name, image: talent.image }]))).values()]} selected={draft.talents} onToggle={(value) => toggle("talents", value)} />
       <MaidenFilterLastRow huntOptions={dataset.facets.huntTraits.map((name) => ({ name }))} huntTraits={draft.huntTraits} onHuntChange={(huntTraits) => setDraft((current) => ({ ...current, huntTraits }))} includeUnimplemented={draft.includeUnimplemented} onImplementationChange={(includeUnimplemented) => setDraft((current) => ({ ...current, includeUnimplemented }))} />
     </div></CardFilterDialog>}
@@ -1019,7 +1051,7 @@ function DetailModal({ maiden, initialLevel, onClose, selected, onCompare, onOpe
       </div>
     </section>
     {rankFilterOpen && <CardFilterDialog title="属性排名筛选" description="车种、国籍、稀有度、图纸、魔改费用各项内取 OR；弹种、抗性、才艺取 AND；狩猎任务单选。" onClose={() => setRankFilterOpen(false)} onReset={() => setRankFilterDraft({ ...emptyRankFilters })} onConfirm={() => { setRankFilters({ ...rankFilterDraft, classNames: [...rankFilterDraft.classNames], nations: [...rankFilterDraft.nations], rarities: [...rankFilterDraft.rarities], stages: [...rankFilterDraft.stages], magicCost: [...rankFilterDraft.magicCost], ammunition: [...rankFilterDraft.ammunition], engineResistances: [...rankFilterDraft.engineResistances], bodyResistances: [...rankFilterDraft.bodyResistances], talents: [...rankFilterDraft.talents] }); setRankFilterOpen(false); }}>
-      <GroupedMaidenFilters rows={rankFilterRows} selected={(key) => rankFilterDraft[key]} onToggle={toggleRankFilterDraft} includeUnimplemented={rankFilterDraft.includeUnimplemented} maidens={allMaidens} magicCost={rankFilterDraft.magicCost} onMagicCostChange={(magicCost) => setRankFilterDraft((current) => ({ ...current, magicCost }))} allowCrossCraftResistance={rankFilterDraft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setRankFilterDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
+      <GroupedMaidenFilters rows={rankFilterRows} selected={(key) => rankFilterDraft[key]} onToggle={toggleRankFilterDraft} includeUnimplemented={rankFilterDraft.includeUnimplemented} maidens={allMaidens} magicCost={rankFilterDraft.magicCost} onMagicCostChange={(magicCost) => setRankFilterDraft((current) => ({ ...current, magicCost }))} resistanceDomain={rankFilterDraft.resistanceDomain} onResistanceDomainChange={(resistanceDomain) => setRankFilterDraft((current) => ({ ...current, resistanceDomain }))} allowCrossCraftResistance={rankFilterDraft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setRankFilterDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
       <MaidenFilterLastRow huntOptions={huntTraitOptions} huntTraits={rankFilterDraft.huntTraits} onHuntChange={(value) => setRankFilterDraft((current) => ({ ...current, huntTraits: value }))} includeUnimplemented={rankFilterDraft.includeUnimplemented} onImplementationChange={(includeUnimplemented) => setRankFilterDraft((current) => ({ ...current, includeUnimplemented }))} />
     </CardFilterDialog>}
   </div>;
@@ -2109,6 +2141,17 @@ function ResearchWorkspace({ data, maidens, mode, focusId, onOpenResearch, manua
   </>}</ResearchPortraitProvider>;
 }
 
+function ResearchResourceChip({ resource, asset }: { resource: ResearchResource; asset?: ResearchResourceAsset }) {
+  const equipmentLevel = resource.category === "equipment" ? asset?.level : undefined;
+  const label = (equipmentLevel ? `S${equipmentLevel} · ` : "") + resource.name + ` × ${number(resource.amount)}`;
+  return <span className={`research-resource is-icon ${resource.category}`} data-fund-id={resource.fundId} role="img" aria-label={label} title={label}>
+    {equipmentLevel !== undefined && asset
+      ? <EquipmentGameIcon image={asset.image} slotIcon={asset.slotIcon ?? ""} level={equipmentLevel} advanced={Boolean(asset.advanced)} compact />
+      : asset?.image ? <img className="research-resource-icon" src={asset.image} alt="" /> : <i aria-hidden="true">◆</i>}
+    <b>× {number(resource.amount)}</b>
+  </span>;
+}
+
 function ResearchTree({ data, focusId }: { data: ResearchDataset; focusId?: number | null }) {
   const nodeById = useMemo(() => new Map(data.nodes.map((node) => [node.id, node])), [data]);
   const recipeById = useMemo(() => new Map(data.recipes.map((recipe) => [recipe.id, recipe])), [data]);
@@ -2158,11 +2201,11 @@ function ResearchTree({ data, focusId }: { data: ResearchDataset; focusId?: numb
             <div className="requirement-grid">{recipe.requirements.map((requirement) => <button key={requirement.cardId} onClick={() => selectNode(requirement.cardId)}><ResearchHead node={{ id: requirement.cardId, tank: requirement.tank, headImage: requirement.headImage }} /><span><strong>{requirement.tank}</strong><small>{requirement.person}</small><em>{requirementText(requirement)}</em></span><i>#{requirement.cardId}</i></button>)}</div>
             <div className="research-costs">
               <div className="research-costs-title"><strong>指挥官与资源消耗</strong><span>{recipe.resourcePlans.length > 1 ? `${recipe.resourcePlans.length} 套配置变体，不累计；以游戏当前开放方案为准` : "以下资源同时消耗"}</span></div>
-              <div className="resource-plan-list">{recipe.resourcePlans.map((plan, planIndex) => <div className="resource-plan" key={plan.id}>
+              <div className="resource-plan-list">{recipe.resourcePlans.map((plan, planIndex) => <div className="resource-plan" data-plan-id={plan.id} key={plan.id}>
                 <div className="resource-plan-label"><b>{recipe.resourcePlans.length > 1 ? `方案 ${planIndex + 1}` : "研发条件"}</b>{planIndex > 0 && <i>ALT</i>}<span>配置 #{plan.ruleIds.join(" / ")}</span></div>
                 <div className="resource-chip-list">
                   <span className="research-resource commander"><small>指挥官等级</small><strong>{plan.commanderLevel ? `${plan.commanderLevel}级` : "未配置"}</strong></span>
-                  {plan.resources.map((resource) => <span className={`research-resource ${resource.category}`} key={`${plan.id}-${resource.fundId}`}><small>{resource.categoryName}{resource.equipmentGrade ? ` · ${resource.equipmentGrade}` : ""} · #{resource.fundId}</small><strong>{resource.equipmentGrade ? `${resource.equipmentGrade} · ` : ""}{resource.name}</strong><b>× {number(resource.amount)}</b></span>)}
+                  {plan.resources.map((resource) => <ResearchResourceChip key={`${plan.id}-${resource.fundId}`} resource={resource} asset={data.resourceAssets[resource.fundId]} />)}
                   {!plan.resources.length && <span className="research-resource material"><small>资源</small><strong>无静态消耗</strong></span>}
                 </div>
               </div>)}</div>
@@ -2662,7 +2705,7 @@ export default function Home() {
     {compareOpen && <CompareModal maidens={comparison} onClose={() => setCompareOpen(false)} onRemove={toggleCompare} />}
     {chartKind && <AttributeChartWorkspace dataset={commanderSimulation.active&&commanderDataset?commanderDataset:dataset} initialFilters={filters} initialQuery={query} level={level} kind={chartKind} filterRows={mainFilterRows} onClose={() => setChartKind(null)} calculationLabel={commanderCaption} />}
     {filterOpen && <CardFilterDialog title="钢舞姬筛选" description="车种、国籍、稀有度、图纸、魔改费用各项内取 OR；弹种、抗性、才艺取 AND；狩猎任务单选。" onClose={() => setFilterOpen(false)} onReset={() => setFilterDraft({ ...emptyFilters })} onConfirm={() => { setFilters({ ...filterDraft, nation: [...filterDraft.nation], className: [...filterDraft.className], rarity: [...filterDraft.rarity], stage: [...filterDraft.stage], magicCost: [...filterDraft.magicCost], ammo: [...filterDraft.ammo], engineResistance: [...filterDraft.engineResistance], bodyResistance: [...filterDraft.bodyResistance], talents: [...filterDraft.talents] }); setLimit(48); setFilterOpen(false); }}><div className="rank-filter-board main-filter-board">
-      <GroupedMaidenFilters rows={mainFilterRows} selected={(key) => filterDraft[key]} onToggle={(key, value) => setFilterDraft((current) => ({ ...current, [key]: current[key].includes(value) ? current[key].filter((item) => item !== value) : [...current[key], value] }))} includeUnimplemented={filterDraft.includeUnimplemented} maidens={dataset.rows} magicCost={filterDraft.magicCost} onMagicCostChange={(magicCost) => setFilterDraft((current) => ({ ...current, magicCost }))} allowCrossCraftResistance={filterDraft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setFilterDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
+      <GroupedMaidenFilters rows={mainFilterRows} selected={(key) => filterDraft[key]} onToggle={(key, value) => setFilterDraft((current) => ({ ...current, [key]: current[key].includes(value) ? current[key].filter((item) => item !== value) : [...current[key], value] }))} includeUnimplemented={filterDraft.includeUnimplemented} maidens={dataset.rows} magicCost={filterDraft.magicCost} onMagicCostChange={(magicCost) => setFilterDraft((current) => ({ ...current, magicCost }))} resistanceDomain={filterDraft.resistanceDomain} onResistanceDomainChange={(resistanceDomain) => setFilterDraft((current) => ({ ...current, resistanceDomain }))} allowCrossCraftResistance={filterDraft.allowCrossCraftResistance} onCrossCraftResistanceChange={(allowCrossCraftResistance) => setFilterDraft((current) => ({ ...current, allowCrossCraftResistance }))} />
       <MultiFilterRow label="才艺（且）" options={[...new Map(dataset.rows.flatMap((row) => row.talents.map((talent) => [talent.name, { name: talent.name, image: talent.image }]))).values()]} selected={filterDraft.talents} onToggle={(value) => setFilterDraft((current) => ({ ...current, talents: current.talents.includes(value) ? current.talents.filter((item) => item !== value) : [...current.talents, value] }))} />
       <MaidenFilterLastRow huntOptions={dataset.facets.huntTraits.map((name) => ({ name }))} huntTraits={filterDraft.huntTraits} onHuntChange={(value) => setFilterDraft((current) => ({ ...current, huntTraits: value }))} includeUnimplemented={filterDraft.includeUnimplemented} onImplementationChange={(includeUnimplemented) => setFilterDraft((current) => ({ ...current, includeUnimplemented }))} />
     </div></CardFilterDialog>}

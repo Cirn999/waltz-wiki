@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadStageCatalog } from "./stageCatalogData";
 import type { StageCatalog } from "./stageTypes";
-import { aviationRangeNotice, handbookTerrains, matchesTerrain, type TerrainPerspective } from "./terrainHandbook";
+import { handbookTerrains, matchesTerrain, type TerrainPerspective } from "./terrainHandbook";
 import "./terrains.css";
 
 export default function TerrainArchive() {
@@ -37,7 +37,6 @@ export default function TerrainArchive() {
       </div>
       <div className="terrain-results" role="status">显示 <b>{visible.length}</b> / {terrains.length} 张地形卡片{query && <button type="button" onClick={() => setQuery("")}>清除搜索</button>}</div>
     </div>
-    {perspective === "air" && <p className="terrain-variant-note">{aviationRangeNotice}</p>}
     {terrains.length > nameCounts.size && <p className="terrain-variant-note">同名地形在部分关卡的效果配置不同，以下分别列出，不合并叠加。</p>}
     {visible.length ? <div className="terrain-grid">{visible.map((terrain) => <article className="terrain-card" key={terrain.ids[0]} data-terrain-ids={terrain.ids.join(",")} aria-labelledby={`terrain-title-${terrain.ids[0]}`}>
       <header className="terrain-card-heading">
